@@ -162,18 +162,22 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .galerie figcaption{margin-top:16px;display:grid;gap:2px}
 .galerie figcaption b{font-family:var(--display);font-weight:400;font-size:19px}
 .galerie figcaption span{font-size:14px;color:rgba(247,243,236,.62)}
-.g1,.g2{grid-column:span 3}
-.g3,.g4,.g5{grid-column:span 2}
+.g1,.g2,.g3,.g4{grid-column:span 3}
 .defile{display:none;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--crema);margin-top:22px}
 
 /* Citation */
-.dos{display:grid;grid-template-columns:1fr 1fr;background:var(--avorio)}
+.dos{display:grid;grid-template-columns:1fr 1fr;background:var(--sabbia)}
 .dos > *{min-width:0}
 .dos img{width:100%;height:100%;object-fit:cover;object-position:50% 40%;max-height:860px}
 .dos-texte{display:flex;flex-direction:column;justify-content:center;gap:26px;padding-block:80px;padding-left:clamp(28px,7vw,110px);padding-right:var(--gxr)}
 .dos blockquote{margin:0;font-family:var(--display);font-size:clamp(34px,4.2vw,62px);line-height:1.1}
 .dos blockquote em{color:var(--tabacco)}
 .dos-texte p{max-width:40ch}
+#numero{grid-template-columns:1.15fr .85fr;background:var(--noce-scuro);color:var(--avorio)}
+#numero .eyebrow{color:var(--crema)}
+#numero blockquote em{color:var(--crema)}
+#numero .dos-texte p{color:rgba(247,243,236,.8)}
+#numero .lien{color:var(--crema)}
 
 /* Cinquante */
 .cent{padding-block:clamp(96px,13vw,180px);background:var(--sabbia);text-align:center}
@@ -237,7 +241,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   .hero-texte{min-height:calc(100svh - var(--head) - 36px);max-height:860px;padding-block:48px 44px;padding-left:var(--gx);gap:20px}
   .hero h1{font-size:clamp(40px,11vw,64px)}
   .hero p{font-size:16px}
-  .pourqui-grid,.nom-grid,.piece-grid,.dos,.pied{grid-template-columns:1fr}
+  .pourqui-grid,.nom-grid,.piece-grid,.dos,#numero,.pied{grid-template-columns:1fr}
   .pourqui figure{order:2}
   .piece-info{position:static}
   .piece-photos{margin-left:calc(-1 * var(--gx));margin-right:calc(-1 * var(--gxr))}
@@ -332,7 +336,17 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <div class="filet"></div>
       <span class="eyebrow">Il Silenzio</span>
       <h2>Ceux qui ont du goût n'ont rien <em>à prouver.</em></h2>
-      <p>Nocelli est né d'une idée simple : une belle pièce se reconnaît de près, jamais de loin. Pas de logo géant, pas de couleur qui crie. Une maille dense, une coupe nette, un nom brodé si discrètement qu'il faut s'approcher pour le lire.</p>
+      <p>Nocelli est né d'une idée simple : une belle pièce se reconnaît de près, jamais de loin. Pas de logo, pas de couleur qui crie. Une maille dense, une coupe nette, et le nom Nocelli caché à l'intérieur du col, avec le numéro de votre pièce.</p>
+    </div>
+  </section>
+
+  <section class="dos" id="numero">
+    <img src="img/etiquette-num.jpg" alt="Étiquette tissée au col du cardigan : NOCELLI, N° 01 / 50" style="height:auto;align-self:center;aspect-ratio:auto;max-height:none">
+    <div class="dos-texte">
+      <span class="eyebrow">Il Numero</span>
+      <blockquote>Il n'y en aura que cinquante. <em>Le vôtre porte son numéro.</em></blockquote>
+      <p>Pas de logo sur la poitrine. La seule signature de Nocelli est cachée au col : une étiquette tissée avec le numéro de votre pièce, de 01 à 50. Personne d'autre ne portera le même.</p>
+      <div><a class="lien" href="#liste">Réserver mon numéro</a></div>
     </div>
   </section>
 
@@ -369,8 +383,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
             </dl>
           </details>
           <details>
-            <summary>Signature</summary>
-            <p class="texte">NOCELLI brodé en fines capitales crème sur le cœur, étiquette tissée beige au col, numéro de la pièce à l'intérieur. Coloris Noce, brun noyer.</p>
+            <summary>Le numéro</summary>
+            <p class="texte">Aucun logo à l'extérieur. Une étiquette tissée beige au col porte le nom NOCELLI et le numéro de votre pièce, de 01 à 50. Coloris Noce, brun noyer.</p>
           </details>
           <details>
             <summary>Livraison</summary>
@@ -424,24 +438,15 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         <p>Le luxe discret se lit dans les détails. Chacun a été dessiné pour être touché avant d'être vu.</p>
       </div>
       <div class="galerie">
-        <figure class="g1"><div class="cadre"><img src="img/brode.jpg" alt="Broderie NOCELLI couleur crème sur la maille brune"></div><figcaption><b>La broderie</b><span>Fines capitales espacées, ton crème, sur le cœur.</span></figcaption></figure>
-        <figure class="g2"><div class="cadre"><img src="img/zip.jpg" alt="Zip métal et tirette du cardigan"></div><figcaption><b>Le zip</b><span>Métal patiné, double curseur, tirette gravée.</span></figcaption></figure>
-        <figure class="g3"><div class="cadre"><img src="img/etiquette.jpg" alt="Étiquette tissée beige NOCELLI au col"></div><figcaption><b>L'étiquette</b><span>Tissée, beige, au creux du col.</span></figcaption></figure>
-        <figure class="g4"><div class="cadre"><img src="img/cote.jpg" alt="Bord côte du col en maille"></div><figcaption><b>La côte</b><span>Col et poignets qui gardent leur tenue.</span></figcaption></figure>
-        <figure class="g5"><div class="cadre"><img src="img/maille.jpg" alt="Gros plan sur la maille unie brun noyer"></div><figcaption><b>La maille</b><span>Unie, dense, sans un seul motif.</span></figcaption></figure>
+        <figure class="g1"><div class="cadre"><img src="img/zip.jpg" alt="Zip métal et tirette du cardigan"></div><figcaption><b>Le zip</b><span>Métal patiné, double curseur, tirette gravée.</span></figcaption></figure>
+        <figure class="g2"><div class="cadre"><img src="img/etiquette-num.jpg" alt="Étiquette tissée beige au col : NOCELLI, N° 01 / 50"></div><figcaption><b>Le numéro</b><span>Tissé au col : NOCELLI, de N° 01 à N° 50.</span></figcaption></figure>
+        <figure class="g3"><div class="cadre"><img src="img/cote.jpg" alt="Bord côte du col en maille"></div><figcaption><b>La côte</b><span>Col et poignets qui gardent leur tenue.</span></figcaption></figure>
+        <figure class="g4"><div class="cadre"><img src="img/maille.jpg" alt="Gros plan sur la maille unie brun noyer"></div><figcaption><b>La maille</b><span>Unie, dense, sans un seul motif.</span></figcaption></figure>
       </div>
       <p class="defile">Faites glisser pour voir les détails</p>
     </div>
   </section>
 
-  <section class="dos">
-    <img src="img/logo.jpg" alt="Gros plan de la broderie NOCELLI sur la poitrine">
-    <div class="dos-texte">
-      <span class="eyebrow">Il Ricordo</span>
-      <blockquote>On ne le remarque pas. <em>On s'en souvient.</em></blockquote>
-      <p>Nocelli ne cherche pas à attirer le regard dans la rue. Il cherche à rester dans votre armoire dix ans, et dans la mémoire de ceux qui vous ont croisé.</p>
-    </div>
-  </section>
 
   <section class="cent" id="cent">
     <div class="wrap">
