@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nocelli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Nocelli, Prima Edizione. Cinquante cardigans en maille numérotés, CHF 139. Ouverture le mercredi 25 novembre à 19h00, heure suisse.">
+<meta name="description" content="Nocelli Cardigan Noce, 50 pièces numérotées, CHF 139. Ouverture le mercredi 25 novembre à 19h00, heure suisse.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Bodoni+Moda:opsz,wght@6..96,400&family=Jost:wght@300;400;500&display=swap">
@@ -195,9 +195,8 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .circolo .split-img{background:var(--sabbia);display:grid;place-items:center;padding:clamp(40px,5vw,80px)}
 .club-cartes{position:relative;aspect-ratio:1.25/1;max-width:540px;width:100%}
 .club-cartes .carte{position:absolute;width:72%;left:14%;top:26%}
-.club-cartes .carte:nth-child(1){transform:translate(-14%,-30%) rotate(-9deg)}
-.club-cartes .carte:nth-child(2){transform:translate(14%,-6%) rotate(5deg)}
-.club-cartes .carte:nth-child(3){transform:translate(-2%,24%) rotate(-2deg)}
+.club-cartes .carte:nth-child(1){transform:translate(-10%,-22%) rotate(-7deg)}
+.club-cartes .carte:nth-child(2){transform:translate(10%,14%) rotate(3deg)}
 .circolo .split-texte{align-items:flex-start;text-align:left}
 .circolo h2 em{color:var(--tabacco)}
 .formules-mini{list-style:none;margin:8px 0 0;padding:0;border-top:1px solid var(--filo);width:100%;max-width:460px}
@@ -323,7 +322,7 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
       <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><span></span></button>
       <nav class="gauche" aria-label="Sections">
         <a href="#piece">La pièce</a>
-        <a href="#cent">L'édition</a>
+        <a href="#cent">Commander</a>
       </nav>
     </div>
     <a class="marque" href="#haut" aria-label="Nocelli, accueil">Nocelli</a>
@@ -338,7 +337,7 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
   <ul>
     <li><a href="#piece">Le Cardigan Noce</a></li>
     <li><a href="#numero">Le numéro</a></li>
-    <li><a href="#cent">L'édition</a></li>
+    <li><a href="#cent">Commander</a></li>
     <li><a href="#liste">M'inscrire</a></li>
   </ul>
   <p>Prima Edizione · 50 pièces · CHF 139</p>
@@ -351,8 +350,8 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
       <img src="img/porte-dos.jpg" alt="Le même cardigan vu de dos, col montant côtelé">
     </div>
     <div class="hero-texte">
-      <span class="eyebrow">Prima Edizione · Autunno 2026</span>
-      <h1>Le vrai luxe <em>ne fait pas de bruit.</em></h1>
+      <span class="eyebrow">Prima Edizione · 50 pièces numérotées</span>
+      <h1>Le Cardigan Noce · CHF 139</h1>
       <a class="btn blanc" href="#liste">M'inscrire</a>
       <div class="compte compte-hero" data-compte>
         <span class="compte-date">Ouverture mercredi 25.11 · 19h00, heure suisse</span>
@@ -367,41 +366,11 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
     </div>
   </section>
 
-  <section class="vitrine" aria-labelledby="vitrine-titre">
-    <div class="wrap">
-      <div class="vitrine-tete">
-        <h2 class="titre" id="vitrine-titre">Découvrir la Prima Edizione</h2>
-      </div>
-      <div class="rangee" id="rangee">
-        <a class="produit" href="#piece">
-          <div class="cadre"><span class="pastille">50 pièces</span><img src="img/porte-face.jpg" alt="Le Cardigan Noce porté, vu de face"><img class="survol" src="img/cardigan.jpg" alt="" aria-hidden="true"></div>
-          <p class="nom-p">Le Cardigan Noce</p>
-          <p class="coloris">Noce</p>
-          <p class="prix">CHF 139</p>
-        </a>
-        <a class="produit" href="#piece">
-          <div class="cadre"><img src="img/porte-dos.jpg" alt="Le Cardigan Noce vu de dos"></div>
-          <p class="nom-p">Le col montant</p>
-          <p class="coloris">Côte doublée</p>
-          <p class="prix">Il tient seul</p>
-        </a>
-        <a class="produit" href="#numero">
-          <div class="cadre"><img src="video/teaser-poster.jpg" alt="Étiquette tissée au col : Nocelli, N° 1 / 50"></div>
-          <p class="nom-p">Le numéro au col</p>
-          <p class="coloris">N° 1 à N° 50</p>
-          <p class="prix">Chacun une seule fois</p>
-        </a>
-      </div>
-      <div class="pager" aria-hidden="true"><button type="button" id="prec" tabindex="-1">‹</button><span id="page">1 / 3</span><button type="button" id="suiv" tabindex="-1">›</button></div>
-      <div class="bas-lien"><a class="souligne" href="#piece">Voir la pièce</a></div>
-    </div>
-  </section>
-
   <section class="split numero" id="numero">
     <div class="split-texte">
       <span class="eyebrow">Il Numero</span>
-      <h2>Il n'y en aura que cinquante. <em>Le vôtre porte son numéro.</em></h2>
-      <p>Pas de logo sur la poitrine. La seule signature de Nocelli est cachée au col : une étiquette tissée avec le numéro de votre pièce, de 1 à 50. Personne d'autre ne portera le même.</p>
+      <h2>50 pièces, chacune numérotée au col.</h2>
+      <p>Pas de logo devant. Votre numéro, de 1 à 50, est tissé sur l'étiquette du col.</p>
       <a class="btn" href="#liste">M'inscrire</a>
     </div>
     <figure class="film" style="margin:0">
@@ -410,28 +379,28 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
   </section>
 
   <div class="bande" aria-label="Les détails">
-    <figure><img src="img/zip.jpg" alt="Zip métal et tirette du cardigan"><figcaption>Le zip<span>Métal, double curseur, tirette gravée N</span></figcaption></figure>
-    <figure><img src="img/cote.jpg" alt="Bord côte du col en maille"><figcaption>La côte<span>Col et poignets qui gardent leur tenue</span></figcaption></figure>
-    <figure><img src="img/maille.jpg" alt="Gros plan sur la maille unie brun noyer"><figcaption>La maille<span>Unie, dense, sans un seul motif</span></figcaption></figure>
+    <figure><img src="img/zip.jpg" alt="Zip métal et tirette du cardigan"><figcaption>Zip métal<span>Double curseur, tirette gravée N</span></figcaption></figure>
+    <figure><img src="img/cote.jpg" alt="Bord côte du col en maille"><figcaption>Col montant<span>En côte</span></figcaption></figure>
+    <figure><img src="img/maille.jpg" alt="Gros plan sur la maille unie brun noyer"><figcaption>Mérinos extrafin<span>Maille unie, douce</span></figcaption></figure>
   </div>
 
   <section class="split piece" id="piece">
     <div class="split-img"><img src="img/cardigan.jpg" alt="Le cardigan Nocelli à plat, vue de face, zip métal double curseur"></div>
     <div class="piece-info">
-      <span class="eyebrow">La Maglia · N° 001</span>
+      <span class="eyebrow">Prima Edizione</span>
       <h2>Le Cardigan Noce</h2>
       <div class="prix-ligne">
         <span class="montant">CHF 139</span>
         <span class="prix-note">Mérinos extrafin · 50 pièces numérotées</span>
       </div>
-      <p class="intro">Structuré comme une veste, doux comme un pull. Une maille unie, sans motif, qui ne gratte pas, pensée pour la mi-saison, de 10 à 18 degrés. Ajusté près du corps, jamais serré.</p>
+      <p class="intro">Cardigan zippé en mérinos extrafin, coupe ajustée. Pour la mi-saison, de 10 à 18 °C.</p>
       <div class="tailles-info">
         <span class="eyebrow">Tailles</span>
         <div class="chips" aria-label="Tailles disponibles"><span>S</span><span>M</span><span>L</span></div>
       </div>
       <div class="cta">
         <a class="btn plein" href="#liste">M'inscrire</a>
-        <small>Accès prioritaire par la liste privée. Aucun paiement maintenant.</small>
+        <small>Gratuit. Aucun paiement maintenant.</small>
       </div>
       <div class="fiche">
         <details open>
@@ -440,14 +409,14 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
             <dt>Maille</dt><dd>Laine mérinos extrafine, jersey uni 12 jauges</dd>
             <dt>Col</dt><dd>Montant, en côte</dd>
             <dt>Fermeture</dt><dd>Zip métal à double curseur, tirette gravée N</dd>
-            <dt>Épaules</dt><dd>Manches montées, épaule naturelle comme une veste</dd>
-            <dt>Poches</dt><dd>Aucune, pour une ligne nette</dd>
+            <dt>Manches</dt><dd>Montées</dd>
+            <dt>Poches</dt><dd>Aucune</dd>
             <dt>Finitions</dt><dd>Poignets et bas en côte, coutures remmaillées</dd>
           </dl>
         </details>
         <details>
           <summary>Le numéro</summary>
-          <p class="texte">Aucun logo à l'extérieur. Une étiquette tissée beige au col porte le nom Nocelli et le numéro de votre pièce, de 1 à 50. Coloris Noce, brun noyer.</p>
+          <p class="texte">Étiquette tissée au col : Nocelli, N° 1 à 50. Aucun logo à l'extérieur.</p>
         </details>
         <details>
           <summary>Livraison</summary>
@@ -459,49 +428,24 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
 
   <section class="service" id="cent">
     <div class="wrap">
-      <span class="eyebrow">Edizione Limitata</span>
-      <div class="chiffre" aria-label="50 pièces">50<sup>pièces</sup></div>
-      <h2>Cinquante pièces. Chacune porte son numéro.</h2>
-      <p class="sous">Trois tailles seulement, S, M et L. La liste privée passe toujours en premier.</p>
+      <h2>Comment commander</h2>
       <ol class="trois">
         <li>
           <svg viewBox="0 0 56 56" aria-hidden="true"><rect x="9" y="14" width="38" height="28" rx="1"/><path d="M9 15l19 15 19-15"/></svg>
-          <strong>La liste privée</strong>
-          <span>Inscrivez-vous. C'est gratuit et sans engagement.</span>
+          <strong>1. Inscrivez-vous</strong>
+          <span>E-mail et taille. Gratuit, sans engagement.</span>
         </li>
         <li>
           <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="29" r="17"/><path d="M28 18v11l7 5"/><path d="M24 8h8"/></svg>
-          <strong>Mercredi 25.11 · 19h00</strong>
-          <span>L'ouverture, heure suisse. Les inscrits sont prévenus avant tout le monde.</span>
+          <strong>2. Mercredi 25.11 · 19h00</strong>
+          <span>Vous recevez le lien de commande en premier.</span>
         </li>
         <li>
           <svg viewBox="0 0 56 56" aria-hidden="true"><rect x="10" y="18" width="36" height="20" rx="1"/><path d="M14 22h28v12H14z" stroke-dasharray="2 2"/><path d="M22 28h12"/></svg>
-          <strong>Votre numéro</strong>
-          <span>Cinquante pièces au total, livrées en Suisse en une semaine.</span>
+          <strong>3. Livraison</strong>
+          <span>En Suisse, en une semaine.</span>
         </li>
       </ol>
-    </div>
-  </section>
-
-  <section class="split pourqui" id="pourqui">
-    <div class="split-texte">
-      <span class="eyebrow">Per chi</span>
-      <h2>Pour celui qui entre dans une pièce <em>sans élever la voix.</em></h2>
-      <p>Pour celui qui préfère une seule belle pièce à dix pièces faciles. Qui s'habille pour lui, pas pour être vu. Pour ceux qui ont vingt ans et le goût de leurs grands-pères.</p>
-      <a class="btn" href="#piece">Découvrir la pièce</a>
-    </div>
-    <div class="split-img"><img src="img/porte-dos.jpg" alt="Le cardigan Nocelli vu de dos, col montant côtelé"></div>
-  </section>
-
-  <section class="nom" id="nom">
-    <div class="wrap">
-      <span class="eyebrow">Il Nome</span>
-      <div class="mot">Nocelli</div>
-      <div class="phon">[ no·tchè·li ] &nbsp;de <em>noce</em>, le noyer</div>
-      <div class="nom-texte">
-        <p>En italien, <strong>noce</strong> désigne la noix et le noyer. Le bois des tables de famille, des bibliothèques et des portes qu'on transmet sans les changer.</p>
-        <p>Un brun profond, chaud, qui se patine au lieu de s'user. C'est la couleur de notre première pièce et l'esprit de la maison : <strong>des choses faites pour durer, et pour être transmises.</strong></p>
-      </div>
     </div>
   </section>
 
@@ -510,8 +454,8 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
       <div class="boite">
         <div>
           <span class="eyebrow">Lista Privata</span>
-          <h2>Votre numéro vous attend peut-être.</h2>
-          <p class="sous">Soyez le premier informé de l'ouverture, le mercredi 25 novembre à 19h00, heure suisse. Les inscrits sont prévenus avant tout le monde.</p>
+          <h2>Inscrivez-vous</h2>
+          <p class="sous">Ouverture le mercredi 25 novembre à 19h00, heure suisse. Les inscrits reçoivent le lien en premier.</p>
           <div class="compte compte-liste" data-compte>
             <div class="compte-grille" role="timer" aria-live="off">
               <div><b data-u="j">--</b><span>Jours</span></div>
@@ -546,9 +490,9 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
           <div class="merci" id="merci" hidden>
             <span class="eyebrow">Grazie</span>
             <h3 id="merci-titre">Vous êtes sur la liste.</h3>
-            <p>Vous serez parmi les premiers prévenus de l'ouverture de la Prima Edizione. Gardez un œil sur votre boîte mail.</p>
+            <p>Vous recevrez le lien de commande le 25 novembre à 19h00.</p>
           </div>
-          <p class="mention-liste">Aucun paiement maintenant. Votre e-mail sert uniquement à vous prévenir des sorties Nocelli, et vous pouvez vous désinscrire à tout moment.</p>
+          <p class="mention-liste">Aucun paiement maintenant. Désinscription possible à tout moment.</p>
         </div>
       </div>
     </div>
@@ -559,11 +503,10 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
   <div class="wrap">
     <div class="pied">
       <div>
-        <h4>La maison</h4>
+        <h4>La pièce</h4>
         <ul>
           <li><a href="#piece">Le Cardigan Noce</a></li>
-          <li><a href="#pourqui">Pour qui</a></li>
-          <li><a href="#nom">Le nom</a></li>
+          <li><a href="#numero">Le numéro</a></li>
         </ul>
       </div>
       <div>
@@ -578,12 +521,11 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
         <ul>
           <li>Livraison en Suisse en une semaine</li>
           <li>Tailles S, M et L</li>
-          <li>Prix en CHF, TVA incluse</li>
         </ul>
       </div>
     </div>
     <a class="signature-pied" href="#haut">Nocelli</a>
-    <div class="bas"><span>© 2026 Nocelli · nocelli.ch</span><span>Maille d'esprit italien, pensée en Suisse</span></div>
+    <div class="bas"><span>© 2026 Nocelli · nocelli.ch</span><span>Prix en CHF, TVA incluse</span></div>
   </div>
 </footer>
 
@@ -619,19 +561,6 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
     new IntersectionObserver(function(es){es.forEach(function(e){vis.liste=e.isIntersecting;});maj();},{threshold:0.05}).observe(liste);
   }
   maj();
-
-  // Vitrine sur téléphone : 1 / 3 et flèches
-  var rangee=document.getElementById('rangee');
-  var page=document.getElementById('page');
-  var prec=document.getElementById('prec'),suiv=document.getElementById('suiv');
-  var n=rangee.children.length;
-  function idx(){var w=rangee.children[0].getBoundingClientRect().width+8;return Math.min(n-1,Math.max(0,Math.round(rangee.scrollLeft/w)));}
-  function majPage(){var i=idx();page.textContent=(i+1)+' / '+n;prec.disabled=i===0;suiv.disabled=i===n-1;}
-  function aller(d){var i=idx()+d;if(i<0||i>=n)return;rangee.scrollTo({left:rangee.children[i].offsetLeft-rangee.children[0].offsetLeft,behavior:'smooth'});}
-  rangee.addEventListener('scroll',majPage,{passive:true});
-  prec.addEventListener('click',function(){aller(-1);});
-  suiv.addEventListener('click',function(){aller(1);});
-  majPage();
 
   // Compte à rebours : 25 novembre 2026, 19h00 à Zurich (CET, UTC+1) = 18h00 UTC
   var DROP=Date.UTC(2026,10,25,18,0,0);
