@@ -80,42 +80,8 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .menu li a::after{content:"→";color:var(--tabacco);letter-spacing:0}
 .menu p{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--tabacco)}
 
-/* Hero : deux photos bord à bord */
-.hero{position:relative;color:var(--papier);overflow:hidden;background:var(--noce)}
-.hero-img{display:grid;grid-template-columns:1fr 1fr;height:clamp(560px,calc(100svh - var(--head) - 34px),940px)}
-.hero-img img{width:100%;height:100%;object-fit:cover;object-position:50% 14%;animation:respiro 18s var(--doux) both}
-.hero-img img + img{object-position:50% 10%}
-@keyframes respiro{from{transform:scale(1.06)}to{transform:scale(1)}}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(30,19,13,0) 40%,rgba(30,19,13,.28) 66%,rgba(30,19,13,.62) 100%);pointer-events:none}
-.hero-texte{position:absolute;z-index:1;left:0;right:0;bottom:0;display:grid;justify-items:center;text-align:center;gap:18px;padding-bottom:clamp(40px,6vh,72px);padding-left:var(--gx);padding-right:var(--gxr)}
-.hero-texte .eyebrow{color:var(--crema)}
-.hero h1{font-weight:300;font-size:clamp(40px,4.6vw,68px);line-height:1.04}
-.hero h1 em{font-weight:300}
-.hero .btn{margin-top:6px}
-.compte-hero{margin-top:10px}
-.compte-hero .compte-grille{display:flex;gap:22px;justify-content:center}
-.compte-hero .compte-grille div{display:flex;align-items:baseline;gap:5px}
-.compte-hero b{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1;font-variant-numeric:tabular-nums lining-nums}
-.compte-hero span{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--crema)}
-.compte-hero .compte-date{display:block;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--crema);margin-bottom:8px}
 .compte-fin{font-family:var(--serif);font-size:24px}
 
-/* Vitrine : la pièce sous trois angles */
-.vitrine{padding-block:clamp(48px,5vw,72px) clamp(56px,6vw,90px)}
-.vitrine-tete{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:22px}
-.rangee{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.produit{text-decoration:none;min-width:0}
-.produit .cadre{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--sabbia)}
-.produit img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s var(--doux),transform 1.4s var(--doux)}
-.produit .survol{opacity:0}
-.produit:hover .survol{opacity:1}
-.produit:hover img{transform:scale(1.02)}
-.pastille{position:absolute;z-index:1;top:12px;left:12px;background:var(--encre);color:var(--papier);font-size:8.5px;font-weight:400;letter-spacing:.2em;text-transform:uppercase;padding:5px 8px}
-.produit .nom-p{margin-top:14px;font-size:13px;font-weight:400}
-.produit .coloris{margin-top:10px;font-size:12px;color:var(--tabacco)}
-.produit .prix{font-size:12px;color:rgba(42,28,20,.7)}
-.pager{display:none}
-.vitrine .bas-lien{display:flex;justify-content:center;margin-top:34px}
 
 /* Panneaux partagés image / texte */
 .split{display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
@@ -127,17 +93,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .split-img{position:relative;min-height:560px;overflow:hidden}
 .split-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
-/* Il Numero */
-.film{background:var(--noce-scuro);display:grid;place-items:center;padding-block:clamp(0px,3vw,48px)}
-.film video{width:auto;height:min(86vh,820px);max-width:100%;aspect-ratio:9/16;object-fit:cover;background:var(--noce-scuro)}
 
-/* Bande de détails */
-.bande{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-.bande figure{position:relative;margin:0;overflow:hidden;aspect-ratio:16/10;background:var(--noce)}
-.bande img{width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform 1.6s var(--doux)}
-.bande figure:hover img{transform:scale(1.12)}
-.bande figcaption{position:absolute;left:16px;right:16px;bottom:14px;color:var(--papier);font-size:10px;font-weight:400;letter-spacing:.2em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.4)}
-.bande figcaption span{display:block;font-family:var(--serif);font-style:italic;font-size:16px;letter-spacing:0;text-transform:none;opacity:.85;margin-top:2px}
 
 /* La pièce */
 .piece{margin-top:8px}
@@ -238,6 +194,58 @@ form .btn{width:100%}
 .merci p{margin-top:12px;font-size:14px}
 .mention-liste{margin-top:18px;font-size:12px;color:var(--tabacco);max-width:56ch}
 
+/* Fiche produit */
+.fiche-produit{padding-block:clamp(28px,4vw,64px) clamp(56px,6vw,90px)}
+.fp-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(32px,5vw,90px);align-items:start}
+.fp-grid > *{min-width:0}
+.galerie-p{display:grid;grid-template-columns:76px 1fr;gap:12px;position:sticky;top:calc(var(--head) + 24px + env(safe-area-inset-top,0px))}
+.principale{grid-column:2;grid-row:1;margin:0;background:#EEE8DF;aspect-ratio:346/390;overflow:hidden}
+.principale img{width:100%;height:100%;object-fit:contain}
+.vignettes{grid-column:1;grid-row:1;display:grid;align-content:start;gap:8px}
+.vignettes button{padding:0;border:1px solid transparent;background:#EEE8DF;cursor:pointer;aspect-ratio:3/4;overflow:hidden}
+.vignettes button.actif{border-color:var(--encre)}
+.vignettes img{width:100%;height:100%;object-fit:cover}
+.piece-info h1{font-size:clamp(34px,3.2vw,48px);line-height:1.08;margin-top:12px}
+.compte-fp{margin-top:24px;padding-block:16px;border-top:1px solid var(--filo);border-bottom:1px solid var(--filo);max-width:460px}
+.compte-fp .compte-date{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--tabacco);margin-bottom:6px}
+.compte-fp .compte-grille{display:flex;gap:22px}
+.compte-fp .compte-grille div{display:flex;align-items:baseline;gap:4px}
+.compte-fp b{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1;font-variant-numeric:tabular-nums lining-nums}
+.compte-fp .compte-grille span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--tabacco)}
+.tailles-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px;max-width:460px}
+.guide-lien{background:none;border:0;padding:4px 0;cursor:pointer;font-size:12.5px;text-decoration:underline;text-underline-offset:3px;color:var(--encre)}
+.chips{max-width:460px}
+.chips button{flex:1;height:48px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(42,28,20,.3);background:transparent;font-size:12px;letter-spacing:.16em;cursor:pointer;transition:background .3s,color .3s}
+.chips button[aria-checked=true]{background:var(--encre);color:var(--papier);border-color:var(--encre)}
+.puces{margin:0 0 20px;padding-left:18px;font-size:14px;display:grid;gap:6px}
+.details-p{padding-block:clamp(48px,6vw,90px);background:#EEE8DF}
+.grille-d{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:22px}
+.grille-d figure{margin:0;min-width:0}
+.grille-d img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.grille-d figcaption{margin-top:10px;font-size:12.5px;font-weight:400}
+.grille-d figcaption span{display:block;font-weight:300;color:var(--tabacco)}
+.numero{padding-block:clamp(64px,8vw,120px)}
+.numero-in{display:grid;grid-template-columns:auto 1fr;gap:clamp(32px,6vw,90px);align-items:center;max-width:1000px}
+.numero-in img{width:min(420px,100%)}
+.numero h2{font-size:clamp(28px,2.6vw,40px);line-height:1.12;margin-top:12px}
+.numero p{margin-top:14px;max-width:44ch;font-size:14.5px}
+.numero .btn{margin-top:22px}
+.guide{border:0;padding:0;width:min(640px,calc(100% - 32px));max-height:calc(100svh - 48px);background:var(--papier);color:var(--encre)}
+.guide::backdrop{background:rgba(30,19,13,.5)}
+.guide-in{padding:clamp(24px,4vw,44px)}
+.guide-tete{display:flex;justify-content:space-between;align-items:start;gap:16px}
+.guide h2{font-size:30px;line-height:1.1}
+.guide h3{font-family:var(--body);font-size:10.5px;font-weight:400;letter-spacing:.2em;text-transform:uppercase;color:var(--tabacco);margin:26px 0 8px}
+.fermer{background:none;border:0;font-size:28px;line-height:1;cursor:pointer;width:44px;height:44px;margin:-8px -10px 0 0}
+.guide-intro{font-size:13.5px;margin-top:12px}
+.guide-note{color:var(--tabacco);font-size:12.5px;margin-top:10px}
+.guide table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums lining-nums}
+.guide th,.guide td{padding:9px 6px;border-bottom:1px solid var(--filo);text-align:center;font-weight:300}
+.guide thead th{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:400}
+.guide tbody th{text-align:left;font-weight:400}
+.guide thead th:first-child{text-align:left}
+.form-guide{justify-self:start;margin-top:-14px}
+
 /* Pied de page */
 footer{padding-top:64px;border-top:1px solid var(--filo)}
 .pied{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
@@ -258,22 +266,12 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
   .burger{display:inline-flex}
   .nav nav.droite .devise-chf,.nav nav.droite .icone{display:none}
   .marque{font-size:26px}
-  .hero-img{grid-template-columns:1fr;height:calc(100svh - var(--head) - 32px);min-height:540px;max-height:860px}
-  .hero-img img + img{display:none}
-  .hero-img img{object-position:50% 12%}
-  .hero h1{font-size:clamp(36px,10vw,54px)}
-  .rangee{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:82%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-left:calc(-1 * var(--gx));margin-right:calc(-1 * var(--gxr));padding-left:var(--gx);padding-right:var(--gxr);scroll-padding-left:var(--gx)}
-  .rangee::-webkit-scrollbar{display:none}
-  .produit{scroll-snap-align:start}
-  .pager{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:22px;font-size:11px;letter-spacing:.14em;color:var(--tabacco)}
-  .pager button{width:40px;height:40px;border:0;background:none;cursor:pointer;font-size:16px;color:var(--encre)}
-  .pager button:disabled{opacity:.3;cursor:default}
-  .vitrine .bas-lien{margin-top:14px}
-  .split,.boite,.pied{grid-template-columns:1fr}
+  .split,.boite,.pied,.fp-grid,.numero-in{grid-template-columns:1fr}
+  .galerie-p{position:static;grid-template-columns:1fr;margin-left:calc(-1 * var(--gx));margin-right:calc(-1 * var(--gxr))}
+  .principale{grid-column:1}
+  .vignettes{grid-column:1;grid-row:2;grid-auto-flow:column;grid-auto-columns:64px;overflow-x:auto;padding-left:var(--gx);padding-right:var(--gxr);scrollbar-width:none}
+  .grille-d{grid-template-columns:repeat(3,1fr)}
   .split-img{min-height:0;aspect-ratio:4/5}
-  .numero .film{order:-1;padding-block:0}
-  .film video{width:100%;height:auto;max-height:84svh}
-  .bande{grid-template-columns:1fr}
   .piece .split-img{aspect-ratio:1000/1374}
   .piece-info{padding-block:48px 64px;padding-left:var(--gx);padding-right:var(--gxr)}
   .pourqui .split-img{order:-1}
@@ -298,8 +296,6 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
   .an-long{display:none}
   .an-court{display:inline}
   .nav nav.droite a.cta{font-size:10px;letter-spacing:.12em}
-  .compte-hero .compte-grille{gap:16px}
-  .compte-hero b{font-size:23px}
   .compte-liste .compte-grille div + div{padding-left:12px}
   form{grid-template-columns:1fr}
   .fiche dl{grid-template-columns:1fr;gap:2px}
@@ -339,6 +335,7 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
   <ul>
     <li><a href="#piece">Le Cardigan Noce</a></li>
     <li><a href="#numero">Le numéro</a></li>
+    <li><a href="#" data-guide>Guide des tailles</a></li>
     <li><a href="#cent">Commander</a></li>
     <li><a href="club.html">Private Club</a></li>
     <li><a href="#liste">M'inscrire</a></li>
@@ -348,84 +345,105 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
 </div>
 
 <main id="haut">
-  <section class="hero">
-    <div class="hero-img">
-      <img src="img/porte-face.jpg" alt="Jeune homme portant le cardigan zippé Nocelli brun noyer, vu de face">
-      <img src="img/porte-dos.jpg" alt="Le même cardigan vu de dos, col montant côtelé">
-    </div>
-    <div class="hero-texte">
-      <span class="eyebrow">Prima Edizione · 50 pièces numérotées</span>
-      <h1>Le Cardigan Noce · CHF 139</h1>
-      <a class="btn blanc" href="#liste">M'inscrire</a>
-      <div class="compte compte-hero" data-compte>
-        <span class="compte-date">Ouverture mercredi 25.11 · 19h00, heure suisse</span>
-        <div class="compte-grille" role="timer" aria-live="off">
-          <div><b data-u="j">--</b><span>j</span></div>
-          <div><b data-u="h">--</b><span>h</span></div>
-          <div><b data-u="m">--</b><span>min</span></div>
-          <div><b data-u="s">--</b><span>s</span></div>
+  <section class="fiche-produit" id="piece">
+    <div class="wrap fp-grid">
+      <div class="galerie-p">
+        <figure class="principale"><img id="img-principale" src="img/tp-face.jpg" alt="Le Cardigan Noce vu de face"></figure>
+        <div class="vignettes" aria-label="Autres vues">
+          <button type="button" class="actif" data-src="img/tp-face.jpg" data-alt="Le Cardigan Noce vu de face"><img src="img/tp-face.jpg" alt="Vue de face"></button>
+          <button type="button" data-src="img/tp-dos.jpg" data-alt="Le Cardigan Noce vu de dos"><img src="img/tp-dos.jpg" alt="Vue de dos"></button>
+          <button type="button" data-src="img/tp-cote.jpg" data-alt="Le Cardigan Noce vu de côté"><img src="img/tp-cote.jpg" alt="Vue de côté"></button>
+          <button type="button" data-src="img/tp-fit-face.jpg" data-alt="Le Cardigan Noce porté, de face"><img src="img/tp-fit-face.jpg" alt="Porté, de face"></button>
+          <button type="button" data-src="img/tp-fit-cote.jpg" data-alt="Le Cardigan Noce porté, de côté"><img src="img/tp-fit-cote.jpg" alt="Porté, de côté"></button>
+          <button type="button" data-src="img/tp-fit-dos.jpg" data-alt="Le Cardigan Noce porté, de dos"><img src="img/tp-fit-dos.jpg" alt="Porté, de dos"></button>
         </div>
-        <p class="compte-fin" hidden>La Prima Edizione est ouverte.</p>
+      </div>
+      <div class="piece-info">
+        <span class="eyebrow">Prima Edizione · 50 pièces numérotées</span>
+        <h1>Le Cardigan Noce</h1>
+        <div class="prix-ligne">
+          <span class="montant">CHF 139</span>
+          <span class="prix-note">TVA incluse · Coloris chocolat</span>
+        </div>
+        <p class="intro">Cardigan zippé en mérinos extrafin, coupe ajustée. Sans logo à l'extérieur, numéroté au col.</p>
+        <div class="compte compte-fp" data-compte>
+          <span class="compte-date">Ouverture mercredi 25.11 · 19h00, heure suisse</span>
+          <div class="compte-grille" role="timer" aria-live="off">
+            <div><b data-u="j">--</b><span>j</span></div>
+            <div><b data-u="h">--</b><span>h</span></div>
+            <div><b data-u="m">--</b><span>min</span></div>
+            <div><b data-u="s">--</b><span>s</span></div>
+          </div>
+          <p class="compte-fin" hidden>La Prima Edizione est ouverte.</p>
+        </div>
+        <div class="tailles-info">
+          <div class="tailles-tete"><span class="eyebrow">Taille</span><button type="button" class="guide-lien" data-guide>Comment choisir ma taille ?</button></div>
+          <div class="chips" role="radiogroup" aria-label="Taille">
+            <button type="button" role="radio" aria-checked="false" data-t="S">S</button>
+            <button type="button" role="radio" aria-checked="true" data-t="M">M</button>
+            <button type="button" role="radio" aria-checked="false" data-t="L">L</button>
+          </div>
+        </div>
+        <div class="cta">
+          <a class="btn plein" href="#liste" id="cta-taille">M'inscrire · Taille M</a>
+          <small>Gratuit. Aucun paiement maintenant.</small>
+        </div>
+        <div class="fiche">
+          <details open>
+            <summary>Description et matière</summary>
+            <ul class="puces">
+              <li>100 % laine mérinos extrafine, 18,5 à 19,5 microns : douce, ne gratte pas</li>
+              <li>Jersey uni 12 jauges, 280 à 320 g/m² : léger, souple et respirant</li>
+              <li>Traitement anti-boulochage et anti-feutrage</li>
+              <li>Coloris chocolat, noyer foncé, teint en un seul bain pour les 50 pièces</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Détails et coupe</summary>
+            <ul class="puces">
+              <li>Col montant en côte doublée, 7 cm, légèrement conique</li>
+              <li>Zip métal à double curseur, ouvrable par le haut et par le bas, tirettes lisses</li>
+              <li>Manches montées entièrement diminuées, épaule naturelle sans épaulettes</li>
+              <li>Poignets (7 cm) et bas (6 cm) en côte, finition nette et plate</li>
+              <li>Sans poches, sans broderie, aucun logo à l'extérieur</li>
+              <li>Coupe ajustée, près du corps sans serrer</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Le numéro</summary>
+            <p class="texte">Étiquette tissée beige à l'intérieur du col : NOCELLI, N° 01 / 50 à N° 50 / 50. Chaque numéro n'existe qu'une fois.</p>
+          </details>
+          <details>
+            <summary>Livraison</summary>
+            <p class="texte">En Suisse, en une semaine après l'ouverture.</p>
+          </details>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="split numero" id="numero">
-    <div class="split-texte">
-      <span class="eyebrow">Il Numero</span>
-      <h2>50 pièces, chacune numérotée au col.</h2>
-      <p>Pas de logo devant. Votre numéro, de 1 à 50, est tissé sur l'étiquette du col.</p>
-      <a class="btn" href="#liste">M'inscrire</a>
+  <section class="details-p" aria-labelledby="details-titre">
+    <div class="wrap">
+      <h2 class="titre" id="details-titre">Les détails</h2>
+      <div class="grille-d">
+        <figure><img src="img/tp-col.jpg" alt="Col montant en côte doublée"><figcaption>Col montant<span>Côte doublée, 7 cm</span></figcaption></figure>
+        <figure><img src="img/tp-zip.jpg" alt="Zip métal à double curseur, tirettes lisses"><figcaption>Zip double curseur<span>Métal, tirettes lisses</span></figcaption></figure>
+        <figure><img src="img/tp-manche.jpg" alt="Épaule et manche montée"><figcaption>Manche montée<span>Entièrement diminuée</span></figcaption></figure>
+        <figure><img src="img/tp-poignet.jpg" alt="Poignet en côte"><figcaption>Poignets en côte<span>Finition nette et plate</span></figcaption></figure>
+        <figure><img src="img/tp-bas.jpg" alt="Bas en côte"><figcaption>Bas en côte<span>Plat, ne remonte pas</span></figcaption></figure>
+        <figure><img src="img/tp-maille.jpg" alt="Maille jersey unie"><figcaption>La maille<span>Jersey uni 12 jauges</span></figcaption></figure>
+      </div>
     </div>
-    <figure class="film" style="margin:0">
-      <video src="video/teaser-etiquette.mp4" poster="video/teaser-poster.jpg" autoplay muted loop playsinline preload="auto" aria-label="Vidéo : l'étiquette du col Nocelli, N° 1 / 50, puis « 50 pièces. Chacune numérotée. Laquelle sera la tienne ? Mercredi 25.11 · 19:00, heure suisse »"></video>
-    </figure>
   </section>
 
-  <div class="bande" aria-label="Les détails">
-    <figure><img src="img/zip.jpg" alt="Zip métal et tirette du cardigan"><figcaption>Zip métal<span>Double curseur, tirette gravée N</span></figcaption></figure>
-    <figure><img src="img/cote.jpg" alt="Bord côte du col en maille"><figcaption>Col montant<span>En côte</span></figcaption></figure>
-    <figure><img src="img/maille.jpg" alt="Gros plan sur la maille unie brun noyer"><figcaption>Mérinos extrafin<span>Maille unie, douce</span></figcaption></figure>
-  </div>
-
-  <section class="split piece" id="piece">
-    <div class="split-img"><img src="img/cardigan.jpg" alt="Le cardigan Nocelli à plat, vue de face, zip métal double curseur"></div>
-    <div class="piece-info">
-      <span class="eyebrow">Prima Edizione</span>
-      <h2>Le Cardigan Noce</h2>
-      <div class="prix-ligne">
-        <span class="montant">CHF 139</span>
-        <span class="prix-note">Mérinos extrafin · 50 pièces numérotées</span>
-      </div>
-      <p class="intro">Cardigan zippé en mérinos extrafin, coupe ajustée. Pour la mi-saison, de 10 à 18 °C.</p>
-      <div class="tailles-info">
-        <span class="eyebrow">Tailles</span>
-        <div class="chips" aria-label="Tailles disponibles"><span>S</span><span>M</span><span>L</span></div>
-      </div>
-      <div class="cta">
-        <a class="btn plein" href="#liste">M'inscrire</a>
-        <small>Gratuit. Aucun paiement maintenant.</small>
-      </div>
-      <div class="fiche">
-        <details open>
-          <summary>Matière et façon</summary>
-          <dl>
-            <dt>Maille</dt><dd>Laine mérinos extrafine, jersey uni 12 jauges</dd>
-            <dt>Col</dt><dd>Montant, en côte</dd>
-            <dt>Fermeture</dt><dd>Zip métal à double curseur, tirette gravée N</dd>
-            <dt>Manches</dt><dd>Montées</dd>
-            <dt>Poches</dt><dd>Aucune</dd>
-            <dt>Finitions</dt><dd>Poignets et bas en côte, coutures remmaillées</dd>
-          </dl>
-        </details>
-        <details>
-          <summary>Le numéro</summary>
-          <p class="texte">Étiquette tissée au col : Nocelli, N° 1 à 50. Aucun logo à l'extérieur.</p>
-        </details>
-        <details>
-          <summary>Livraison</summary>
-          <p class="texte">Livraison en Suisse en une semaine après l'ouverture. Prix en CHF, TVA incluse.</p>
-        </details>
+  <section class="numero" id="numero">
+    <div class="wrap numero-in">
+      <img src="img/tp-etiquette.jpg" alt="Étiquette tissée au col : NOCELLI, N° 01 / 50">
+      <div>
+        <span class="eyebrow">Il Numero</span>
+        <h2>50 pièces, chacune numérotée au col.</h2>
+        <p>Votre numéro, de 01 à 50, est sur l'étiquette à l'intérieur du col. C'est la seule marque Nocelli sur la pièce.</p>
+        <a class="btn" href="#liste">M'inscrire</a>
       </div>
     </div>
   </section>
@@ -501,6 +519,7 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
                 <label><input type="radio" name="taille" id="t-l" value="L"><span>L</span></label>
               </div>
             </div>
+            <button type="button" class="guide-lien form-guide full" data-guide>Comment choisir ma taille ?</button>
             <p class="erreur full" id="erreur" role="alert"></p>
             <button class="btn plein full" type="submit">M'inscrire</button>
           </form>
@@ -515,6 +534,34 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
     </div>
   </section>
 </main>
+
+<dialog class="guide" id="guide" aria-labelledby="guide-titre">
+  <div class="guide-in">
+    <div class="guide-tete"><h2 id="guide-titre">Comment choisir ma taille</h2><button type="button" class="fermer" data-fermer aria-label="Fermer">×</button></div>
+    <p class="guide-intro">Mesurez votre tour de poitrine sous les bras, ruban bien à plat. Le cardigan est ajusté, avec environ 8 cm d'aisance à la poitrine.</p>
+    <h3>Votre taille idéale</h3>
+    <table>
+      <thead><tr><th scope="col">Votre tour de poitrine</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr></thead>
+      <tbody><tr><th scope="row">Taille conseillée</th><td>91 à 95 cm</td><td>96 à 100 cm</td><td>101 à 105 cm</td></tr></tbody>
+    </table>
+    <p class="guide-note">Entre deux tailles : prenez la plus grande pour plus d'aisance, la plus petite pour une coupe près du corps.</p>
+    <h3>Mesures du vêtement (cm)</h3>
+    <table>
+      <thead><tr><th scope="col">Mesure</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Tour de poitrine</th><td>101</td><td>106</td><td>111</td></tr>
+        <tr><th scope="row">Tour de taille</th><td>93</td><td>98</td><td>103</td></tr>
+        <tr><th scope="row">Tour du bas</th><td>88</td><td>93</td><td>98</td></tr>
+        <tr><th scope="row">Longueur, du haut de l'épaule</th><td>62</td><td>64</td><td>66</td></tr>
+        <tr><th scope="row">Largeur d'épaules</th><td>42,5</td><td>44</td><td>45,5</td></tr>
+        <tr><th scope="row">Longueur de manche</th><td>63</td><td>64</td><td>65</td></tr>
+        <tr><th scope="row">Tour de biceps</th><td>33,4</td><td>35</td><td>36,6</td></tr>
+        <tr><th scope="row">Hauteur du col</th><td>7</td><td>7</td><td>7</td></tr>
+      </tbody>
+    </table>
+    <p class="guide-note">Mesures prises à plat, multipliées par deux pour les tours. Tolérance ±1 cm. Valeurs à confirmer sur les prototypes.</p>
+  </div>
+</dialog>
 
 <footer>
   <div class="wrap">
@@ -573,7 +620,7 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
 
   // La barre de réservation se cache sur l'écran d'accueil et sur la liste privée
   var barre=document.getElementById('barre');
-  var hero=document.querySelector('.hero');
+  var hero=document.querySelector('.fiche-produit .cta');
   var liste=document.getElementById('liste');
   var vis={hero:true,liste:false};
   function maj(){barre.classList.toggle('cachee',vis.hero||vis.liste);}
@@ -582,6 +629,32 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
     new IntersectionObserver(function(es){es.forEach(function(e){vis.liste=e.isIntersecting;});maj();},{threshold:0.05}).observe(liste);
   }
   maj();
+
+  // Galerie : les vignettes changent la grande image
+  var princ=document.getElementById('img-principale');
+  var vigs=document.querySelectorAll('.vignettes button');
+  vigs.forEach(function(b){
+    b.addEventListener('click',function(){
+      princ.src=b.dataset.src;princ.alt=b.dataset.alt;
+      vigs.forEach(function(x){x.classList.toggle('actif',x===b);});
+    });
+  });
+
+  // Taille : les boutons S/M/L et le formulaire restent synchronisés
+  var cta=document.getElementById('cta-taille');
+  function choisir(t){
+    document.querySelectorAll('.chips button').forEach(function(x){x.setAttribute('aria-checked',x.dataset.t===t?'true':'false');});
+    var r=document.querySelector('input[name=taille][value="'+t+'"]');if(r)r.checked=true;
+    cta.textContent="M'inscrire · Taille "+t;
+  }
+  document.querySelectorAll('.chips button').forEach(function(b){b.addEventListener('click',function(){choisir(b.dataset.t);});});
+  document.querySelectorAll('input[name=taille]').forEach(function(r){r.addEventListener('change',function(){choisir(r.value);});});
+
+  // Guide des tailles
+  var guide=document.getElementById('guide');
+  document.querySelectorAll('[data-guide]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();setMenu(false);if(guide.showModal)guide.showModal();else guide.setAttribute('open','');});});
+  guide.querySelector('[data-fermer]').addEventListener('click',function(){if(guide.close)guide.close();else guide.removeAttribute('open');});
+  guide.addEventListener('click',function(e){if(e.target===guide)guide.close();});
 
   // Compte à rebours : 25 novembre 2026, 19h00 à Zurich (CET, UTC+1) = 18h00 UTC
   var DROP=Date.UTC(2026,10,25,18,0,0);
