@@ -1,8 +1,7 @@
-/* NOCELLI PRIVATE CLUB — les trois cartes de membre (85,6 × 54 mm).
+/* NOCELLI PRIVATE CLUB — les deux cartes de membre (85,6 × 54 mm).
    Fichier séparé pour pouvoir afficher les cartes sur la page d'accueil sans le reste du club. */
 :root{
   --f-choc:#30231D; --f-or:#C5AA83; --f-beige:#E4D2B5;
-  --e-ivoire:#F0E5D8; --e-sable:#D8C6B4; --e-brun:#30231D;
   --s-noir:#111111; --s-anthra:#252525; --s-or:#C5AA83;
   --doux:cubic-bezier(.2,.7,.2,1);
 }
@@ -46,14 +45,6 @@
 .carte.founders .numero b{font-weight:400;color:var(--f-or)}
 
 /* 2. EARLY ACCESS — ivoire papier, gaufrage brun */
-.carte.early .face{background:linear-gradient(160deg,#F5ECE1 0%,var(--e-ivoire) 50%,#E9DCCB 100%);color:var(--e-brun);box-shadow:0 1.2cqw 3.2cqw -1cqw rgba(48,35,29,.4),0 .3cqw .8cqw rgba(48,35,29,.18),inset 0 0 0 .14cqw rgba(216,198,180,.9)}
-.carte.early .recto .contenu{grid-template-rows:1fr auto;justify-items:center}
-.carte.early .centre{align-self:center;display:grid;justify-items:center;gap:3.4cqw}
-.carte.early .logo{font-size:10cqw;color:var(--e-brun);text-shadow:0 .1cqw 0 rgba(255,255,255,.75),0 -.06cqw 0 rgba(48,35,29,.25)}
-.carte.early .mention{color:#7C6655;font-size:2.15cqw}
-.carte.early .trait{width:7cqw;height:.14cqw;background:var(--e-sable)}
-.carte.early .pied{justify-self:stretch;display:flex;justify-content:space-between;align-items:end;color:#8D7866}
-.carte.early .reflet{mix-blend-mode:overlay;opacity:calc(.2 + var(--lueur) * .5)}
 
 /* 3. SIGNATURE — noir mat, cannelures minérales ton sur ton, or en relief */
 .carte.signature .face{background:linear-gradient(150deg,#161616 0%,var(--s-noir) 55%,#0B0B0B 100%);color:var(--s-or)}
@@ -72,9 +63,6 @@
 .carte.founders .verso .devise{color:var(--f-beige)}
 .carte.founders .verso .qr{background:var(--f-beige)}
 .carte.founders .verso .bas-verso{color:rgba(228,210,181,.75)}
-.carte.early .verso .devise{color:var(--e-brun)}
-.carte.early .verso .qr{background:#FBF6EF;box-shadow:inset 0 0 0 .14cqw var(--e-sable)}
-.carte.early .verso .bas-verso{color:#8D7866}
 .carte.signature .verso .devise{color:var(--s-or)}
 .carte.signature .verso .qr{background:#E8DCC6}
 .carte.signature .verso .bas-verso{color:#8E7F69}

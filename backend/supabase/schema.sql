@@ -117,12 +117,11 @@ insert into public.compteur_fondateurs (id) values (true) on conflict do nothing
 create table if not exists public.abonnements (
   id                     uuid primary key default gen_random_uuid(),
   compte_id              uuid not null references public.profils(id),
-  plan                   text not null check (plan in ('early', 'signature')),
+  plan                   text not null default 'signature' check (plan = 'signature'),
   statut                 text not null check (statut in ('actif', 'impaye', 'annule', 'expire')),
   debut                  timestamptz not null,
   fin                    timestamptz not null,
   renouvellement_auto    boolean not null default true,
-  plan_au_renouvellement text check (plan_au_renouvellement in ('early', 'signature')),
   stripe_abonnement      text unique,
   maj_le                 timestamptz not null default now()
 );
@@ -206,25 +205,23 @@ end $$;
 create or replace function public.droits_de(p_compte uuid)
 returns table (categorie text, acces_anticipe boolean, evenements boolean, votes boolean, contenus boolean)
 language plpgsql stable security definer set search_path = public as $$
-declare v_cat text;
+declare v_fondateur boolean; v_signature boolean;
 begin
   if p_compte is null or exists (select 1 from public.profils where id = p_compte and suspendu) then
     return query select null::text, false, false, false, false; return;
   end if;
-  if exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme') then
-    v_cat := 'founders';
-  else
-    select a.plan into v_cat from public.abonnements a
+  v_fondateur := exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme');
+  v_signature := exists (select 1 from public.abonnements a
      where a.compte_id = p_compte
        and ((a.statut = 'actif' and a.fin > now())
-         or (a.statut = 'impaye' and a.fin + interval '7 days' > now()))
-     limit 1;
-  end if;
-  return query select v_cat,
-    v_cat is not null,
-    coalesce(v_cat in ('founders', 'signature'), false),
-    coalesce(v_cat in ('founders', 'signature'), false),
-    coalesce(v_cat in ('founders', 'signature'), false);
+         or (a.statut = 'impaye' and a.fin + interval '7 days' > now())));
+  -- Les événements privés viennent seulement de Signature (un fondateur peut la prendre en plus).
+  return query select
+    case when v_fondateur then 'founders' when v_signature then 'signature' end,
+    v_fondateur or v_signature,
+    v_signature,
+    v_fondateur or v_signature,
+    v_fondateur or v_signature;
 end $$;
 
 -- Ouverte aux clients : uniquement ses propres droits (l'administration lit tout).
@@ -269,9 +266,6 @@ begin
 
   insert into public.places_fondateurs (numero, compte_id, commande_id) values (v_numero, c.compte_id, c.id);
   update public.compteur_fondateurs set prochain = v_numero + 1 where id;
-  -- Un fondateur ne paie plus : on note l'arrêt du renouvellement (le webhook l'applique chez Stripe).
-  update public.abonnements set renouvellement_auto = false, maj_le = now()
-   where compte_id = c.compte_id and statut in ('actif', 'impaye');
   perform public.synchroniser_envoi(c.compte_id);
   return v_numero;
 end $$;
@@ -347,7 +341,7 @@ end $$;
 -- ===========================================================================
 create or replace function public.synchroniser_abonnement(
   p_evenement text, p_compte uuid, p_stripe text, p_plan text, p_statut text,
-  p_debut timestamptz, p_fin timestamptz, p_renouvellement boolean, p_plan_suivant text)
+  p_debut timestamptz, p_fin timestamptz, p_renouvellement boolean)
 returns text
 language plpgsql security definer set search_path = public as $$
 begin
@@ -355,17 +349,12 @@ begin
   insert into public.webhooks_traites (id, type) values (p_evenement, 'abonnement')
   on conflict (id) do nothing;
   if not found then return 'deja_traite'; end if;
-  if exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme')
-     and p_statut = 'actif' and p_renouvellement then
-    p_renouvellement := false;     -- un fondateur ne paie jamais de renouvellement
-  end if;
   insert into public.abonnements as a
-    (compte_id, stripe_abonnement, plan, statut, debut, fin, renouvellement_auto, plan_au_renouvellement)
-  values (p_compte, p_stripe, p_plan, p_statut, p_debut, p_fin, p_renouvellement, p_plan_suivant)
+    (compte_id, stripe_abonnement, plan, statut, debut, fin, renouvellement_auto)
+  values (p_compte, p_stripe, p_plan, p_statut, p_debut, p_fin, p_renouvellement)
   on conflict (stripe_abonnement) do update set
     plan = excluded.plan, statut = excluded.statut, debut = excluded.debut, fin = excluded.fin,
-    renouvellement_auto = excluded.renouvellement_auto,
-    plan_au_renouvellement = excluded.plan_au_renouvellement, maj_le = now();
+    renouvellement_auto = excluded.renouvellement_auto, maj_le = now();
   if p_statut = 'actif' then
     update public.profils set numero_membre = nextval('public.numero_membre_seq')
      where id = p_compte and numero_membre is null;
@@ -391,8 +380,7 @@ end $$;
 create or replace function public.peut_souscrire(p_compte uuid, p_plan text)
 returns text language sql stable security definer set search_path = public as $$
   select case
-    when p_plan not in ('early', 'signature') then 'formule_non_vendue'
-    when exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme') then 'deja_fondateur'
+    when p_plan <> 'signature' then 'formule_non_vendue'
     when exists (select 1 from public.abonnements where compte_id = p_compte and statut in ('actif', 'impaye')) then 'deja_abonne'
     else 'ok' end
 $$;
@@ -447,7 +435,7 @@ begin
 end $$;
 
 -- ===========================================================================
--- ÉVÉNEMENTS : Founders et Signature uniquement, liste d'attente
+-- ÉVÉNEMENTS : membres Signature uniquement (fondateurs compris s'ils ont Signature)
 -- ===========================================================================
 create or replace function public.inscrire_evenement(p_evenement uuid)
 returns text     -- 'confirme' ou 'attente'
@@ -456,7 +444,7 @@ declare e public.evenements; v_pris integer; v_statut text; v_deja text;
 begin
   if auth.uid() is null then raise exception 'connexion_requise' using errcode = '42501'; end if;
   if not (select d.evenements from public.droits_de(auth.uid()) d) then
-    raise exception 'reserve_signature_founders' using errcode = '42501';
+    raise exception 'reserve_signature' using errcode = '42501';
   end if;
   -- Verrou sur l'événement : deux inscriptions simultanées ne prennent pas la même dernière place.
   select * into e from public.evenements where id = p_evenement and publie and not annule for update;
@@ -590,7 +578,7 @@ create table if not exists public.adresses (
 create table if not exists public.envois_cartes (
   id         uuid primary key default gen_random_uuid(),
   compte_id  uuid not null references public.profils(id),
-  categorie  text not null check (categorie in ('founders', 'early', 'signature')),
+  categorie  text not null check (categorie in ('founders', 'signature')),
   numero     integer not null,
   mode       text not null check (mode in ('poste', 'colis')),
   statut     text not null check (statut in ('adresse_manquante', 'a_preparer', 'envoyee', 'annulee')),

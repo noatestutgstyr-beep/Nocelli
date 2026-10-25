@@ -165,7 +165,7 @@
         for (var k in etat.commandes) if (etat.commandes[k].compteId === c.id) commandes.push(copie(etat.commandes[k]));
         return {
           compte: copie(c),
-          droits: { membre: d.membre, categorie: d.categorie, accesAnticipe: d.accesAnticipe, evenements: d.evenements, experiences: d.experiences, votes: d.votes, contenus: d.contenus },
+          droits: { membre: d.membre, categorie: d.categorie, signature: d.signature, accesAnticipe: d.accesAnticipe, evenements: d.evenements, experiences: d.experiences, votes: d.votes, contenus: d.contenus },
           fondateur: d.fondateur ? copie(d.fondateur) : null,
           abonnement: ab ? copie(ab) : null,
           dernierAbonnement: dernier ? copie(dernier) : null,
@@ -191,16 +191,6 @@
         if (!a || a.compteId !== moi(etat, m).id) throw R.Refus('introuvable', 'Paiement introuvable.');
         var evt = 'test_' + jeton();
         return copie(reussi ? R.confirmerPaiementAbonnement(etat, abonnementId, evt, now) : R.echecPaiementAbonnement(etat, abonnementId, evt, now));
-      });
-    },
-    changerFormule: function (plan) {
-      return appel(function (etat, now, m) { return copie(R.changerFormule(etat, moi(etat, m).id, plan, now)); });
-    },
-    paiementTestPassage: function (reussi) {
-      return appel(function (etat, now, m) {
-        var a = R.abonnementCourant(etat, moi(etat, m).id, now);
-        if (!reussi) throw R.Refus('refuse', 'Paiement refusé par la banque (test). Votre formule n’a pas changé.');
-        return copie(R.confirmerPassageSignature(etat, a.id, 'test_' + jeton(), now));
       });
     },
     annulerRenouvellement: function () {

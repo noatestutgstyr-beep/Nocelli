@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nocelli Private Club</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="NOCELLI PRIVATE CLUB. Founders Club, Early Access et Signature Club : collections en avant-première, événements privés, carte de membre.">
+<meta name="description" content="NOCELLI PRIVATE CLUB. Founders Club et Signature Club : collections en avant-première, événements privés, carte de membre.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Jost:wght@300;400;500&display=swap">
 <link rel="stylesheet" href="club/club.css">
 <link rel="stylesheet" href="club/cartes.css">
 <style>
-/* Page Private Club : une ouverture noyer avec les trois cartes en éventail, puis le papier ivoire. */
+/* Page Private Club : une ouverture noyer avec les deux cartes en éventail, puis le papier ivoire. */
 .ouverture{background:var(--noce-scuro);color:var(--avorio);overflow:hidden;position:relative}
 .ouverture::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 90% at 78% 40%,rgba(197,170,131,.16),transparent 60%)}
 .ouverture-grid{position:relative;display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(40px,6vw,90px);align-items:center;padding-block:clamp(80px,10vw,140px)}
@@ -20,19 +20,17 @@
 .ouverture .eyebrow{color:var(--crema)}
 .ouverture h1{font-size:clamp(40px,5.6vw,84px);line-height:.98;letter-spacing:.08em;margin-top:22px}
 .ouverture h1 span{display:block;font-size:.42em;letter-spacing:.42em;margin-top:.5em;color:var(--crema)}
-.ouverture .sous-titre{font-family:var(--display);font-style:italic;font-size:clamp(20px,2vw,26px);color:var(--crema);margin-top:26px}
 .ouverture .intro{max-width:44ch;margin-top:22px;color:rgba(247,243,236,.8)}
 .ouverture .actions{display:flex;flex-wrap:wrap;gap:16px 26px;align-items:center;margin-top:34px}
 .ouverture .actions .lien{color:var(--crema)}
 .eventail{position:relative;aspect-ratio:1.25/1;max-width:640px;width:100%;justify-self:end}
 .eventail .carte{position:absolute;width:72%;left:14%;top:26%;transition:transform 1.1s var(--doux)}
-.eventail .carte:nth-child(1){transform:translate(-14%,-30%) rotate(-9deg);z-index:1}
-.eventail .carte:nth-child(2){transform:translate(14%,-6%) rotate(5deg);z-index:2}
-.eventail .carte:nth-child(3){transform:translate(-2%,24%) rotate(-2deg);z-index:3}
-.eventail:hover .carte:nth-child(1){transform:translate(-18%,-36%) rotate(-11deg)}
-.eventail:hover .carte:nth-child(2){transform:translate(19%,-8%) rotate(7deg)}
+.eventail .carte:nth-child(1){transform:translate(-12%,-22%) rotate(-7deg);z-index:1}
+.eventail .carte:nth-child(2){transform:translate(12%,12%) rotate(4deg);z-index:2}
+.eventail:hover .carte:nth-child(1){transform:translate(-16%,-27%) rotate(-9deg)}
+.eventail:hover .carte:nth-child(2){transform:translate(16%,15%) rotate(6deg)}
 .eventail .carte{animation:arrive 1.4s var(--doux) both}
-.eventail .carte:nth-child(2){animation-delay:.15s}.eventail .carte:nth-child(3){animation-delay:.3s}
+.eventail .carte:nth-child(2){animation-delay:.15s}
 @keyframes arrive{from{opacity:.001;translate:0 60px}to{opacity:1;translate:0 0}}
 .specimen{position:absolute;right:0;bottom:-6px;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(228,209,176,.55)}
 
@@ -41,7 +39,7 @@
 .formules-tete h2{margin-top:14px;max-width:16ch}
 .formules-tete p{max-width:44ch;color:rgba(58,37,25,.8)}
 .onglets{display:none}
-.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(24px,3vw,44px);margin-top:64px}
+.trio{display:grid;grid-template-columns:repeat(2,1fr);max-width:980px;gap:clamp(24px,3vw,44px);margin-top:64px}
 .formule{min-width:0;display:flex;flex-direction:column;gap:24px}
 .formule .scene-carte{padding:6% 4% 2%}
 .formule .titre{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-top:1px solid var(--filo);padding-top:20px}
@@ -56,19 +54,19 @@
 .formule li.non::before{border-color:transparent;background:linear-gradient(90deg,transparent 45%,rgba(58,37,25,.35) 45% 55%,transparent 55%);transform:none;width:10px;height:10px;margin-top:.4em}
 .formule .cta{display:grid;gap:10px}
 .formule .cta .btn{width:100%}
-.formule .cta small{font-size:12.5px;color:var(--tabacco);text-align:center;line-height:1.5}
+.formule .cta small,.formule .ajout{font-size:12.5px;color:var(--tabacco);text-align:center;line-height:1.5}
 .formule.founders .cta .btn{border-style:solid;color:var(--tabacco);cursor:default}
 .places{font-family:var(--display);font-style:italic;color:var(--tabacco)}
 
 .comparer{background:var(--sabbia);padding-block:clamp(84px,10vw,140px)}
 .comparer h2{margin-top:14px}
 .tableau{position:relative;margin-top:48px;overflow-x:auto}
-.tableau table{width:100%;min-width:620px;border-collapse:collapse}
+.tableau table{width:100%;min-width:520px;border-collapse:collapse}
 .tableau th,.tableau td{padding:18px 16px;border-bottom:1px solid var(--filo);text-align:center;font-weight:300}
 .tableau thead th{font-family:var(--display);font-size:20px;vertical-align:bottom}
 .tableau thead th small{display:block;font-family:var(--body);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--tabacco);margin-top:6px}
 .tableau th[scope=row]{text-align:left;font-size:15.5px}
-.tableau td{width:16%}
+.tableau td{width:22%}
 .tableau .col-founders{background:rgba(48,35,29,.05)}
 .oui,.nonc{display:inline-block;width:9px;height:9px}
 .oui{transform:rotate(45deg);background:var(--noce)}
@@ -89,10 +87,6 @@
 .faq details[open] summary::after{transform:rotate(45deg)}
 .faq .rep{padding-bottom:24px;max-width:62ch;display:grid;gap:12px;color:rgba(58,37,25,.85)}
 
-.conclusion{background:var(--noce);color:var(--avorio);text-align:center;padding-block:clamp(80px,10vw,130px)}
-.conclusion p.devise{font-family:var(--display);font-size:clamp(28px,3.6vw,50px);line-height:1.15;max-width:22ch;margin:18px auto 0}
-.conclusion .eyebrow{color:var(--crema)}
-.conclusion .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:34px}
 
 @media (min-width:961px){.formule .desc{min-height:5.2em}}
 @media (max-width:600px){
@@ -119,7 +113,7 @@
 </head>
 <body>
 
-<div class="annonce">Nocelli Private Club &nbsp;·&nbsp; <b>Founders</b>, Early Access, Signature</div>
+<div class="annonce">Nocelli Private Club &nbsp;·&nbsp; Founders &nbsp;·&nbsp; Signature</div>
 
 <header class="tete">
   <div class="wrap nav">
@@ -127,7 +121,6 @@
       <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><span></span></button>
       <nav class="gauche" aria-label="Sections">
         <a href="index.html#piece">La pièce</a>
-        <a href="index.html#nom">Le nom</a>
         <a href="club.html" aria-current="page">Private Club</a>
       </nav>
     </div>
@@ -142,28 +135,26 @@
 <div class="menu" id="menu" hidden>
   <ul>
     <li><a href="index.html#piece">Le Cardigan Noce</a></li>
-    <li><a href="index.html#nom">Le nom</a></li>
     <li><a href="club.html">Private Club</a></li>
     <li><a href="membre.html">Mon compte</a></li>
     <li><a href="index.html#liste">Liste privée</a></li>
   </ul>
-  <p>Founders · Early Access · Signature</p>
+  <p>Founders · Signature</p>
 </div>
 
 <main>
   <section class="ouverture">
     <div class="wrap ouverture-grid">
       <div>
-        <span class="eyebrow apparait">Il Circolo Privato</span>
+        <span class="eyebrow apparait">Private Club</span>
         <h1 class="apparait d1">NOCELLI <span>Private Club</span></h1>
-        <p class="sous-titre apparait d2">More than a brand. A circle of distinction.</p>
-        <p class="intro apparait d2">Le club ouvre les portes de la maison : les collections avant leur sortie, les pièces en édition limitée, et pour certains, les présentations et rencontres privées. Trois cartes, trois façons d'entrer.</p>
+        <p class="intro apparait d2">Deux cartes. Founders est offerte aux 50 premiers acheteurs du cardigan NC-01. Signature coûte CHF 59 par an.</p>
         <div class="actions apparait d3">
-          <a class="btn clair" href="#formules">Découvrir les cartes</a>
+          <button class="btn clair" type="button" data-rejoindre="signature">Rejoindre Signature</button>
           <a class="lien" href="#comparer">Comparer</a>
         </div>
       </div>
-      <div class="eventail" id="eventail" aria-label="Les trois cartes du club"><span class="specimen">Spécimens · 85,6 × 54 mm</span></div>
+      <div class="eventail" id="eventail" aria-label="Les deux cartes du club"><span class="specimen">Spécimens · 85,6 × 54 mm</span></div>
     </div>
   </section>
 
@@ -171,76 +162,51 @@
     <div class="wrap">
       <div class="formules-tete">
         <div>
-          <span class="eyebrow">Le tre carte</span>
-          <h2>Trois cartes, une même maison.</h2>
+          <span class="eyebrow">Le carte</span>
+          <h2>Deux cartes.</h2>
         </div>
-        <p>Touchez une carte pour la retourner. Chaque carte existe en version imprimée et en version numérique, dans votre espace membre.</p>
+        <p>Touchez une carte pour la retourner.</p>
       </div>
 
       <div class="onglets" role="tablist" aria-label="Formules">
         <button type="button" role="tab" aria-selected="true" aria-controls="f-founders" data-cible="0">Founders</button>
-        <button type="button" role="tab" aria-selected="false" aria-controls="f-early" data-cible="1">Early Access</button>
-        <button type="button" role="tab" aria-selected="false" aria-controls="f-signature" data-cible="2">Signature</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="f-signature" data-cible="1">Signature</button>
       </div>
 
       <div class="trio" id="trio">
         <article class="formule founders" id="f-founders">
           <div class="scene-carte" data-carte="founders"></div>
           <div class="titre"><h3>Founders Club</h3><span class="prix">Gratuit<small>à vie</small></span></div>
-          <p class="desc">Les cinquante premiers acheteurs du Cardigan Noce <span style="white-space:nowrap">NC-01</span>. Ceux qui étaient là au début, numérotés de 001 à 050, pour toujours.</p>
+          <p class="desc">Offerte aux 50 premiers acheteurs du cardigan <span style="white-space:nowrap">NC-01</span>, numérotés de 001 à 050.</p>
           <ul>
-            <li>Accès anticipé à toutes les futures collections</li>
-            <li>Accès prioritaire aux éditions limitées</li>
-            <li>Invitations à tous les événements privés, selon la capacité de chacun</li>
-            <li>Expériences et présentations exclusives</li>
-            <li>Certaines pièces découvertes avant leur sortie</li>
+            <li>Les nouvelles collections 48 h avant le public</li>
+            <li>Priorité sur les éditions limitées</li>
             <li>Votes sur les futures collections</li>
-            <li>Contenus exclusifs et coulisses de la maison</li>
-            <li>Carte numérotée imprimée, glissée dans le colis du cardigan</li>
-            <li>Statut permanent, sans cotisation</li>
+            <li>Contenus réservés aux membres</li>
+            <li>Carte numérotée, livrée avec le cardigan</li>
+            <li class="non">Événements privés : avec Signature</li>
           </ul>
           <div class="cta">
-            <a class="btn" href="index.html#piece" aria-describedby="places-f">Réservé aux 50 premiers acheteurs</a>
-            <small id="places-f">Ce statut ne s'achète pas. Il est offert avec la commande payée du cardigan <span style="white-space:nowrap">NC-01</span>. <span class="places" data-places></span></small>
-          </div>
-        </article>
-
-        <article class="formule early" id="f-early">
-          <div class="scene-carte" data-carte="early"></div>
-          <div class="titre"><h3>Early Access</h3><span class="prix">CHF 29<small>par an</small></span></div>
-          <p class="desc">Pour voir et acheter les nouvelles pièces avant tout le monde. L'essentiel du club : les vêtements, en avant-première.</p>
-          <ul>
-            <li>Les nouvelles collections 48 heures avant le lancement public</li>
-            <li>Achat possible pendant cette période réservée</li>
-            <li>Nouvelles couleurs et nouveaux modèles en avance</li>
-            <li>Notifications prioritaires à chaque lancement</li>
-            <li>Section réservée aux membres sur le site</li>
-            <li>Carte de membre imprimée, envoyée par la poste</li>
-            <li class="non">Événements privés et expériences : Signature et Founders</li>
-          </ul>
-          <div class="cta">
-            <button class="btn plein" type="button" data-rejoindre="early">Rejoindre pour 29 CHF/an</button>
-            <small>Un an à partir du paiement. Renouvellement automatique, annulable à tout moment.</small>
+            <a class="btn" href="index.html#piece" aria-describedby="places-f">Avec l'achat du NC-01</a>
+            <small id="places-f">Ne s'achète pas séparément. <span class="places" data-places></span></small>
           </div>
         </article>
 
         <article class="formule signature" id="f-signature">
           <div class="scene-carte" data-carte="signature"></div>
           <div class="titre"><h3>Signature Club</h3><span class="prix">CHF 59<small>par an</small></span></div>
-          <p class="desc">L'expérience complète : tout Early Access, et l'entrée dans l'univers privé de la maison.</p>
+          <p class="desc">Les collections en avance et les événements privés.</p>
           <ul>
-            <li>Tous les avantages Early Access</li>
-            <li>Invitations aux événements privés et aux lancements</li>
-            <li>Présentations exclusives des collections</li>
-            <li>Rencontres et expériences organisées par la maison</li>
-            <li>Priorité sur les places des événements à capacité limitée</li>
-            <li>Contenus réservés aux membres Signature</li>
+            <li>Les nouvelles collections 48 h avant le public</li>
+            <li>Événements privés et présentations des collections</li>
             <li>Votes sur les futures collections</li>
-            <li>Carte Signature imprimée, envoyée par la poste</li>
+            <li>Contenus réservés aux membres</li>
+            <li>Carte imprimée, envoyée par la poste</li>
           </ul>
           <div class="cta">
-            <button class="btn plein" type="button" data-rejoindre="signature">Rejoindre pour 59 CHF/an</button>
-            <small>Un an à partir du paiement. Renouvellement automatique, annulable à tout moment.</small>
+            <button class="btn plein" type="button" data-rejoindre="signature">Rejoindre pour CHF 59/an</button>
+            <small>Un an dès le paiement. Renouvellement automatique, annulable à tout moment.</small>
+            <small>Déjà fondateur ? Signature s'ajoute à votre carte Founders.</small>
           </div>
         </article>
       </div>
@@ -250,20 +216,19 @@
   <section class="comparer" id="comparer">
     <div class="wrap">
       <span class="eyebrow">A confronto</span>
-      <h2>Comparer les trois cartes.</h2>
+      <h2>Comparer.</h2>
       <div class="tableau">
         <table>
-          <caption class="sr">Avantages du Private Club par catégorie</caption>
+          <caption class="sr">Avantages du Private Club par carte</caption>
           <thead>
             <tr><th scope="col"><span class="sr">Avantage</span></th>
               <th scope="col" class="col-founders">Founders<small>Gratuit, à vie</small></th>
-              <th scope="col">Early Access<small>CHF 29 par an</small></th>
               <th scope="col">Signature<small>CHF 59 par an</small></th></tr>
           </thead>
           <tbody id="lignes-comparer"></tbody>
         </table>
       </div>
-      <p class="tableau note">Les événements précisent chacun si l'entrée est incluse ou si une participation est demandée. Le nombre de places est limité.</p>
+      <p class="tableau note">Chaque événement indique s'il est payant. Places limitées.</p>
     </div>
   </section>
 
@@ -272,81 +237,46 @@
       <div class="aside">
         <span class="eyebrow">Domande</span>
         <h2>Questions fréquentes.</h2>
-        <p>Les conditions de facturation et de renouvellement sont aussi rappelées avant chaque paiement.</p>
         <div><a class="lien" href="membre.html">Mon espace membre</a></div>
       </div>
       <div>
         <details open>
-          <summary>Comment devenir membre fondateur ?</summary>
+          <summary>Comment devenir fondateur ?</summary>
           <div class="rep">
-            <p>En achetant le Cardigan Noce de la Prima Edizione (NC-01). Les 50 premiers clients dont la commande est payée deviennent membres fondateurs automatiquement, dans l'ordre de confirmation des paiements, avec un numéro de 001 à 050.</p>
-            <p>Une seule place par client, même pour plusieurs cardigans. Le statut ne se vend pas séparément. Une commande remboursée en totalité perd sa place : son numéro est retiré et n'est pas redonné automatiquement.</p>
+            <p>Achetez le cardigan NC-01. Les 50 premières commandes payées reçoivent les numéros 001 à 050, dans l'ordre des paiements. Une place par client. Une commande remboursée perd sa place.</p>
           </div>
         </details>
         <details>
-          <summary>Quels sont les avantages du club ?</summary>
+          <summary>Les fondateurs ont-ils accès aux événements ?</summary>
           <div class="rep">
-            <p>Les trois cartes donnent accès aux nouvelles collections 48 heures avant le public. Signature et Founders ajoutent les événements privés, les présentations, les expériences, les votes sur les futures collections et les contenus réservés.</p>
-            <p>Les fondateurs ont au minimum tous les privilèges Signature, à vie et sans cotisation.</p>
+            <p>Non, les événements privés sont réservés à Signature. Un fondateur peut prendre Signature pour CHF 59 par an et garde son numéro.</p>
           </div>
         </details>
         <details>
-          <summary>Quand commence mon abonnement ?</summary>
+          <summary>Comment fonctionne l'abonnement Signature ?</summary>
           <div class="rep">
-            <p>Le jour où votre paiement est confirmé, pour une année complète. Votre carte numérique apparaît aussitôt dans votre espace membre.</p>
-            <p>À la date anniversaire, l'abonnement se renouvelle au même prix, sauf si vous avez arrêté le renouvellement. Nous vous écrivons avant chaque renouvellement.</p>
+            <p>Il démarre au paiement, pour un an, et se renouvelle au même prix. Vous pouvez arrêter le renouvellement à tout moment dans votre espace membre : l'accès reste jusqu'à la fin de l'année payée, sans remboursement.</p>
           </div>
         </details>
         <details>
-          <summary>Puis-je changer de formule ?</summary>
+          <summary>Comment acheter en avant-première ?</summary>
           <div class="rep">
-            <p>Oui. Le passage d'Early Access à Signature est immédiat : vous payez seulement la différence pour les mois restants, et votre date de renouvellement ne change pas.</p>
-            <p>Le passage de Signature à Early Access prend effet au prochain renouvellement. Vous gardez vos avantages Signature jusque-là.</p>
-          </div>
-        </details>
-        <details>
-          <summary>Comment annuler mon abonnement ?</summary>
-          <div class="rep">
-            <p>Depuis votre espace membre, « Arrêter le renouvellement », à tout moment. Aucun nouveau prélèvement n'aura lieu, et vous gardez vos avantages jusqu'à la fin de l'année déjà payée. La période en cours n'est pas remboursée.</p>
-          </div>
-        </details>
-        <details>
-          <summary>Les événements sont-ils gratuits ?</summary>
-          <div class="rep">
-            <p>Pas forcément. Chaque invitation indique si l'entrée est incluse ou si une participation est demandée.</p>
-            <p>L'abonnement Signature donne accès aux invitations et aux réservations, mais ne garantit pas une place quand la capacité est limitée. Lorsqu'un événement est complet, vous pouvez rejoindre la liste d'attente.</p>
-          </div>
-        </details>
-        <details>
-          <summary>Comment accéder aux nouvelles collections en avance ?</summary>
-          <div class="rep">
-            <p>Connectez-vous à votre espace membre. Chaque lancement annonce sa date publique et l'heure d'ouverture aux membres, en général 48 heures plus tôt. Vous recevez une notification avant l'ouverture.</p>
-            <p>Les quantités restent limitées : l'avant-première donne la priorité, pas une pièce garantie.</p>
+            <p>Dans votre espace membre. Chaque lancement s'y ouvre 48 heures avant le public. Les quantités restent limitées.</p>
           </div>
         </details>
         <details>
           <summary>Comment recevoir ma carte ?</summary>
           <div class="rep">
-            <p>La carte numérique est disponible dès l'activation, dans votre espace membre, en plein écran si vous le souhaitez.</p>
-            <p>La carte imprimée, au format d'une carte bancaire, vous est envoyée par la poste, sous enveloppe, en Suisse et au Liechtenstein. Indiquez votre adresse dans votre espace membre : vous y suivez aussi l'envoi. Les fondateurs la reçoivent glissée dans le colis de leur cardigan.</p>
-            <p>La carte est envoyée une seule fois : votre numéro est à vie et le renouvellement n'en envoie pas de nouvelle. Si vous passez à Signature, vous recevez la carte Signature. Carte perdue ou abîmée ? Écrivez-nous, nous vous en envoyons une nouvelle avec le même numéro.</p>
+            <p>La carte numérique est dans votre espace membre dès l'activation. La carte imprimée est envoyée une fois par la poste, en Suisse et au Liechtenstein, à l'adresse indiquée dans votre espace. Les fondateurs la reçoivent avec leur cardigan. Carte perdue : écrivez-nous.</p>
           </div>
         </details>
         <details>
           <summary>Que contient le QR code de la carte ?</summary>
           <div class="rep">
-            <p>Seulement un code aléatoire, sans nom ni adresse ni aucune donnée personnelle. Scanné, il ouvre l'espace membre, qui demande toujours de se connecter. À un événement, notre équipe l'utilise pour vérifier votre accès.</p>
+            <p>Un code aléatoire, sans donnée personnelle. Il ouvre votre espace membre, qui demande toujours la connexion.</p>
           </div>
         </details>
       </div>
-    </div>
-  </section>
-
-  <section class="conclusion">
-    <div class="wrap">
-      <span class="eyebrow">Nocelli Private Club</span>
-      <p class="devise">More than a brand. <em>A circle of distinction.</em></p>
-      <div class="actions"><a class="btn clair" href="#formules">Choisir ma carte</a></div>
     </div>
   </section>
 </main>

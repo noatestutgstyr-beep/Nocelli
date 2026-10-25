@@ -1,6 +1,5 @@
 // Ouvre un paiement Stripe ou modifie l'abonnement de la personne connectée.
-// Corps JSON : { action: 'souscrire', plan: 'early' | 'signature' }
-//            | { action: 'passer_signature' } | { action: 'passer_early' }
+// Corps JSON : { action: 'souscrire', plan: 'signature' }
 //            | { action: 'annuler_renouvellement' } | { action: 'reprendre_renouvellement' }
 //            | { action: 'acheter', commande_id }   (commande créée par reserver_piece)
 // Rien n'est activé ici : seule la confirmation de Stripe (webhook) active un droit.
@@ -59,28 +58,8 @@ Deno.serve(async (req) => {
     const { data: ab } = await moi.from('abonnements').select('*').in('statut', ['actif', 'impaye']).maybeSingle();
     if (!ab) return reponse({ erreur: 'pas_abonne' }, 409);
     const sub = await stripe('GET', `subscriptions/${ab.stripe_abonnement}`);
-    const item = sub.items.data[0].id;
 
-    if (corps.action === 'passer_signature' && ab.plan === 'early') {
-      // Immédiat : Stripe facture la différence au prorata, l'échéance ne change pas.
-      await stripe('POST', `subscriptions/${sub.id}`, {
-        items: { 0: { id: item, price: PRIX.signature } },
-        proration_behavior: 'always_invoice',
-        payment_behavior: 'pending_if_incomplete',   // rien ne change si le paiement échoue
-        metadata: { plan: 'signature', plan_au_renouvellement: '' },
-      }, `up-${sub.id}-${ab.debut}`);
-      return reponse({ ok: true });
-    }
-    if (corps.action === 'passer_early' && ab.plan === 'signature') {
-      // Au renouvellement : appliqué par le webhook à l'événement invoice.upcoming.
-      await stripe('POST', `subscriptions/${sub.id}`, { metadata: { plan_au_renouvellement: 'early' } });
-      return reponse({ ok: true, le: ab.fin });
-    }
     if (corps.action === 'annuler_renouvellement' || corps.action === 'reprendre_renouvellement') {
-      if (corps.action === 'reprendre_renouvellement') {
-        const { data: v } = await service.rpc('peut_souscrire', { p_compte: user.id, p_plan: ab.plan });
-        if (v === 'deja_fondateur') return reponse({ erreur: 'deja_fondateur' }, 409);
-      }
       await stripe('POST', `subscriptions/${sub.id}`, { cancel_at_period_end: corps.action === 'annuler_renouvellement' });
       return reponse({ ok: true });
     }

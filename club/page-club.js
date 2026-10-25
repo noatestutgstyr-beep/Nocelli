@@ -5,7 +5,7 @@
 
   // Cartes : éventail d'ouverture et une carte par formule (spécimens).
   var eventail = document.getElementById('eventail');
-  ['founders', 'early', 'signature'].forEach(function (cat) {
+  ['founders', 'signature'].forEach(function (cat) {
     eventail.insertBefore(C.creer({ categorie: cat, numero: 1, retournable: false }), eventail.querySelector('.specimen'));
     var scene = document.querySelector('[data-carte=' + cat + ']');
     scene.appendChild(C.creer({ categorie: cat, numero: 1, nom: 'Votre nom' }));
@@ -13,18 +13,16 @@
 
   // Tableau comparatif
   var LIGNES = [
-    ['Accès anticipé aux collections', 1, 1, 1],
-    ['Accès aux nouvelles pièces 48 h avant', 1, 1, 1],
-    ['Invitations aux événements privés', 1, 0, 1],
-    ['Expériences exclusives', 1, 0, 1],
-    ['Votes sur les futures collections', 1, 0, 1],
-    ['Carte numérique dans l’espace membre', 1, 1, 1],
-    ['Carte imprimée envoyée chez vous', 1, 1, 1],
-    ['Statut à vie sans cotisation', 1, 0, 0]
+    ['Collections 48 h avant le public', 1, 1],
+    ['Priorité sur les éditions limitées', 1, 0],
+    ['Événements privés et présentations', 0, 1],
+    ['Votes sur les futures collections', 1, 1],
+    ['Carte numérique et imprimée', 1, 1],
+    ['Gratuit, à vie', 1, 0]
   ];
   document.getElementById('lignes-comparer').innerHTML = LIGNES.map(function (l) {
     function c(v, i) { return '<td' + (i === 0 ? ' class="col-founders"' : '') + '>' + (v ? '<span class="oui" aria-hidden="true"></span><span class="sr">Oui</span>' : '<span class="nonc" aria-hidden="true"></span><span class="sr">Non</span>') + '</td>'; }
-    return '<tr><th scope="row">' + l[0] + '</th>' + c(l[1], 0) + c(l[2], 1) + c(l[3], 2) + '</tr>';
+    return '<tr><th scope="row">' + l[0] + '</th>' + c(l[1], 0) + c(l[2], 1) + '</tr>';
   }).join('');
 
   // Places fondateurs restantes
@@ -53,13 +51,13 @@
   }, { passive: true });
 
   /* ---------------- Adhésion ---------------- */
-  var NOMS = { early: 'Early Access', signature: 'Signature Club' };
+  var NOMS = { signature: 'Signature Club' };
 
   document.querySelectorAll('[data-rejoindre]').forEach(function (b) {
     b.addEventListener('click', function () { rejoindre(b.dataset.rejoindre); });
   });
   // Lien direct depuis une autre page : club.html#rejoindre-signature
-  var m = location.hash.match(/^#rejoindre-(early|signature)$/);
+  var m = location.hash.match(/^#rejoindre-(signature)$/);
   if (m) setTimeout(function () { rejoindre(m[1]); }, 400);
 
   function rejoindre(plan) {
@@ -71,7 +69,7 @@
     w.remplacer(
       '<span class="eyebrow">' + NOMS[plan] + ' · étape 1 sur 2</span>' +
       '<h3>Votre compte Nocelli</h3>' +
-      '<p class="conditions">L’adhésion est liée à votre compte client. Si votre adresse est déjà connue, nous reprenons votre compte existant.</p>' +
+      '<p class="conditions">Si votre adresse e-mail est déjà connue, nous reprenons votre compte.</p>' +
       '<form id="f-id" novalidate style="display:grid;gap:22px;margin-top:22px">' +
       '<div class="champ"><label for="id-prenom">Prénom et nom</label><input id="id-prenom" autocomplete="name" placeholder="Lorenzo Bianchi"></div>' +
       '<div class="champ"><label for="id-email">E-mail</label><input id="id-email" type="email" inputmode="email" autocomplete="email" placeholder="vous@exemple.ch"></div>' +
@@ -100,9 +98,8 @@
       '<div><dt>Renouvellement</dt><dd>Automatique le ' + NC.date(fin.getTime()) + ', ' + NC.chf(cat.prix) + '</dd></div>' +
       '</dl>' +
       '<div class="conditions">' +
-      '<p>Votre adhésion démarre quand le paiement est confirmé. Vous pouvez arrêter le renouvellement à tout moment dans votre espace membre : vous gardez vos avantages jusqu’à la fin de l’année payée, sans nouveau prélèvement.</p>' +
-      (plan === 'early' ? '<p>Early Access ne donne pas accès aux événements privés. Vous pourrez passer à Signature plus tard en payant seulement la différence.</p>' : '<p>Les événements précisent chacun leur prix éventuel. Les places sont limitées et ne sont pas garanties.</p>') +
-      '<p>Paiement sécurisé chez notre prestataire. Nocelli ne voit ni ne conserve vos données bancaires.</p>' +
+      '<p>Vous pouvez arrêter le renouvellement à tout moment dans votre espace membre. L’accès reste jusqu’à la fin de l’année payée.</p>' +
+      '<p>Paiement sécurisé chez notre prestataire. Nocelli ne conserve aucune donnée bancaire.</p>' +
       '</div>' +
       '<label class="case"><input type="checkbox" id="accepte"> <span>J’ai lu les conditions de facturation et de renouvellement.</span></label>' +
       '<p class="erreur" id="r-err" role="alert"></p>' +
@@ -142,8 +139,8 @@
     Club.monEspace().then(function (esp) {
       w.remplacer('<span class="eyebrow">Benvenuto</span><h3>Bienvenue au ' + NOMS[plan] + '.</h3>' +
         '<div data-ici style="margin-top:24px"></div>' +
-        '<p class="conditions">Votre carte numérique est prête dans votre espace membre. Indiquez-y votre adresse : votre carte imprimée vous sera envoyée par la poste.</p>' +
-        '<div style="display:grid;margin-top:20px"><a class="btn plein" href="membre.html#envoi">Voir ma carte et donner mon adresse</a></div>');
+        '<p class="conditions">Indiquez votre adresse pour recevoir la carte imprimée.</p>' +
+        '<div style="display:grid;margin-top:20px"><a class="btn plein" href="membre.html#envoi">Donner mon adresse</a></div>');
       var c = C.creer(esp.carte);
       c.style.animation = 'revele 1.3s var(--doux) both';
       w.corps.querySelector('[data-ici]').appendChild(c);

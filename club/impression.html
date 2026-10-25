@@ -26,9 +26,9 @@ html,body{margin:0;background:#fff}
 <script src="vendor/qrcode.js"></script>
 <script src="cartes.js"></script>
 <script>
-// ?cat=founders&numero=7&nom=...&jeton=... ; sans paramètre : les trois spécimens.
+// ?cat=founders&numero=7&nom=...&jeton=... ; sans paramètre : les deux spécimens.
 var q = new URLSearchParams(location.search);
-var liste = q.get('cat') ? [q.get('cat')] : ['founders', 'early', 'signature'];
+var liste = q.get('cat') ? [q.get('cat')] : ['founders', 'signature'];
 liste.forEach(function (cat) {
   [false, true].forEach(function (verso) {
     var p = document.createElement('div'); p.className = 'page';

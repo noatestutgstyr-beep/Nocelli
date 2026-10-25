@@ -1,13 +1,12 @@
 /* NOCELLI PRIVATE CLUB — styles communs (club, espace membre, administration).
    Même maison que la page d'accueil : ivoire et noyer, Bodoni Moda et Jost, filets fins.
-   Le club ajoute trois matières de carte : chocolat et or champagne, ivoire papier, noir minéral. */
+   Le club ajoute deux matières de carte : chocolat et or champagne, noir minéral. */
 :root{
   --avorio:#F7F3EC; --sabbia:#ECE3D5; --noce:#3A2519; --noce-scuro:#21140D;
   --tabacco:#8A6C52; --crema:#E4D1B0;
   --filo:rgba(58,37,25,.16); --filo-scuro:rgba(228,209,176,.22);
   /* Cartes */
   --f-choc:#30231D; --f-or:#C5AA83; --f-beige:#E4D2B5;
-  --e-ivoire:#F0E5D8; --e-sable:#D8C6B4; --e-brun:#30231D;
   --s-noir:#111111; --s-anthra:#252525; --s-or:#C5AA83;
   /* États */
   --ok:#4F6B45; --alerte:#9A6A1F; --refus:#8A3B22;

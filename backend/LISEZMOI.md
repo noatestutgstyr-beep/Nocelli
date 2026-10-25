@@ -16,7 +16,7 @@ serveur. Rien n'est activé : il faut l'accord de Noa et deux comptes gratuits.
 | `supabase/schema.sql` | Tables, sécurité ligne par ligne (RLS), règles du club en SQL : 50 places fondateurs sous verrou, abonnements, accès anticipé, stock, événements et liste d'attente, journal d'administration. |
 | `supabase/functions/paiement` | Ouvre un paiement Stripe (adhésion, achat d'une pièce), change de formule, arrête ou reprend le renouvellement. |
 | `supabase/functions/stripe-webhook` | Seule porte par laquelle un paiement active un droit. Signature vérifiée, chaque événement traité une seule fois. |
-| `tests/test-schema.sh` | 76 tests de règles + 3 tests de concurrence (60 paiements simultanés pour 50 places, 20 inscriptions pour 5 places, 12 achats pour 3 pièces). |
+| `tests/test-schema.sh` | 79 tests de règles + 3 tests de concurrence (60 paiements simultanés pour 50 places, 20 inscriptions pour 5 places, 12 achats pour 3 pièces). |
 
 Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, PostgreSQL local).
 
@@ -29,15 +29,15 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
   place (tracé). Si le client a une autre commande NC-01 payée, il garde sa place.
 - **Abonnements** : actifs seulement après confirmation de Stripe. Un seul abonnement vivant par
   compte (index unique en base). Renouvellement annuel ; échec de paiement : 7 jours de grâce puis
-  expiration. Early Access → Signature immédiat, différence au prorata ; Signature → Early Access
-  au renouvellement. Un fondateur ne paie jamais.
+  expiration. Une seule formule payante : Signature (CHF 59/an). Le Founders Club est gratuit et ne
+  comprend pas les événements privés ; un fondateur peut prendre Signature en plus.
 - **Accès anticipé** : la vente passe par `reserver_piece`, qui refuse un non-membre avant la date
   publique. Durée réglable par lancement. Stock décompté de façon atomique, pièce rendue si le
   paiement n'arrive pas en 30 minutes.
-- **Événements** : inscription Founders et Signature uniquement, verrou sur la dernière place,
+- **Événements** : inscription des membres Signature uniquement (fondateurs compris s'ils ont Signature), verrou sur la dernière place,
   liste d'attente qui avance automatiquement.
 - **Carte imprimée** : une carte par catégorie et par compte, envoyée une fois (un renouvellement
-  n'envoie rien, un passage à Signature envoie la carte Signature). Fondateurs : dans le colis du
+  n'envoie rien ; un fondateur reçoit la carte Founders, même s'il a Signature). Fondateurs : dans le colis du
   cardigan. Une carte pas encore partie est annulée si le compte n'est plus membre. Jamais deux
   cartes en préparation pour un compte (index unique). Adresse en Suisse ou au Liechtenstein,
   lisible seulement par son titulaire et l'administration ; elle n'est jamais dans le QR code.
@@ -51,14 +51,14 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
 1. **Supabase** (gratuit, compte à créer) : nouveau projet en Europe (Zurich ou Francfort),
    coller `supabase/schema.sql` dans SQL Editor, activer la connexion par e-mail (lien magique).
 2. **Stripe** (sans abonnement mensuel, commission par paiement) : compte en **mode test**,
-   créer deux prix annuels en CHF (29 et 59), activer TWINT et les cartes.
+   créer un prix annuel en CHF (59, Signature), activer TWINT et les cartes.
 3. Secrets dans Supabase (Project Settings > Edge Functions) : `STRIPE_SECRET_KEY` (clé `sk_test_`),
-   `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRIX_EARLY`, `STRIPE_PRIX_SIGNATURE`, `SITE_URL`.
+   `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRIX_SIGNATURE`, `SITE_URL`.
    La fonction refuse une clé réelle tant que `PAIEMENTS_REELS=oui` n'est pas posé.
 4. Déployer : `supabase functions deploy paiement` et
    `supabase functions deploy stripe-webhook --no-verify-jwt`, puis déclarer l'adresse du webhook
    dans Stripe (événements : `checkout.session.completed`, `checkout.session.expired`,
-   `customer.subscription.*`, `invoice.paid`, `invoice.upcoming`, `charge.refunded`).
+   `customer.subscription.*`, `invoice.paid`, `charge.refunded`).
 5. Remplacer dans `club/donnees.js` les appels au serveur de test par les appels Supabase
    (mêmes noms de fonctions), et passer `modeTest` à `false`.
 6. Planifier `liberer_commandes_expirees()` toutes les 5 minutes et `synchroniser_envois()` une fois

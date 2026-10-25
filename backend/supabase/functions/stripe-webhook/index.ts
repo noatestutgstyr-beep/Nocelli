@@ -33,7 +33,6 @@ async function synchroniser(db: ReturnType<typeof baseService>, evenementId: str
     p_debut: new Date(sub.current_period_start * 1000).toISOString(),
     p_fin: new Date(sub.current_period_end * 1000).toISOString(),
     p_renouvellement: !sub.cancel_at_period_end,
-    p_plan_suivant: sub.metadata?.plan_au_renouvellement || null,
   });
   if (error) throw error;
   if (r === 'doublon_a_rembourser') {
@@ -43,11 +42,6 @@ async function synchroniser(db: ReturnType<typeof baseService>, evenementId: str
       const inv = await stripe('GET', `invoices/${sub.latest_invoice}`);
       if (inv.payment_intent) await stripe('POST', 'refunds', { payment_intent: inv.payment_intent }, `refund-${sub.id}`);
     }
-  }
-  // Un fondateur ne paie jamais de renouvellement.
-  const { data: verdict } = await db.rpc('peut_souscrire', { p_compte: compte, p_plan: plan });
-  if (verdict === 'deja_fondateur' && !sub.cancel_at_period_end && statut === 'actif') {
-    await stripe('POST', `subscriptions/${sub.id}`, { cancel_at_period_end: true });
   }
 }
 
@@ -82,23 +76,8 @@ Deno.serve(async (req) => {
           await db.rpc('enregistrer_paiement', {
             p_id: o.id, p_compte: sub.metadata?.compte_id, p_stripe_abonnement: o.subscription,
             p_montant: o.amount_paid / 100,
-            p_type: o.billing_reason === 'subscription_create' ? 'adhesion'
-              : o.billing_reason === 'subscription_update' ? 'passage_signature' : 'renouvellement',
+            p_type: o.billing_reason === 'subscription_create' ? 'adhesion' : 'renouvellement',
           });
-        }
-        break;
-      case 'invoice.upcoming':
-        // Passage Signature -> Early Access demandé : appliqué juste avant le renouvellement.
-        if (o.subscription) {
-          const sub = await stripe('GET', `subscriptions/${o.subscription}`);
-          const suivant = sub.metadata?.plan_au_renouvellement;
-          if (suivant && PRIX[suivant]) {
-            await stripe('POST', `subscriptions/${sub.id}`, {
-              items: { 0: { id: sub.items.data[0].id, price: PRIX[suivant] } },
-              proration_behavior: 'none',
-              metadata: { plan: suivant, plan_au_renouvellement: '' },
-            });
-          }
         }
         break;
       case 'checkout.session.expired':

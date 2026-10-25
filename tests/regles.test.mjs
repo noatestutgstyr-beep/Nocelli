@@ -124,32 +124,37 @@ test('l’administration peut redonner un numéro retiré, seulement à un achet
   assert.throws(() => R.reattribuerNumeroRetire(e, 2, b.id, T0 + J), /n'est pas retiré/);
 });
 
-test('le Founders Club ne s’achète jamais', () => {
+test('le Founders Club ne s’achète jamais, et Early Access n’existe plus', () => {
   const e = R.etatVide();
   assert.throws(() => R.demarrerAbonnement(e, client(e, 1).id, 'founders', T0), /ne se vend pas/);
+  assert.throws(() => R.demarrerAbonnement(e, client(e, 1).id, 'early', T0), /Formule inconnue/);
+  assert.deepEqual(Object.keys(R.CATEGORIES), ['founders', 'signature']);
 });
 
-test('un fondateur a au moins tous les droits Signature, à vie et gratuitement', () => {
+test('fondateur : avant-premières, votes et contenus à vie, mais pas les événements privés', () => {
   const e = R.etatVide();
   const a = client(e, 1);
   R.confirmerPaiementCommande(e, commande(e, a.id).id, T0);
-  const dans10ans = T0 + 3650 * J;
-  const d = R.droits(e, a.id, dans10ans);
-  const sig = R.CATEGORIES.signature;
-  for (const k of ['accesAnticipe', 'evenements', 'experiences', 'votes', 'contenus']) {
-    assert.ok(!sig[k] || d[k], `fondateur a « ${k} »`);
-  }
+  const d = R.droits(e, a.id, T0 + 3650 * J);
   assert.equal(d.categorie, 'founders');
-  assert.throws(() => R.demarrerAbonnement(e, a.id, 'signature', T0), /fondateur/);
+  assert.ok(d.accesAnticipe && d.votes && d.contenus);
+  assert.equal(d.evenements, false);
+  assert.equal(d.experiences, false);
 });
 
-test('devenir fondateur arrête le renouvellement d’un abonnement payant', () => {
+test('un fondateur peut prendre Signature pour les événements, et garde son statut', () => {
   const e = R.etatVide();
   const a = client(e, 1);
-  const ab = abonner(e, a.id, 'early');
-  R.confirmerPaiementCommande(e, commande(e, a.id).id, T0 + J);
-  assert.equal(ab.renouvellementAuto, false);
-  assert.equal(R.droits(e, a.id, T0 + 400 * J).categorie, 'founders');
+  R.confirmerPaiementCommande(e, commande(e, a.id).id, T0);
+  const ab = abonner(e, a.id, 'signature', T0 + J);
+  const d = R.droits(e, a.id, T0 + 2 * J);
+  assert.equal(d.categorie, 'founders');
+  assert.equal(d.evenements, true);
+  assert.equal(ab.renouvellementAuto, true, 'Signature se renouvelle normalement');
+  R.annulerRenouvellement(e, a.id, T0 + 2 * J);
+  const apres = R.droits(e, a.id, ab.fin + J);
+  assert.equal(apres.categorie, 'founders', 'Signature échue : toujours fondateur');
+  assert.equal(apres.evenements, false);
 });
 
 /* ---------- Abonnements ---------- */
@@ -157,33 +162,35 @@ test('devenir fondateur arrête le renouvellement d’un abonnement payant', () 
 test('l’abonnement n’est actif qu’après confirmation du paiement', () => {
   const e = R.etatVide();
   const a = client(e, 1);
-  const ab = R.demarrerAbonnement(e, a.id, 'early', T0);
+  const ab = R.demarrerAbonnement(e, a.id, 'signature', T0);
   assert.equal(R.droits(e, a.id, T0).membre, false);
   R.confirmerPaiementAbonnement(e, ab.id, 'evt_1', T0);
-  assert.equal(R.droits(e, a.id, T0).categorie, 'early');
+  assert.equal(R.droits(e, a.id, T0).categorie, 'signature');
   assert.equal(ab.fin, Date.UTC(2027, 10, 25, 18, 0, 0), 'un an exactement');
 });
 
 test('pas de double abonnement actif, pas de double paiement', () => {
   const e = R.etatVide();
   const a = client(e, 1);
-  const ab = R.demarrerAbonnement(e, a.id, 'early', T0);
-  assert.equal(R.demarrerAbonnement(e, a.id, 'early', T0 + 1000).id, ab.id, 'même paiement repris');
+  const ab = R.demarrerAbonnement(e, a.id, 'signature', T0);
+  assert.equal(R.demarrerAbonnement(e, a.id, 'signature', T0 + 1000).id, ab.id, 'même paiement repris');
   R.confirmerPaiementAbonnement(e, ab.id, 'evt_1', T0);
   R.confirmerPaiementAbonnement(e, ab.id, 'evt_1', T0 + 5); // webhook rejoué
   assert.equal(e.paiements.length, 1);
-  assert.throws(() => R.demarrerAbonnement(e, a.id, 'signature', T0 + J), /déjà un abonnement actif/);
+  assert.throws(() => R.demarrerAbonnement(e, a.id, 'signature', T0 + J), /déjà membre Signature/);
 });
 
 test('deux paiements en parallèle : un seul abonnement est activé, l’autre est à rembourser', () => {
   const e = R.etatVide();
   const a = client(e, 1);
-  const x = R.demarrerAbonnement(e, a.id, 'early', T0);
-  const y = R.demarrerAbonnement(e, a.id, 'signature', T0 + 1); // x abandonné
-  R.confirmerPaiementAbonnement(e, y.id, 'evt_y', T0 + 2);
-  const r = R.confirmerPaiementAbonnement(e, x.id, 'evt_x', T0 + 3);
+  const x = R.demarrerAbonnement(e, a.id, 'signature', T0);
+  const t = T0 + R.ATTENTE_PAIEMENT + 1;
+  const y = R.demarrerAbonnement(e, a.id, 'signature', t); // x abandonné après 30 min, nouveau paiement
+  assert.notEqual(x.id, y.id);
+  R.confirmerPaiementAbonnement(e, y.id, 'evt_y', t + 1);
+  const r = R.confirmerPaiementAbonnement(e, x.id, 'evt_x', t + 2); // le premier paiement arrive quand même
   assert.equal(r.aRembourser, true);
-  assert.equal(R.droits(e, a.id, T0 + 4).categorie, 'signature');
+  assert.equal(R.droits(e, a.id, t + 3).categorie, 'signature');
 });
 
 test('renouvellement : la nouvelle année part de l’ancienne échéance', () => {
@@ -200,7 +207,7 @@ test('renouvellement : la nouvelle année part de l’ancienne échéance', () =
 test('échec de paiement au renouvellement : 7 jours de grâce, puis expiration', () => {
   const e = R.etatVide();
   const a = client(e, 1);
-  const ab = abonner(e, a.id, 'early');
+  const ab = abonner(e, a.id, 'signature');
   R.echecPaiementAbonnement(e, ab.id, 'evt_fail', ab.fin);
   assert.equal(R.droits(e, a.id, ab.fin + 3 * J).membre, true, 'encore membre pendant la grâce');
   assert.equal(R.droits(e, a.id, ab.fin + 8 * J).membre, false);
@@ -227,40 +234,13 @@ test('annuler le renouvellement : accès gardé jusqu’à l’échéance, puis 
   assert.equal(ab.statut, 'expire');
 });
 
-test('Early Access -> Signature : différence au prorata, échéance inchangée', () => {
-  const e = R.etatVide();
-  const a = client(e, 1);
-  const ab = abonner(e, a.id, 'early');
-  const fin = ab.fin;
-  const mi = ab.debut + (ab.fin - ab.debut) / 2;
-  const ch = R.changerFormule(e, a.id, 'signature', mi);
-  assert.equal(ch.effet, 'paiement_requis');
-  assert.equal(ch.montant, 15); // (59 - 29) / 2
-  assert.equal(R.droits(e, a.id, mi).categorie, 'early', 'rien ne change avant paiement');
-  R.confirmerPassageSignature(e, ab.id, 'evt_up', mi);
-  assert.equal(R.droits(e, a.id, mi).categorie, 'signature');
-  assert.equal(ab.fin, fin);
-});
-
-test('Signature -> Early Access : prend effet au renouvellement', () => {
-  const e = R.etatVide();
-  const a = client(e, 1);
-  const ab = abonner(e, a.id, 'signature');
-  const ch = R.changerFormule(e, a.id, 'early', T0 + J);
-  assert.equal(ch.effet, 'au_renouvellement');
-  assert.equal(R.droits(e, a.id, T0 + 2 * J).categorie, 'signature');
-  R.confirmerPaiementAbonnement(e, ab.id, 'evt_r', ab.fin);
-  assert.equal(R.droits(e, a.id, ab.fin + J).categorie, 'early');
-  assert.equal(e.paiements.at(-1).montant, 29);
-});
-
 test('un client ne peut pas se donner une catégorie qu’il n’a pas payée', () => {
   const e = R.etatVide();
   const a = client(e, 1);
-  const ab = R.demarrerAbonnement(e, a.id, 'early', T0);
+  const ab = R.demarrerAbonnement(e, a.id, 'signature', T0);
   assert.equal(R.droits(e, a.id, T0).membre, false);
   // Le seul chemin vers « actif » est la confirmation du prestataire de paiement.
-  assert.throws(() => R.changerFormule(e, a.id, 'signature', T0), /Aucun abonnement actif/);
+  assert.throws(() => R.annulerRenouvellement(e, a.id, T0), /Aucun abonnement/);
   assert.equal(ab.statut, 'en_attente');
 });
 
@@ -272,24 +252,24 @@ function lancement(e, heures = 48) {
   return l;
 }
 
-test('accès anticipé : 48 h avant pour les trois catégories, jamais pour les non-membres', () => {
+test('accès anticipé : 48 h avant pour Founders et Signature, jamais pour les non-membres', () => {
   const e = R.etatVide();
   const l = lancement(e);
-  const visiteur = client(e, 1), early = client(e, 2), sig = client(e, 3), fond = client(e, 4);
-  abonner(e, early.id, 'early'); abonner(e, sig.id, 'signature');
+  const visiteur = client(e, 1), sig = client(e, 3), fond = client(e, 4);
+  abonner(e, sig.id, 'signature');
   R.confirmerPaiementCommande(e, commande(e, fond.id).id, T0);
   const avant = l.publicLe - 49 * H, pendant = l.publicLe - 47 * H;
-  for (const c of [visiteur, early, sig, fond]) assert.equal(R.peutAcheter(e, c.id, l.id, 'M', avant).ok, false);
+  for (const c of [visiteur, sig, fond]) assert.equal(R.peutAcheter(e, c.id, l.id, 'M', avant).ok, false);
   assert.equal(R.peutAcheter(e, visiteur.id, l.id, 'M', pendant).raison, 'reserve_membres');
   assert.equal(R.peutAcheter(e, null, l.id, 'M', pendant).raison, 'reserve_membres');
-  for (const c of [early, sig, fond]) assert.equal(R.peutAcheter(e, c.id, l.id, 'M', pendant).ok, true);
+  for (const c of [sig, fond]) assert.equal(R.peutAcheter(e, c.id, l.id, 'M', pendant).ok, true);
   assert.equal(R.peutAcheter(e, visiteur.id, l.id, 'M', l.publicLe).ok, true);
 });
 
 test('la durée d’accès anticipé est réglable par lancement', () => {
   const e = R.etatVide();
   const l = lancement(e, 24);
-  const m = client(e, 1); abonner(e, m.id, 'early');
+  const m = client(e, 1); abonner(e, m.id, 'signature');
   assert.equal(R.peutAcheter(e, m.id, l.id, 'M', l.publicLe - 30 * H).ok, false);
   assert.equal(R.peutAcheter(e, m.id, l.id, 'M', l.publicLe - 20 * H).ok, true);
 });
@@ -323,16 +303,18 @@ function evenement(e, capacite = 2) {
   return ev;
 }
 
-test('événements : Founders et Signature s’inscrivent, Early Access et visiteurs non', () => {
+test('événements : seuls les membres Signature s’inscrivent, fondateurs compris s’ils ont Signature', () => {
   const e = R.etatVide();
   const ev = evenement(e, 10);
-  const early = client(e, 1), sig = client(e, 2), fond = client(e, 3), vis = client(e, 4);
-  abonner(e, early.id, 'early'); abonner(e, sig.id, 'signature');
+  const sig = client(e, 1), fond = client(e, 2), fondSig = client(e, 3), vis = client(e, 4);
+  abonner(e, sig.id, 'signature');
   R.confirmerPaiementCommande(e, commande(e, fond.id).id, T0);
-  assert.throws(() => R.inscrireEvenement(e, early.id, ev.id, T0), /réservés aux membres Signature/);
-  assert.throws(() => R.inscrireEvenement(e, vis.id, ev.id, T0), /Réservé/);
+  R.confirmerPaiementCommande(e, commande(e, fondSig.id).id, T0);
+  abonner(e, fondSig.id, 'signature');
+  assert.throws(() => R.inscrireEvenement(e, fond.id, ev.id, T0), /réservés aux membres Signature/);
+  assert.throws(() => R.inscrireEvenement(e, vis.id, ev.id, T0), /réservés aux membres Signature/);
   assert.equal(R.inscrireEvenement(e, sig.id, ev.id, T0).statut, 'confirme');
-  assert.equal(R.inscrireEvenement(e, fond.id, ev.id, T0).statut, 'confirme');
+  assert.equal(R.inscrireEvenement(e, fondSig.id, ev.id, T0).statut, 'confirme');
 });
 
 test('événement complet : liste d’attente, puis promotion quand une place se libère', () => {
@@ -353,14 +335,16 @@ test('événement complet : liste d’attente, puis promotion quand une place se
 
 test('statistiques : membres par catégorie et revenus', () => {
   const e = R.etatVide();
-  abonner(e, client(e, 1).id, 'early');
-  abonner(e, client(e, 2).id, 'signature');
+  abonner(e, client(e, 1).id, 'signature');
+  const f = client(e, 2);
+  R.confirmerPaiementCommande(e, commande(e, f.id).id, T0);
+  abonner(e, f.id, 'signature');
   R.confirmerPaiementCommande(e, commande(e, client(e, 3).id).id, T0);
   const s = R.statistiques(e, T0 + J);
-  assert.equal(s.early, 1); assert.equal(s.signature, 1); assert.equal(s.founders, 1);
-  assert.equal(s.fondateursRestants, 49);
-  assert.equal(s.revenuAnnuel, 88);
-  assert.equal(s.encaisse, 88);
+  assert.equal(s.signature, 2); assert.equal(s.founders, 2); assert.equal(s.fondateursSignature, 1);
+  assert.equal(s.fondateursRestants, 48);
+  assert.equal(s.revenuAnnuel, 118);
+  assert.equal(s.encaisse, 118);
 });
 
 /* ---------- Carte physique envoyée par la poste ---------- */
@@ -371,7 +355,7 @@ test('un nouvel abonné attend sa carte ; elle est prête dès que l’adresse e
   const e = R.etatVide();
   const cpt = client(e, 1);
   assert.equal(R.synchroniserEnvoi(e, cpt.id, T0), null, 'pas membre : pas de carte');
-  abonner(e, cpt.id, 'early');
+  abonner(e, cpt.id, 'signature');
   const env = R.synchroniserEnvoi(e, cpt.id, T0);
   assert.equal(env.statut, 'adresse_manquante');
   assert.equal(env.mode, 'poste');
@@ -417,20 +401,18 @@ test('la carte n’est envoyée qu’une fois : un renouvellement n’en renvoie
   assert.equal(R.envoisDe(e, cpt.id).length, 1);
 });
 
-test('passage à Signature avant l’envoi : la carte Early est annulée, la Signature la remplace', () => {
+test('abonné Signature devenu fondateur avant l’envoi : il reçoit la carte Founders à la place', () => {
   const e = R.etatVide();
   const cpt = client(e, 1);
   R.enregistrerAdresse(e, cpt.id, ADRESSE);
-  abonner(e, cpt.id, 'early');
-  const early = R.synchroniserEnvoi(e, cpt.id, T0);
-  R.changerFormule(e, cpt.id, 'signature', T0 + J);
-  const a = R.abonnementCourant(e, cpt.id, T0 + J);
-  R.confirmerPassageSignature(e, a.id, 'evt_passage', T0 + J);
-  const sig = R.synchroniserEnvoi(e, cpt.id, T0 + J);
-  assert.equal(early.statut, 'annulee');
-  assert.equal(early.motif, 'remplacee');
-  assert.equal(sig.categorie, 'signature');
-  assert.equal(sig.statut, 'a_preparer');
+  abonner(e, cpt.id, 'signature');
+  const sig = R.synchroniserEnvoi(e, cpt.id, T0);
+  R.confirmerPaiementCommande(e, commande(e, cpt.id).id, T0 + J);
+  const fond = R.synchroniserEnvoi(e, cpt.id, T0 + J);
+  assert.equal(sig.statut, 'annulee');
+  assert.equal(sig.motif, 'remplacee');
+  assert.equal(fond.categorie, 'founders');
+  assert.equal(fond.mode, 'colis');
 });
 
 test('fondateur remboursé avant l’envoi : sa carte n’est pas envoyée', () => {

@@ -21,7 +21,7 @@ create function test_abonner(p_compte uuid, p_plan text, p_fin timestamptz defau
 returns text language sql as $$
   select webhook();
   select synchroniser_abonnement(gen_random_uuid()::text, p_compte, 'sub_' || gen_random_uuid(), p_plan, 'actif',
-                                 now(), p_fin, true, null)
+                                 now(), p_fin, true)
 $$;
 
 -- Préparation des tests de concurrence (appelées depuis test-schema.sh)
@@ -65,7 +65,7 @@ select ok(confirmer_paiement_commande(:'ca2', 'pay_a2') is null, 'deuxième card
 select ok(confirmer_paiement_commande(:'cb', 'pay_b') = 2, 'client suivant : numéro 002');
 select ok(confirmer_paiement_commande(:'cc', 'pay_c') is null, 'autre produit : pas de place');
 select ok((select categorie from droits_de(:'a')) = 'founders', 'le fondateur a la catégorie Founders');
-select ok((select evenements and votes and acces_anticipe from droits_de(:'a')), 'le fondateur a tous les droits Signature');
+select ok((select votes and acces_anticipe and not evenements from droits_de(:'a')), 'le fondateur : avant-premières et votes, sans événements privés');
 
 select ok(fermer_commande(:'ca1', 'remboursee', 'ref_a1') = 'transferee', 'remboursement d''un des deux cardigans : place gardée');
 select ok((select numero from places_fondateurs where compte_id = :'a' and statut = 'confirme') = 1, 'même numéro 001');
@@ -114,13 +114,20 @@ reset role;
 
 -- ---------------------------------------------------------------------------
 \echo '— Abonnements'
-select ok(peut_souscrire(:'a', 'early') = 'deja_fondateur', 'un fondateur ne paie jamais d''abonnement');
 select ok(peut_souscrire(:'luca', 'founders') = 'formule_non_vendue', 'le Founders Club ne se vend pas');
-select ok(test_abonner(:'luca', 'early') = 'ok', 'Early Access activé par le webhook');
+select ok(peut_souscrire(:'luca', 'early') = 'formule_non_vendue', 'Early Access n''existe plus');
+do $$ begin
+  begin insert into abonnements (compte_id, plan, statut, debut, fin) select id, 'early', 'actif', now(), now() from profils limit 1; raise exception 'accepté';
+  exception when check_violation then perform ok(true, 'la base refuse toute autre formule que Signature'); end;
+end $$;
+select ok(peut_souscrire(:'a', 'signature') = 'ok', 'un fondateur peut prendre Signature');
+select ok(not (select evenements from droits_de(:'a')), 'fondateur seul : pas d''événements privés');
+select ok((select acces_anticipe and votes and contenus from droits_de(:'a')), 'fondateur : avant-premières, votes, contenus');
+select ok(test_abonner(:'luca', 'signature') = 'ok', 'Signature activé par le webhook');
 select ok(peut_souscrire(:'luca', 'signature') = 'deja_abonne', 'pas de deuxième abonnement');
 select ok(test_abonner(:'luca', 'signature') = 'doublon_a_rembourser', 'un deuxième abonnement vivant est refusé par la base');
-select ok((select categorie from droits_de(:'luca')) = 'early', 'catégorie Early Access');
-select ok(not (select evenements from droits_de(:'luca')), 'Early Access : pas d''événements privés');
+select ok((select categorie from droits_de(:'luca')) = 'signature', 'catégorie Signature');
+select ok((select evenements from droits_de(:'luca')), 'Signature : événements privés');
 select ok((select numero_membre from profils where id = :'luca') is not null, 'numéro de membre attribué');
 select test_compte('vieux@exemple.ch') as vieux \gset
 select test_abonner(:'vieux', 'signature', now() - interval '1 day');
@@ -131,7 +138,7 @@ update abonnements set fin = now() - interval '8 days' where compte_id = :'vieux
 select ok((select categorie from droits_de(:'vieux')) is null, 'impayé depuis plus de 7 jours : plus de droits');
 do $$ begin
   perform set_config('request.jwt.claim.role', 'authenticated', false);
-  begin perform synchroniser_abonnement('x', gen_random_uuid(), 'x', 'early', 'actif', now(), now(), true, null);
+  begin perform synchroniser_abonnement('x', gen_random_uuid(), 'x', 'signature', 'actif', now(), now(), true);
         raise exception 'accepté';
   exception when insufficient_privilege then perform ok(true, 'seul le webhook écrit les abonnements'); end;
 end $$;
@@ -149,7 +156,7 @@ do $$ begin
   exception when insufficient_privilege then perform ok(true, 'non-membre : achat refusé par le serveur avant la date publique'); end;
 end $$;
 select set_config('request.jwt.claim.sub', :'luca', false);
-select ok(reserver_piece(:'lan', 'M') is not null, 'membre Early Access : achat possible 48 h avant');
+select ok(reserver_piece(:'lan', 'M') is not null, 'membre Signature : achat possible 48 h avant');
 select set_config('request.jwt.claim.sub', :'a', false);
 select ok(reserver_piece(:'lan', 'M') is not null, 'fondateur : achat possible 48 h avant');
 reset role;
@@ -173,10 +180,10 @@ select test_compte('s1@exemple.ch') as s1, test_compte('s2@exemple.ch') as s2 \g
 select test_abonner(:'s1', 'signature'), test_abonner(:'s2', 'signature');
 insert into evenements (titre, date, lieu, capacite, publie) values ('Présentation', now() + interval '20 days', 'Lugano', 1, true) returning id as ev \gset
 set role authenticated;
-select set_config('request.jwt.claim.sub', :'luca', false);
+select set_config('request.jwt.claim.sub', :'a', false);
 do $$ begin
   begin perform inscrire_evenement((select id from evenements where titre = 'Présentation')); raise exception 'inscrit';
-  exception when insufficient_privilege then perform ok(true, 'Early Access : inscription aux événements refusée'); end;
+  exception when insufficient_privilege then perform ok(true, 'fondateur sans Signature : inscription aux événements refusée'); end;
 end $$;
 select set_config('request.jwt.claim.sub', :'s1', false);
 select ok(inscrire_evenement(:'ev') = 'confirme', 'Signature : inscription confirmée');
@@ -207,7 +214,7 @@ select set_config('request.jwt.claim.sub', '', false);
 \echo '— Carte imprimée envoyée par la poste'
 select test_compte('poste@exemple.ch') as po, test_compte('autre@exemple.ch') as au \gset
 select webhook();
-select synchroniser_abonnement('evt_po1', :'po', 'sub_po', 'early', 'actif', now(), now() + interval '1 year', true, null);
+select synchroniser_abonnement('evt_po1', :'po', 'sub_po', 'signature', 'actif', now(), now() + interval '1 year', true);
 select ok((select statut from envois_cartes where compte_id = :'po') = 'adresse_manquante', 'nouvel abonné : carte en attente d''adresse');
 select ok((select mode from envois_cartes where compte_id = :'po') = 'poste', 'abonné : carte par la poste');
 set role authenticated;
@@ -230,8 +237,6 @@ do $$ begin
 end $$;
 reset role;
 select webhook();
-select synchroniser_abonnement('evt_po2', :'po', 'sub_po', 'signature', 'actif', now(), now() + interval '1 year', true, null);
-select ok((select statut || '/' || motif from envois_cartes where compte_id = :'po' and categorie = 'early') = 'annulee/remplacee', 'passage à Signature avant l''envoi : carte Early annulée');
 select ok((select statut from envois_cartes where compte_id = :'po' and categorie = 'signature') = 'a_preparer', 'carte Signature à préparer');
 update profils set role = 'admin' where email = 'luca@exemple.ch';
 select set_config('request.jwt.claim.sub', :'luca', false);
@@ -244,7 +249,7 @@ do $$ begin
   exception when raise_exception then perform ok(sqlerrm like 'envoi_pas_pret%', 'une carte ne part pas deux fois'); end;
 end $$;
 select webhook();
-select synchroniser_abonnement('evt_po3', :'po', 'sub_po', 'signature', 'actif', now() + interval '1 year', now() + interval '2 years', true, null);
+select synchroniser_abonnement('evt_po3', :'po', 'sub_po', 'signature', 'actif', now() + interval '1 year', now() + interval '2 years', true);
 select ok((select count(*) from envois_cartes where compte_id = :'po' and statut <> 'annulee') = 1, 'renouvellement : aucune nouvelle carte');
 select set_config('request.jwt.claim.role', '', false);
 select admin_remplacer_carte(:'po', 'carte perdue');

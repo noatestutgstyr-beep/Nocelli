@@ -1,5 +1,5 @@
 /*
- * Les trois cartes du NOCELLI PRIVATE CLUB, recto et verso, en HTML/CSS.
+ * Les deux cartes du NOCELLI PRIVATE CLUB, recto et verso, en HTML/CSS.
  * Même code pour la vitrine du club, la carte numérique de l'espace membre,
  * le plein écran et les fichiers d'impression (85,6 × 54 mm).
  *
@@ -11,7 +11,6 @@
 
   var TEXTES = {
     founders: { mention: 'Founders Club', devise: 'A founding member shapes what comes next.', qr: '#30231D' },
-    early: { mention: 'Early Access', devise: 'Be the first to discover what comes next.', qr: '#30231D' },
     signature: { mention: 'Signature Club', devise: 'Access a world of exclusive experiences.', qr: '#111111' }
   };
 
@@ -22,7 +21,6 @@
   }
   var GRAINS = {
     founders: grain(0.9, 3, [0.95, 0.85, 0.7], 0.11),
-    early: grain(0.55, 4, [0.45, 0.35, 0.26], 0.10),
     signature: grain(1.1, 2, [0.9, 0.9, 0.9], 0.07)
   };
 
@@ -59,10 +57,6 @@
         '<div class="centre"><div class="logo dorure">NOCELLI</div><div class="mention">Founders Club</div></div>' +
         '<div class="pied"><span class="numero">' + n + '</span><span class="petit">Est. 2026 · NC-01</span></div></div>';
     }
-    if (cat === 'early') {
-      return '<div class="contenu"><div class="centre"><div class="logo">NOCELLI</div><div class="trait"></div><div class="mention">Early Access</div></div>' +
-        '<div class="pied"><span class="petit">Private Club</span><span class="numero">' + n.replace(/<\/?b>/g, '') + '</span></div></div>';
-    }
     return '<div class="cannelures"></div>' + ARCHE +
       '<div class="contenu"><div class="centre"><div class="logo dorure">NOCELLI</div><div class="mention">Signature Club</div></div>' +
       '<div class="pied"><span class="numero">' + n + '</span><span class="petit">Private Club</span></div></div>';
@@ -90,7 +84,7 @@
     var el = document.createElement('div');
     el.className = 'carte ' + cat;
     el.setAttribute('role', 'img');
-    var nom = { founders: 'Founders Club', early: 'Early Access', signature: 'Signature Club' }[cat];
+    var nom = { founders: 'Founders Club', signature: 'Signature Club' }[cat];
     el.setAttribute('aria-label', o.etiquette || ('Carte NOCELLI ' + nom + ', ' + libelleNumero(cat, o.numero).replace(/<\/?b>/g, '') + '. Au verso : ' + TEXTES[cat].devise));
     el.innerHTML = '<div class="carte-corps">' +
       '<div class="face recto"><div class="grain" style="background-image:' + GRAINS[cat] + '"></div>' + htmlRecto(cat, o) + '<div class="reflet"></div></div>' +

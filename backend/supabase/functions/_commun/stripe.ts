@@ -5,7 +5,6 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 export const STRIPE_SECRET = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
 export const PRIX: Record<string, string> = {
-  early: Deno.env.get('STRIPE_PRIX_EARLY') ?? '',          // 29 CHF / an
   signature: Deno.env.get('STRIPE_PRIX_SIGNATURE') ?? '',  // 59 CHF / an
 };
 export const SITE = Deno.env.get('SITE_URL') ?? 'https://nocelli.ch';

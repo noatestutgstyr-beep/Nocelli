@@ -3,7 +3,7 @@
   'use strict';
   var Club = window.Club, A = window.ClubAdmin, NC = window.NC, e = NC.echapper;
   var app = document.getElementById('app');
-  var NOMS = { founders: 'Founders', early: 'Early Access', signature: 'Signature' };
+  var NOMS = { founders: 'Founders', signature: 'Signature' };
   var RUBRIQUES = [
     ['apercu', 'Vue d’ensemble'], ['membres', 'Membres'], ['fondateurs', 'Les 50 fondateurs'],
     ['envois', 'Cartes à envoyer'],
@@ -59,8 +59,7 @@
         '<p class="chapo">État du club au ' + NC.date(r[0].maintenant, true) + (r[0].decalage ? ' (horloge de test avancée)' : '') + '.</p>' +
         '<div class="chiffres">' +
         '<div><span>Fondateurs</span><b>' + s.founders + '<small style="font-size:16px"> / 50</small></b><div class="jauge"><i style="width:' + (pris * 2) + '%"></i></div><small>' + s.fondateursRestants + ' numéros encore libres</small></div>' +
-        '<div><span>Early Access</span><b>' + s.early + '</b><small>abonnements actifs</small></div>' +
-        '<div><span>Signature</span><b>' + s.signature + '</b><small>abonnements actifs</small></div>' +
+        '<div><span>Signature</span><b>' + s.signature + '</b><small>abonnements actifs, dont ' + s.fondateursSignature + ' fondateurs</small></div>' +
         '<div><span>Expirés</span><b>' + s.expires + '</b><small>' + s.impayes + ' en retard de paiement</small></div>' +
         '<div><span>Revenu annuel</span><b>' + NC.chf(s.revenuAnnuel).replace('CHF ', '') + '</b><small>CHF, abonnements qui se renouvellent</small></div>' +
         '<div><span>Encaissé</span><b>' + NC.chf(s.encaisse).replace('CHF ', '') + '</b><small>CHF, adhésions et changements</small></div>' +
@@ -75,7 +74,7 @@
   /* ---------- Membres ---------- */
   function statutAb(m) {
     if (m.suspendu) return '<span class="pastille refus">Suspendu</span>';
-    if (m.categorie === 'founders') return '<span class="pastille ok">À vie</span>';
+    if (m.categorie === 'founders') return '<span class="pastille ok">À vie' + (m.abonnement && (m.abonnement.statut === 'actif' || m.abonnement.statut === 'impaye') ? ' + Signature' : '') + '</span>';
     var a = m.abonnement;
     if (!a) return '<span class="pastille neutre">Sans adhésion</span>';
     var t = { actif: ['ok', a.renouvellementAuto ? 'Actif' : 'Actif, sans renouvellement'], impaye: ['alerte', 'Impayé'], expire: ['neutre', 'Expiré'], en_attente: ['alerte', 'Paiement en attente'], echoue: ['refus', 'Paiement refusé'], abandonne: ['neutre', 'Paiement abandonné'], a_rembourser: ['refus', 'À rembourser'] }[a.statut] || ['neutre', a.statut];
@@ -88,7 +87,8 @@
       var vus = liste.filter(function (m) {
         if (q && (m.email + ' ' + m.nom).toLowerCase().indexOf(q) < 0) return false;
         switch (filtre.cat) {
-          case 'founders': case 'early': case 'signature': return m.categorie === filtre.cat;
+          case 'founders': return m.categorie === 'founders';
+          case 'signature': return m.categorie === 'signature' || (m.categorie === 'founders' && m.abonnement && (m.abonnement.statut === 'actif' || m.abonnement.statut === 'impaye'));
           case 'aucun': return !m.categorie && !m.suspendu;
           case 'expires': return !m.categorie && m.abonnement && m.abonnement.statut === 'expire';
           case 'suspendus': return m.suspendu;
@@ -97,7 +97,7 @@
       });
       panneau('<span class="eyebrow">Registre</span><h1>Membres</h1><p class="chapo">' + liste.length + ' comptes clients. La catégorie vient du serveur : elle change seulement par un paiement confirmé, un achat NC-01 ou une décision tracée de l’administration.</p>' +
         '<div class="outils-ligne"><div class="champ"><label for="f-cat">Catégorie</label><select id="f-cat">' +
-        [['tous', 'Tous les comptes'], ['founders', 'Founders'], ['early', 'Early Access'], ['signature', 'Signature'], ['expires', 'Abonnements expirés'], ['aucun', 'Sans adhésion'], ['suspendus', 'Suspendus']].map(function (o) { return '<option value="' + o[0] + '"' + (filtre.cat === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+        [['tous', 'Tous les comptes'], ['founders', 'Founders'], ['signature', 'Signature (fondateurs compris)'], ['expires', 'Abonnements expirés'], ['aucun', 'Sans adhésion'], ['suspendus', 'Suspendus']].map(function (o) { return '<option value="' + o[0] + '"' + (filtre.cat === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
         '</select></div><div class="champ"><label for="f-q">Rechercher</label><input id="f-q" placeholder="Nom ou e-mail" value="' + e(filtre.q) + '"></div></div>' +
         '<p class="erreur" id="m-err" role="alert"></p>' +
         (vus.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Membre</th><th>Catégorie</th><th>N°</th><th>Statut</th><th>Échéance</th><th>Carte</th><th>Accès</th></tr></thead><tbody>' +
@@ -151,7 +151,7 @@
       var vus = l.filter(function (x) { return filtreEnvoi === 'toutes' || x.statut === filtreEnvoi; });
       var poste = Math.round((k.carte + k.numero + k.enveloppe + k.timbre) * 100) / 100, colis = Math.round((k.carte + k.numero) * 100) / 100;
       panneau('<span class="eyebrow">Per posta</span><h1>Cartes à envoyer</h1>' +
-        '<p class="chapo">Chaque membre reçoit sa carte imprimée une seule fois par catégorie : un renouvellement n’envoie rien, un passage à Signature envoie la carte Signature. Les fondateurs la reçoivent dans le colis de leur cardigan. Une carte pas encore partie est annulée si la personne n’est plus membre.</p>' +
+        '<p class="chapo">Chaque membre reçoit sa carte imprimée une seule fois : un renouvellement n’envoie rien. Les fondateurs reçoivent la carte Founders dans le colis de leur cardigan, même s’ils ont Signature. Une carte pas encore partie est annulée si la personne n’est plus membre.</p>' +
         '<div class="chiffres">' +
         '<div><span>À préparer</span><b>' + compte(aPrep) + '</b><small>' + compte(function (x) { return aPrep(x) && x.mode === 'poste'; }) + ' par la poste, ' + compte(function (x) { return aPrep(x) && x.mode === 'colis'; }) + ' dans un colis NC-01</small></div>' +
         '<div><span>Adresse manquante</span><b>' + compte(function (x) { return x.statut === 'adresse_manquante'; }) + '</b><small>le membre la donne dans son espace</small></div>' +
@@ -161,7 +161,7 @@
         '<div class="encadre"><b style="font-weight:500">Coût estimé par carte</b>' +
         '<span>Par la poste : ' + NC.chf(poste) + ' = carte ' + NC.chf(k.carte) + ' + numéro au tampon ' + NC.chf(k.numero) + ' + enveloppe C6 ' + NC.chf(k.enveloppe) + ' + courrier B ' + NC.chf(k.timbre) + '.</span>' +
         '<span>Dans le colis NC-01 (fondateurs) : ' + NC.chf(colis) + ', sans enveloppe ni timbre.</span>' +
-        '<small style="color:var(--tabacco)">Prix relevés le 25.10.2026 : carte 350 g avec dorure chez Flyerking, série de 50 par modèle (environ CHF 170 la série, trois modèles) ; courrier B à CHF 1.10 dès 2027 (CHF 1.00 en 2026). La Poste n’accepte pas une carte seule : il faut l’enveloppe C6.</small></div>' +
+        '<small style="color:var(--tabacco)">Prix relevés le 25.10.2026 : carte 350 g avec dorure chez Flyerking, série de 50 par modèle (environ CHF 170 la série, deux modèles) ; courrier B à CHF 1.10 dès 2027 (CHF 1.00 en 2026). La Poste n’accepte pas une carte seule : il faut l’enveloppe C6.</small></div>' +
         '<div class="outils-ligne"><div class="champ"><label for="f-env">Afficher</label><select id="f-env">' +
         [['a_preparer', 'À préparer'], ['adresse_manquante', 'Adresse manquante'], ['envoyee', 'Envoyées'], ['annulee', 'Annulées'], ['toutes', 'Toutes']].map(function (o) { return '<option value="' + o[0] + '"' + (filtreEnvoi === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
         '</select></div>' + (compte(function (x) { return aPrep(x) && x.mode === 'poste'; }) ? '<button class="btn petit" type="button" id="copier-adresses">Copier les adresses à poster</button>' : '') + '</div>' +
@@ -372,7 +372,7 @@
         '<form class="outils-ligne" id="t-achat" novalidate><div class="champ"><label for="t-email">E-mail du client</label><input id="t-email" placeholder="client@exemple.ch"></div><div class="champ"><label for="t-nom">Nom</label><input id="t-nom" placeholder="Client test"></div><button class="btn plein" type="submit">Simuler un achat payé</button></form>' +
         '<form class="outils-ligne" id="t-remb" novalidate><div class="champ"><label for="t-email2">E-mail à rembourser</label><input id="t-email2"></div><button class="btn" type="submit">Simuler un remboursement complet</button></form>' +
         '<div class="outils-ligne"><button class="btn" type="button" id="t-rafale">60 achats au même instant</button></div><p class="message" id="t-msg" role="status"></p><p class="erreur" id="t-err" role="alert"></p></div>' +
-        '<div class="section"><h2>Abonné payé</h2><form class="outils-ligne" id="t-abo" novalidate><div class="champ"><label for="t-email3">E-mail</label><input id="t-email3"></div><div class="champ"><label for="t-plan">Formule</label><select id="t-plan"><option value="early">Early Access</option><option value="signature">Signature</option></select></div><button class="btn plein" type="submit">Créer l’abonné</button></form></div>' +
+        '<div class="section"><h2>Abonné payé</h2><form class="outils-ligne" id="t-abo" novalidate><div class="champ"><label for="t-email3">E-mail</label><input id="t-email3"></div><div class="champ"><label for="t-plan">Formule</label><select id="t-plan"><option value="signature">Signature</option></select></div><button class="btn plein" type="submit">Créer l’abonné</button></form></div>' +
         '<div class="section"><h2>Horloge</h2><p>Avancez le temps pour tester l’accès anticipé, les renouvellements, les impayés et les expirations.</p><p class="horloge" style="margin-top:12px">' + NC.date(t.maintenant, true) + (dec ? ' <small style="font-family:var(--body);font-size:13px;color:var(--alerte)">(+' + dec + ' h)</small>' : '') + '</p>' +
         '<div class="outils-ligne">' + [[1, '+1 h'], [24, '+1 jour'], [48, '+48 h'], [720, '+30 jours'], [8784, '+1 an']].map(function (h) { return '<button class="btn petit" type="button" data-h="' + h[0] + '">' + h[1] + '</button>'; }).join('') + '<button class="btn petit" type="button" data-h="reset">Heure réelle</button></div></div>' +
         '<div class="section"><h2>Recommencer</h2><div class="outils-ligne" id="t-effacer"><button class="btn" type="button">Effacer toutes les données de test</button></div></div>');

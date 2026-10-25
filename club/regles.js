@@ -27,15 +27,12 @@
   var HEURES_ANTICIPEES = 48;
 
   var CATEGORIES = {
+    // Les événements privés ne font pas partie du Founders Club : un fondateur
+    // qui les veut prend Signature en plus et garde son statut et son numéro.
     founders: {
       code: 'founders', nom: 'Founders Club', prix: 0, annuel: false,
-      accesAnticipe: true, evenements: true, experiences: true, votes: true,
+      accesAnticipe: true, evenements: false, experiences: false, votes: true,
       contenus: true, statutAVie: true, carte: true
-    },
-    early: {
-      code: 'early', nom: 'Early Access', prix: 29, annuel: true,
-      accesAnticipe: true, evenements: false, experiences: false, votes: false,
-      contenus: false, statutAVie: false, carte: true
     },
     signature: {
       code: 'signature', nom: 'Signature Club', prix: 59, annuel: true,
@@ -43,9 +40,8 @@
       contenus: true, statutAVie: false, carte: true
     }
   };
-  // Seules ces deux formules peuvent être achetées. Founders ne se vend jamais.
-  var FORMULES_PAYANTES = ['early', 'signature'];
-  var RANG = { early: 1, signature: 2, founders: 3 };
+  // Seule Signature s'achète. Founders ne se vend jamais.
+  var FORMULES_PAYANTES = ['signature'];
 
   function Refus(code, message) {
     var e = new Error(message);
@@ -140,12 +136,6 @@
     var numero = etat.compteurs.fondateur++;
     var place = { numero: numero, compteId: c.compteId, commandeId: c.id, statut: 'confirme', attribueLe: now, retireLe: null, motif: null };
     etat.fondateurs[numero] = place;
-    // Un fondateur ne paie jamais : un abonnement payant en cours n'est pas renouvelé.
-    var ab = abonnementCourant(etat, c.compteId, now);
-    if (ab && ab.renouvellementAuto) {
-      ab.renouvellementAuto = false;
-      ab.note = 'Renouvellement arrêté : membre fondateur';
-    }
     return { attribue: true, place: place };
   }
 
@@ -242,7 +232,6 @@
       else a.statut = 'expire';
     }
     if (a.statut === 'impaye' && now >= (a.impayeDepuis || a.fin) + GRACE_IMPAYE) a.statut = 'expire';
-    // Un changement de formule vers le bas prend effet au renouvellement.
     return a;
   }
 
@@ -259,10 +248,9 @@
     }
     var cpt = etat.comptes[compteId];
     if (!cpt) throw Refus('compte', 'Compte introuvable.');
-    if (placeFondateur(etat, compteId)) throw Refus('fondateur', 'Vous êtes membre fondateur : tous les avantages sont déjà inclus, à vie.');
     var cour = abonnementCourant(etat, compteId, now);
     if (cour && cour.statut !== 'en_attente') {
-      throw Refus('deja_abonne', 'Vous avez déjà un abonnement actif. Utilisez « Changer de formule ».');
+      throw Refus('deja_abonne', 'Vous êtes déjà membre Signature.');
     }
     if (cour && cour.statut === 'en_attente') {
       if (cour.plan === plan) return cour; // même paiement repris, pas de doublon
@@ -293,7 +281,6 @@
     } else if (a.renouvellementAuto && (a.statut === 'impaye' || (a.statut === 'actif' && now >= a.fin - 30 * JOUR))) {
       // Renouvellement : la nouvelle année part de la fin de la précédente.
       var base = a.fin;
-      if (a.planAuRenouvellement) { a.plan = a.planAuRenouvellement; a.prix = CATEGORIES[a.plan].prix; a.planAuRenouvellement = null; }
       a.statut = 'actif'; a.debut = base; a.fin = finPeriode(base); a.impayeDepuis = null;
       type = 'renouvellement';
     } else {
@@ -316,48 +303,6 @@
     return { abonnement: a };
   }
 
-  // Montant à payer pour passer d'Early Access à Signature : la différence, au prorata du temps restant.
-  function montantPassageSignature(a, now) {
-    var total = a.fin - a.debut;
-    var reste = Math.max(0, a.fin - now);
-    var m = (CATEGORIES.signature.prix - CATEGORIES.early.prix) * reste / total;
-    return Math.round(m * 20) / 20; // arrondi aux 5 centimes
-  }
-
-  /*
-   * Changer de formule.
-   *  - Early Access -> Signature : immédiat après paiement de la différence au
-   *    prorata ; la date de renouvellement ne change pas.
-   *  - Signature -> Early Access : prend effet au prochain renouvellement,
-   *    les avantages Signature restent jusque-là.
-   */
-  function changerFormule(etat, compteId, plan, now) {
-    if (FORMULES_PAYANTES.indexOf(plan) < 0) throw Refus('formule', 'Formule non disponible.');
-    var a = abonnementCourant(etat, compteId, now);
-    if (!a || a.statut !== 'actif') throw Refus('pas_abonne', "Aucun abonnement actif à modifier.");
-    if (a.plan === plan) {
-      if (a.planAuRenouvellement) { a.planAuRenouvellement = null; return { abonnement: a, effet: 'annule_changement' }; }
-      throw Refus('meme_formule', 'Vous avez déjà cette formule.');
-    }
-    if (RANG[plan] > RANG[a.plan]) {
-      return { abonnement: a, effet: 'paiement_requis', montant: montantPassageSignature(a, now) };
-    }
-    a.planAuRenouvellement = plan;
-    return { abonnement: a, effet: 'au_renouvellement', le: a.fin };
-  }
-
-  function confirmerPassageSignature(etat, abonnementId, evenementId, now) {
-    if (etat.traites[evenementId]) return { doublon: true };
-    var a = etat.abonnements[abonnementId];
-    if (a) mettreAJourAbonnement(a, now);
-    if (!a || a.statut !== 'actif' || a.plan !== 'early') throw Refus('statut', 'Passage impossible.');
-    etat.traites[evenementId] = true;
-    var montant = montantPassageSignature(a, now);
-    a.plan = 'signature'; a.prix = CATEGORIES.signature.prix; a.planAuRenouvellement = null;
-    etat.paiements.push({ id: evenementId, compteId: a.compteId, abonnementId: a.id, montant: montant, type: 'passage_signature', le: now });
-    return { abonnement: a, montant: montant };
-  }
-
   // Annuler = arrêter le renouvellement. L'accès reste jusqu'à la fin de la période payée.
   function annulerRenouvellement(etat, compteId, now) {
     var a = abonnementCourant(etat, compteId, now);
@@ -371,7 +316,6 @@
   function reprendreRenouvellement(etat, compteId, now) {
     var a = abonnementCourant(etat, compteId, now);
     if (!a || a.statut !== 'actif') throw Refus('pas_abonne', 'Aucun abonnement actif.');
-    if (placeFondateur(etat, compteId)) throw Refus('fondateur', 'Un membre fondateur ne paie pas de renouvellement.');
     a.renouvellementAuto = true;
     a.annuleLe = null;
     return a;
@@ -381,25 +325,23 @@
 
   /*
    * La seule source de vérité sur ce qu'un compte peut faire.
-   * Founders prime sur tout ; sinon l'abonnement payant actif (ou impayé dans le
-   * délai de grâce). Un compte suspendu par l'administration n'a aucun droit.
+   * La catégorie affichée est Founders si le compte a une place, sinon Signature
+   * si l'abonnement est actif (ou impayé dans le délai de grâce). Les événements
+   * privés viennent seulement de Signature : un fondateur abonné à Signature y a
+   * accès, un fondateur seul non. Un compte suspendu n'a aucun droit.
    */
   function droits(etat, compteId, now) {
-    var aucun = { membre: false, categorie: null, accesAnticipe: false, evenements: false, experiences: false, votes: false, contenus: false };
+    var aucun = { membre: false, categorie: null, signature: false, accesAnticipe: false, evenements: false, experiences: false, votes: false, contenus: false };
     var cpt = etat.comptes[compteId];
     if (!cpt || cpt.suspendu) return aucun;
     var f = placeFondateur(etat, compteId);
-    var cat = null, ab = null;
-    if (f) cat = 'founders';
-    else {
-      ab = abonnementCourant(etat, compteId, now);
-      if (ab && (ab.statut === 'actif' || ab.statut === 'impaye')) cat = ab.plan;
-    }
-    if (!cat) return aucun;
-    var d = CATEGORIES[cat];
+    var ab = abonnementCourant(etat, compteId, now);
+    var sig = !!(ab && (ab.statut === 'actif' || ab.statut === 'impaye'));
+    if (!f && !sig) return aucun;
+    var d = CATEGORIES[f ? 'founders' : 'signature'];
     return {
-      membre: true, categorie: cat, fondateur: f, abonnement: ab,
-      accesAnticipe: d.accesAnticipe, evenements: d.evenements, experiences: d.experiences,
+      membre: true, categorie: d.code, fondateur: f, abonnement: sig ? ab : null, signature: sig,
+      accesAnticipe: true, evenements: sig, experiences: sig,
       votes: d.votes, contenus: d.contenus
     };
   }
@@ -481,16 +423,14 @@
     return null;
   }
 
-  // Seuls Founders et Signature s'inscrivent. Complet : liste d'attente.
+  // Seuls les membres Signature s'inscrivent (fondateurs compris s'ils ont Signature). Complet : liste d'attente.
   function inscrireEvenement(etat, compteId, evenementId, now) {
     var e = etat.evenements[evenementId];
     if (!e || !e.publie || e.annule) throw Refus('introuvable', 'Événement introuvable.');
     if (e.date <= now) throw Refus('passe', 'Cet événement est passé.');
     var d = droits(etat, compteId, now);
     if (!d.evenements) {
-      throw Refus('reserve', d.categorie === 'early'
-        ? 'Les événements privés sont réservés aux membres Signature Club et Founders Club.'
-        : 'Réservé aux membres Signature Club et Founders Club.');
+      throw Refus('reserve', 'Les événements privés sont réservés aux membres Signature Club.');
     }
     var deja = inscriptionDe(etat, evenementId, compteId);
     if (deja) return deja;
@@ -637,17 +577,16 @@
   /* ---------- Tableau de bord ---------- */
 
   function statistiques(etat, now) {
-    var s = { founders: 0, early: 0, signature: 0, actifs: 0, expires: 0, impayes: 0, revenuAnnuel: 0, encaisse: 0, fondateursRestants: 0 };
+    var s = { founders: 0, signature: 0, fondateursSignature: 0, expires: 0, impayes: 0, revenuAnnuel: 0, encaisse: 0, fondateursRestants: 0 };
     s.founders = nombreFondateurs(etat);
     s.fondateursRestants = Math.max(0, MAX_FONDATEURS - (etat.compteurs.fondateur - 1));
     for (var id in etat.abonnements) {
       var a = mettreAJourAbonnement(etat.abonnements[id], now);
       if (a.statut === 'actif' || a.statut === 'impaye') {
-        if (placeFondateur(etat, a.compteId)) continue;
-        s[a.plan]++;
-        s.actifs++;
+        s.signature++;
+        if (placeFondateur(etat, a.compteId)) s.fondateursSignature++;
         if (a.statut === 'impaye') s.impayes++;
-        if (a.renouvellementAuto) s.revenuAnnuel += CATEGORIES[a.planAuRenouvellement || a.plan].prix;
+        if (a.renouvellementAuto) s.revenuAnnuel += CATEGORIES.signature.prix;
       } else if (a.statut === 'expire') s.expires++;
     }
     etat.paiements.forEach(function (p) { s.encaisse += p.montant; });
@@ -666,8 +605,7 @@
     rembourserCommande: rembourserCommande, reattribuerNumeroRetire: reattribuerNumeroRetire,
     abonnementCourant: abonnementCourant, mettreAJourAbonnement: mettreAJourAbonnement,
     demarrerAbonnement: demarrerAbonnement, confirmerPaiementAbonnement: confirmerPaiementAbonnement,
-    echecPaiementAbonnement: echecPaiementAbonnement, montantPassageSignature: montantPassageSignature,
-    changerFormule: changerFormule, confirmerPassageSignature: confirmerPassageSignature,
+    echecPaiementAbonnement: echecPaiementAbonnement,
     annulerRenouvellement: annulerRenouvellement, reprendreRenouvellement: reprendreRenouvellement,
     droits: droits, phaseLancement: phaseLancement, stockTotal: stockTotal,
     peutAcheter: peutAcheter, reserverPiece: reserverPiece, libererCommandesExpirees: libererCommandesExpirees,
