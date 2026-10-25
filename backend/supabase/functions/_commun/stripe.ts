@@ -19,6 +19,7 @@ export function cleRefusee(): string | null {
   if (/^(sk|rk)_live_/.test(STRIPE_SECRET)) {
     return Deno.env.get('PAIEMENTS_REELS') === 'oui' ? null : 'Clé Stripe réelle refusée : mettre PAIEMENTS_REELS=oui seulement au lancement.';
   }
+  if (/^whsec_/.test(STRIPE_SECRET)) return 'STRIPE_SECRET_KEY contient le secret du webhook (whsec_) : il va dans STRIPE_WEBHOOK_SECRET, et ici la clé secrète sk_test_.';
   if (/^pk_/.test(STRIPE_SECRET)) return 'STRIPE_SECRET_KEY contient la clé publiable (pk_) : il faut la clé secrète sk_test_.';
   return `STRIPE_SECRET_KEY ne ressemble pas à une clé Stripe (elle commence par « ${STRIPE_SECRET.slice(0, 3)} »). Il faut la clé secrète sk_test_.`;
 }
