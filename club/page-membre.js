@@ -1,0 +1,323 @@
+// Espace membre « My Membership » : carte, adhésion, collections, événements, commandes.
+(function () {
+  'use strict';
+  var Club = window.Club, C = window.NocelliCartes, NC = window.NC, e = NC.echapper;
+  var app = document.getElementById('app');
+  var NOMS = { founders: 'Founders Club', early: 'Early Access', signature: 'Signature Club' };
+  var params = new URLSearchParams(location.search);
+
+  var AVANTAGES = [
+    ['Les nouvelles collections avant le public', ['founders', 'early', 'signature'], 'En général 48 heures avant le lancement'],
+    ['Achat pendant la période réservée', ['founders', 'early', 'signature']],
+    ['Nouvelles couleurs et nouveaux modèles en avance', ['founders', 'early', 'signature']],
+    ['Notifications prioritaires des lancements', ['founders', 'early', 'signature']],
+    ['Carte de membre personnelle', ['founders', 'early', 'signature']],
+    ['Invitations aux événements privés', ['founders', 'signature'], 'Selon la capacité et les conditions de chaque événement'],
+    ['Présentations et expériences exclusives', ['founders', 'signature']],
+    ['Votes sur les futures collections', ['founders', 'signature']],
+    ['Contenus exclusifs et coulisses', ['founders', 'signature']],
+    ['Accès prioritaire aux éditions limitées', ['founders']],
+    ['Certaines pièces découvertes avant leur sortie', ['founders']],
+    ['Statut permanent, sans cotisation', ['founders']]
+  ];
+
+  function rendre() {
+    if (!Club.session()) return connexion();
+    Club.monEspace().then(espace, function (err) {
+      if (err.code === 'connexion') return connexion();
+      app.innerHTML = '<section class="bloc"><div class="wrap"><p class="erreur">' + e(err.message) + '</p></div></section>';
+    });
+  }
+
+  /* ---------------- Connexion ---------------- */
+  function connexion() {
+    var carte = params.get('carte');
+    app.innerHTML =
+      '<section class="connexion"><div class="wrap connexion-grid"><div>' +
+      '<span class="eyebrow apparait">Il Mio Conto</span>' +
+      '<h1 class="apparait d1">Mon compte Nocelli</h1>' +
+      (carte ? '<p class="apparait d2" style="margin-top:18px;max-width:46ch">Vous avez scanné une carte du Private Club. Pour ouvrir l’espace membre, connectez-vous avec l’adresse de votre compte. La carte seule ne donne accès à rien.</p>' :
+        '<p class="apparait d2" style="margin-top:18px;max-width:46ch">Votre carte numérique, vos avant-premières, vos invitations et vos commandes, au même endroit.</p>') +
+      '<form id="f-cnx" class="apparait d3" novalidate>' +
+      '<div class="champ"><label for="c-email">E-mail</label><input id="c-email" type="email" inputmode="email" autocomplete="email" placeholder="vous@exemple.ch"></div>' +
+      '<div class="champ"><label for="c-nom">Prénom et nom <span style="letter-spacing:0;text-transform:none">(nouveau compte)</span></label><input id="c-nom" autocomplete="name" placeholder="Lorenzo Bianchi"></div>' +
+      '<p class="erreur" id="c-err" role="alert"></p>' +
+      '<button class="btn plein" type="submit">Recevoir mon lien de connexion</button>' +
+      '<p class="note">Pas de mot de passe : nous vous envoyons un lien de connexion par e-mail. <span class="mode-test">Mode test</span> ici, la connexion est immédiate.</p>' +
+      '</form></div><div class="apercu" id="apercu" aria-hidden="true"></div></div></section>';
+    var ap = document.getElementById('apercu');
+    ['founders', 'early', 'signature'].forEach(function (c) { ap.appendChild(C.creer({ categorie: c, numero: 1, retournable: false, vivante: false })); });
+    document.getElementById('f-cnx').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      Club.connexion(document.getElementById('c-email').value, document.getElementById('c-nom').value.trim()).then(rendre, function (err) {
+        document.getElementById('c-err').textContent = err.message + ' Exemple : nom@exemple.ch.';
+      });
+    });
+  }
+
+  /* ---------------- Espace ---------------- */
+  function espace(s) {
+    var d = s.droits, c = s.compte, ab = s.abonnement;
+    var prenom = (c.nom || '').split(' ')[0];
+    var html =
+      '<section class="titre-page"><div class="wrap">' +
+      '<span class="eyebrow">My Membership</span>' +
+      '<h1>' + (prenom ? 'Bonjour, ' + e(prenom) + '.' : 'Bonjour.') + '</h1>' +
+      '<nav class="sous-nav" aria-label="Espace membre"><a href="#adhesion">Ma carte</a><a href="#collections">Collections</a>' +
+      (d.membre ? '<a href="#evenements">Private Events</a>' : '') + '<a href="#commandes">Mes commandes</a><button type="button" id="deco">Se déconnecter</button></nav>' +
+      '</div></section>';
+
+    html += '<section class="bloc" id="adhesion"><div class="wrap">' + (d.membre ? blocAdhesion(s) : blocNonMembre(s)) + '</div></section>';
+    if (d.membre) html += '<section class="bloc"><div class="wrap"><div class="bloc-tete"><div><span class="eyebrow">I Privilegi</span><h2>Vos avantages actifs</h2></div></div>' + listeAvantages(d.categorie) + '</div></section>';
+    html += '<section class="bloc" id="collections"><div class="wrap">' + blocCollections(s) + '</div></section>';
+    if (d.membre) html += '<section class="bloc" id="evenements"><div class="wrap">' + blocEvenements(s) + '</div></section>';
+    if (d.votes) html += '<section class="bloc"><div class="wrap"><div class="bloc-tete"><div><span class="eyebrow">Dietro le quinte</span><h2>Votes et coulisses</h2></div></div>' +
+      vide('Aucun vote ouvert pour le moment.', 'Le premier vote sur une future collection s’ouvrira ici, avec les coulisses de sa fabrication. Vous serez prévenu par e-mail.') + '</div></section>';
+    html += '<section class="bloc" id="commandes"><div class="wrap">' + blocCommandes(s) + '</div></section>';
+    app.innerHTML = html;
+
+    document.getElementById('deco').addEventListener('click', function () { Club.deconnexion().then(rendre); });
+    if (s.carte) {
+      var scene = document.getElementById('scene-carte');
+      var carte = C.creer(s.carte);
+      scene.insertBefore(carte, scene.firstChild);
+      document.getElementById('carte-retourner').addEventListener('click', function () { carte.retourner(); });
+      document.getElementById('carte-plein').addEventListener('click', function () { C.pleinEcran(s.carte); });
+    }
+    brancherGestion(s);
+    brancherCollections();
+    brancherEvenements();
+    var nomBtn = document.getElementById('modifier-nom');
+    if (nomBtn) nomBtn.addEventListener('click', function () { modifierNom(c.nom); });
+    if (location.hash) { var cible = document.querySelector(location.hash); if (cible) cible.scrollIntoView(); }
+  }
+
+  function statutAbonnement(s) {
+    var ab = s.abonnement;
+    if (s.droits.categorie === 'founders') return '<span class="pastille ok">Membre fondateur</span>';
+    if (!ab) return '';
+    if (ab.statut === 'impaye') return '<span class="pastille alerte">Paiement à régulariser</span>';
+    if (!ab.renouvellementAuto) return '<span class="pastille neutre">Actif jusqu’au ' + NC.date(ab.fin) + '</span>';
+    return '<span class="pastille ok">Actif</span>';
+  }
+
+  function blocAdhesion(s) {
+    var d = s.droits, c = s.compte, ab = s.abonnement, f = s.fondateur;
+    var numero = d.categorie === 'founders' ? 'Founding Member ' + ('00' + f.numero).slice(-3) + ' / 050' : 'Member ' + ('000' + c.numeroMembre).slice(-4);
+    var lignes =
+      '<div><dt>Membre</dt><dd>' + e(c.nom || c.email) + ' <button class="lien" type="button" id="modifier-nom" style="margin-left:10px;font-size:9.5px">Modifier</button></dd></div>' +
+      '<div><dt>Catégorie</dt><dd><b>' + NOMS[d.categorie] + '</b></dd></div>' +
+      '<div><dt>Numéro</dt><dd>' + numero + '</dd></div>' +
+      '<div><dt>Membre depuis</dt><dd>' + NC.date(d.categorie === 'founders' ? f.attribueLe : (ab.debutInitial || ab.debut)) + '</dd></div>';
+    if (d.categorie === 'founders') {
+      lignes += '<div><dt>Cotisation</dt><dd>Aucune, à vie</dd></div>';
+    } else {
+      lignes += '<div><dt>' + (ab.renouvellementAuto ? 'Renouvellement' : 'Fin de l’adhésion') + '</dt><dd>' + NC.date(ab.fin) +
+        (ab.renouvellementAuto ? ', ' + NC.chf(Club.CATEGORIES[ab.planAuRenouvellement || ab.plan].prix) : '') +
+        (ab.planAuRenouvellement ? '<br><small style="color:var(--tabacco)">Passage à ' + NOMS[ab.planAuRenouvellement] + ' à cette date</small>' : '') + '</dd></div>';
+      if (ab.statut === 'impaye') lignes += '<div><dt>Paiement</dt><dd>Le renouvellement n’a pas pu être prélevé. Vos avantages restent actifs jusqu’au ' + NC.date(ab.fin + 7 * 864e5) + '. Mettez à jour votre moyen de paiement.</dd></div>';
+    }
+    lignes += '<div><dt>Statut</dt><dd>' + statutAbonnement(s) + '</dd></div>';
+
+    return '<div class="adhesion">' +
+      '<div class="scene" id="scene-carte"><div class="outils"><button class="lien" type="button" id="carte-retourner">Retourner</button><button class="lien" type="button" id="carte-plein">Plein écran</button></div></div>' +
+      '<div><span class="eyebrow">La mia tessera</span><h2 style="margin:12px 0 28px;font-size:clamp(28px,3vw,40px)">' + NOMS[d.categorie] + '</h2>' +
+      '<dl class="fiche">' + lignes + '</dl>' +
+      (d.categorie === 'founders' ? '<p style="margin-top:22px;font-size:14px;color:rgba(58,37,25,.78)">Vous faites partie des cinquante premiers. Votre carte imprimée et numérotée accompagne votre cardigan.</p>' : blocGestion(s)) +
+      '</div></div>';
+  }
+
+  function blocGestion(s) {
+    var ab = s.abonnement;
+    var h = '<div class="gerer" id="gerer"><h3>Gérer mon abonnement</h3><div class="rangee">';
+    if (ab.plan === 'early' && ab.statut === 'actif') h += '<button class="btn plein petit" type="button" data-action="signature">Passer à Signature</button>';
+    if (ab.plan === 'signature' && ab.statut === 'actif' && !ab.planAuRenouvellement) h += '<button class="btn petit" type="button" data-action="early">Passer à Early Access</button>';
+    if (ab.planAuRenouvellement) h += '<button class="btn petit" type="button" data-action="garder">Garder Signature</button>';
+    if (ab.renouvellementAuto) h += '<button class="btn petit" type="button" data-action="arreter">Arrêter le renouvellement</button>';
+    else if (ab.statut === 'actif') h += '<button class="btn petit" type="button" data-action="reprendre">Reprendre le renouvellement</button>';
+    h += '</div><div id="gerer-zone"></div><p class="erreur" id="gerer-err" role="alert"></p>' +
+      '<p>Paiements gérés par notre prestataire sécurisé. Nocelli ne conserve aucune donnée bancaire.</p></div>';
+    return h;
+  }
+
+  function brancherGestion(s) {
+    var g = document.getElementById('gerer');
+    if (!g) return;
+    var zone = document.getElementById('gerer-zone'), err = document.getElementById('gerer-err');
+    var ab = s.abonnement;
+    function echec(x) { err.textContent = x.message; }
+    g.addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-action]');
+      if (!b) return;
+      err.textContent = '';
+      var a = b.dataset.action;
+      if (a === 'signature') {
+        Club.changerFormule('signature').then(function (r) {
+          zone.innerHTML = '<div class="confirm"><p><b>Passer à Signature Club maintenant.</b> Vous payez la différence pour les mois restants : <b>' + NC.chf(r.montant) + '</b>. Votre date de renouvellement reste le ' + NC.date(ab.fin) + ', ensuite ' + NC.chf(59) + ' par an.</p>' +
+            '<div class="paiement-test"><span class="mode-test">Mode test</span><p>Aucun argent n’est débité. Choisissez la réponse de la banque :</p>' +
+            '<div class="boutons"><button class="btn plein petit" type="button" data-pay="1">Paiement accepté</button><button class="btn petit" type="button" data-pay="0">Paiement refusé</button></div></div></div>';
+          zone.querySelectorAll('[data-pay]').forEach(function (p) {
+            p.addEventListener('click', function () {
+              Club.paiementTestPassage(p.dataset.pay === '1').then(function () { rendre(); }, echec);
+            });
+          });
+        }, echec);
+      } else if (a === 'early') {
+        zone.innerHTML = '<div class="confirm"><p>Vous gardez Signature jusqu’au ' + NC.date(ab.fin) + '. Ensuite l’abonnement continue en Early Access, ' + NC.chf(29) + ' par an. Les événements privés ne seront plus accessibles.</p><div class="rangee"><button class="btn plein petit" type="button" data-ok>Confirmer</button></div></div>';
+        zone.querySelector('[data-ok]').addEventListener('click', function () { Club.changerFormule('early').then(rendre, echec); });
+      } else if (a === 'garder') {
+        Club.changerFormule('signature').then(rendre, echec);
+      } else if (a === 'arreter') {
+        zone.innerHTML = '<div class="confirm"><p>Aucun nouveau prélèvement. Vos avantages restent actifs jusqu’au ' + NC.date(ab.fin) + ', puis votre adhésion se termine. La période en cours n’est pas remboursée.</p><div class="rangee"><button class="btn plein petit" type="button" data-ok>Arrêter le renouvellement</button><button class="btn petit" type="button" data-non>Garder mon abonnement</button></div></div>';
+        zone.querySelector('[data-ok]').addEventListener('click', function () { Club.annulerRenouvellement().then(rendre, echec); });
+        zone.querySelector('[data-non]').addEventListener('click', function () { zone.innerHTML = ''; });
+      } else if (a === 'reprendre') {
+        Club.reprendreRenouvellement().then(rendre, echec);
+      }
+    });
+  }
+
+  function blocNonMembre(s) {
+    var der = s.dernierAbonnement;
+    var etat = '';
+    if (der && der.statut === 'expire') etat = '<p style="margin-top:14px"><span class="pastille neutre">Adhésion ' + NOMS[der.plan] + ' terminée le ' + NC.date(der.fin) + '</span></p>';
+    if (der && der.statut === 'echoue') etat = '<p style="margin-top:14px"><span class="pastille refus">Dernier paiement refusé, rien n’a été activé</span></p>';
+    if (s.compte.suspendu) etat = '<p style="margin-top:14px"><span class="pastille refus">Accès suspendu, contactez-nous</span></p>';
+    return '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Vous n’êtes pas encore membre.</h3>' +
+      '<p>Early Access ouvre les nouvelles collections 48 heures avant le public. Signature ajoute les événements privés et les expériences. Les 50 premiers acheteurs du Cardigan Noce deviennent membres fondateurs, à vie.</p>' + etat + '</div>' +
+      '<div style="display:grid;gap:10px"><a class="btn clair" href="club.html#rejoindre-early">Early Access · CHF 29</a><a class="btn clair" href="club.html#rejoindre-signature">Signature · CHF 59</a></div></div>';
+  }
+
+  function listeAvantages(cat) {
+    return '<ul class="avantages">' + AVANTAGES.filter(function (a) {
+      return cat === 'founders' || a[1].indexOf('founders') < 0 || a[1].length > 1;
+    }).map(function (a) {
+      var actif = a[1].indexOf(cat) >= 0;
+      var note = actif ? (a[2] || '') : 'Avec Signature Club';
+      return '<li class="' + (actif ? '' : 'ferme') + '"><span>' + a[0] + (note ? '<small>' + note + '</small>' : '') + '</span></li>';
+    }).join('') + '</ul>' +
+      (cat === 'early' ? '<p style="margin-top:24px"><a class="lien" href="#gerer">Passer à Signature</a></p>' : '');
+  }
+
+  function vide(titre, texte) {
+    return '<div class="vide"><span class="losange" aria-hidden="true"></span><h3>' + titre + '</h3><p>' + texte + '</p></div>';
+  }
+
+  /* ---------------- Collections ---------------- */
+  function blocCollections(s) {
+    var tete = '<div class="bloc-tete"><div><span class="eyebrow">In anteprima</span><h2>Collections en avant-première</h2></div>' +
+      '<p>' + (s.droits.accesAnticipe ? 'Vous pouvez acheter pendant la période réservée aux membres, avant l’ouverture publique. Les quantités restent limitées.' : 'Les membres du Private Club achètent avant l’ouverture publique. Vous pourrez acheter à la date publique.') + '</p></div>';
+    if (!s.lancements.length) return tete + vide('Aucune collection annoncée pour le moment.', 'La prochaine collection sera annoncée ici et par e-mail, avec son heure d’ouverture aux membres et sa date publique.');
+    return tete + '<div class="liste-items">' + s.lancements.map(function (l) {
+      var phase = { annonce: '<span class="pastille neutre">Annoncée</span>', membres: '<span class="pastille ok">Ouverte aux membres</span>', public: '<span class="pastille ok">Ouverte à tous</span>' }[l.phase];
+      var prochain = l.phase === 'annonce' ? l.ouvertureMembres : l.phase === 'membres' ? l.publicLe : null;
+      var tailles = l.tailles.map(function (t) {
+        var dispo = t.ok;
+        return '<button class="btn petit' + (dispo ? ' plein' : '') + '" type="button" data-acheter="' + l.id + '" data-taille="' + e(t.taille) + '"' + (dispo ? '' : ' disabled title="' + e(t.message) + '"') + '>' + e(t.taille) + '</button>';
+      }).join('');
+      var raison = l.tailles.length && !l.tailles.some(function (t) { return t.ok; }) ? l.tailles[0].message : '';
+      if (l.restant === 0) raison = 'Toutes les pièces ont trouvé preneur.';
+      return '<article class="item"><div><h3>' + e(l.nom) + '</h3>' +
+        '<div class="meta"><span>Membres : ' + NC.date(l.ouvertureMembres, true) + '</span><span>Public : ' + NC.date(l.publicLe, true) + '</span>' + (l.prix ? '<span>' + NC.chf(l.prix) + '</span>' : '') + '</div>' +
+        (l.description ? '<p class="texte">' + e(l.description) + '</p>' : '') + '</div>' +
+        '<div class="droite">' + phase + (prochain ? '<span class="compte-a" data-vers="' + prochain + '">' + NC.duree(prochain - s.maintenant) + '</span><small style="color:var(--tabacco)">' + (l.phase === 'annonce' ? 'avant l’ouverture membres' : 'avant l’ouverture publique') + '</small>' : '') +
+        '<div class="tailles-achat" aria-label="Choisir une taille">' + tailles + '</div>' +
+        (raison ? '<small style="color:var(--tabacco);max-width:30ch">' + e(raison) + '</small>' : '') +
+        '</div></article>';
+    }).join('') + '</div>';
+  }
+
+  function brancherCollections() {
+    document.querySelectorAll('[data-acheter]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        Club.reserverPiece(b.dataset.acheter, b.dataset.taille).then(function (cmd) {
+          var w = NC.fenetre('<span class="eyebrow">Commande · taille ' + e(cmd.taille) + '</span><h3>Votre pièce est réservée 30 minutes.</h3>' +
+            '<div class="paiement-test"><span class="mode-test">Mode test</span><p>Le paiement réel n’est pas encore branché. Aucun argent n’est débité. Choisissez la réponse de la banque :</p>' +
+            '<div class="boutons"><button class="btn plein petit" type="button" data-ok>Paiement accepté</button><button class="btn petit" type="button" data-ko>Paiement refusé</button></div></div><p class="erreur" role="alert"></p>', { apres: rendre });
+          w.corps.querySelector('[data-ok]').addEventListener('click', function () {
+            Club.paiementTestCommande(cmd.id, true).then(function (r) {
+              var f = r.fondateur;
+              w.remplacer('<span class="eyebrow">Grazie</span><h3>Commande confirmée.</h3>' +
+                (f && f.attribue ? '<p class="conditions">Vous êtes le membre fondateur N° ' + ('00' + f.place.numero).slice(-3) + ' / 050.</p>' : '<p class="conditions">Vous recevrez la confirmation par e-mail.</p>') +
+                '<div style="display:grid;margin-top:18px"><button class="btn plein" type="button" data-fermer>Fermer</button></div>');
+              w.corps.querySelector('[data-fermer]').addEventListener('click', w.fermer);
+            });
+          });
+          w.corps.querySelector('[data-ko]').addEventListener('click', function () {
+            Club.paiementTestCommande(cmd.id, false).then(function () {
+              w.corps.querySelector('.erreur').textContent = 'Paiement refusé. La pièce est remise en vente, rien n’a été débité.';
+            });
+          });
+        }, function (err) {
+          NC.fenetre('<span class="eyebrow">Achat impossible</span><h3>' + e(err.message) + '</h3>');
+        });
+      });
+    });
+  }
+
+  /* ---------------- Événements ---------------- */
+  function blocEvenements(s) {
+    var tete = '<div class="bloc-tete"><div><span class="eyebrow">Private Events</span><h2>Événements privés</h2></div>' +
+      '<p>Chaque événement indique si l’entrée est incluse ou si une participation est demandée. Places limitées : quand c’est complet, la liste d’attente avance dans l’ordre des demandes.</p></div>';
+    if (!s.droits.evenements) {
+      return tete + '<div class="verrou"><div><span class="eyebrow">Signature et Founders</span><h3>Les événements privés sont réservés aux membres Signature Club et Founders Club.</h3>' +
+        '<p>Votre carte Early Access vous donne les collections en avant-première. Passez à Signature pour recevoir les invitations, en payant seulement la différence pour les mois restants.</p></div>' +
+        '<div><a class="btn clair" href="#gerer">Passer à Signature</a></div></div>';
+    }
+    if (!s.evenements.length) return tete + vide('Aucun événement annoncé pour le moment.', 'Les invitations arrivent ici et par e-mail : présentations de collection, rencontres, lancements. Vous pourrez réserver votre place en un geste.');
+    return tete + '<div class="liste-items">' + s.evenements.map(function (v) {
+      var etat, bouton;
+      if (v.monInscription === 'confirme') { etat = '<span class="pastille ok">Inscrit</span>'; bouton = '<button class="lien" type="button" data-desinscrire="' + v.id + '">Annuler ma venue</button>'; }
+      else if (v.monInscription === 'attente') { etat = '<span class="pastille alerte">Liste d’attente · rang ' + v.rangAttente + '</span>'; bouton = '<button class="lien" type="button" data-desinscrire="' + v.id + '">Quitter la liste</button>'; }
+      else if (v.restantes > 0) { etat = '<span class="pastille neutre">' + v.restantes + ' place' + (v.restantes > 1 ? 's' : '') + ' sur ' + v.capacite + '</span>'; bouton = '<button class="btn plein petit" type="button" data-inscrire="' + v.id + '">Réserver ma place</button>'; }
+      else { etat = '<span class="pastille refus">Complet</span>'; bouton = '<button class="btn petit" type="button" data-inscrire="' + v.id + '">Rejoindre la liste d’attente</button>'; }
+      return '<article class="item"><div><h3>' + e(v.titre) + '</h3>' +
+        '<div class="meta"><span>' + NC.date(v.date, true) + '</span><span>' + e(v.lieu) + '</span><span>' + (v.prix > 0 ? 'Participation ' + NC.chf(v.prix) : 'Entrée incluse') + '</span></div>' +
+        (v.description ? '<p class="texte">' + e(v.description) + '</p>' : '') +
+        (v.conditions ? '<p class="texte" style="font-size:14px;color:var(--tabacco)">Conditions : ' + e(v.conditions) + '</p>' : '') + '</div>' +
+        '<div class="droite">' + etat + bouton + '</div></article>';
+    }).join('') + '</div>';
+  }
+
+  function brancherEvenements() {
+    document.querySelectorAll('[data-inscrire]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        Club.inscrire(b.dataset.inscrire).then(rendre, function (err) { NC.fenetre('<h3>' + e(err.message) + '</h3>'); });
+      });
+    });
+    document.querySelectorAll('[data-desinscrire]').forEach(function (b) {
+      b.addEventListener('click', function () { Club.annulerInscription(b.dataset.desinscrire).then(rendre); });
+    });
+  }
+
+  /* ---------------- Commandes ---------------- */
+  function blocCommandes(s) {
+    var tete = '<div class="bloc-tete"><div><span class="eyebrow">I miei ordini</span><h2>Mes commandes</h2></div></div>';
+    var cmds = s.commandes.filter(function (c) { return c.statut !== 'expiree'; }).sort(function (a, b) { return b.creeLe - a.creeLe; });
+    if (!cmds.length) return tete + vide('Aucune commande.', 'Vos commandes apparaîtront ici. Les 50 premières commandes payées du Cardigan Noce NC-01 ouvrent le Founders Club.');
+    var STATUTS = { en_attente: 'Paiement en attente', payee: 'Payée', annulee: 'Annulée', remboursee: 'Remboursée' };
+    return tete + '<div class="defile-x"><table class="cmd"><thead><tr><th>Date</th><th>Pièce</th><th>Taille</th><th>Statut</th></tr></thead><tbody>' +
+      cmds.map(function (c) { return '<tr><td>' + NC.date(c.creeLe) + '</td><td>' + e(c.produit) + '</td><td>' + e(c.taille || '') + '</td><td>' + (STATUTS[c.statut] || c.statut) + '</td></tr>'; }).join('') +
+      '</tbody></table></div>';
+  }
+
+  function modifierNom(nom) {
+    var w = NC.fenetre('<span class="eyebrow">Mon profil</span><h3>Nom sur la carte</h3><form novalidate style="display:grid;gap:22px;margin-top:22px"><div class="champ"><label for="n-nom">Prénom et nom</label><input id="n-nom" autocomplete="name" value="' + e(nom) + '"></div><button class="btn plein" type="submit">Enregistrer</button></form>');
+    w.corps.querySelector('form').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      Club.modifierNom(w.corps.querySelector('#n-nom').value.trim()).then(function () { w.fermer(); rendre(); });
+    });
+  }
+
+  // Comptes à rebours des lancements
+  setInterval(function () {
+    var now = Club.maintenant();
+    document.querySelectorAll('[data-vers]').forEach(function (el) {
+      var r = +el.dataset.vers - now;
+      if (r <= 0) { rendre(); return; }
+      el.textContent = NC.duree(r);
+    });
+  }, 30000);
+
+  rendre();
+})();

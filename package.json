@@ -1,0 +1,9 @@
+{
+  "name": "nocelli",
+  "private": true,
+  "description": "Site Nocelli et NOCELLI PRIVATE CLUB",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:sql": "bash backend/tests/test-schema.sh"
+  }
+}
