@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Administration Nocelli</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Jost:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="club/club.css">
+<link rel="stylesheet" href="club/cartes.css">
+<style>
+/* Administration : un registre de maison. Colonne de rubriques à gauche, tableaux à filets, chiffres alignés. */
+.admin{display:grid;grid-template-columns:230px 1fr;min-height:calc(100svh - 104px)}
+.admin > *{min-width:0}
+.rubriques{background:var(--noce-scuro);color:var(--avorio);padding-block:30px;display:flex;flex-direction:column;gap:2px;position:sticky;top:calc(64px + env(safe-area-inset-top,0px));height:calc(100svh - 64px - env(safe-area-inset-top,0px));overflow-y:auto}
+.rubriques .eyebrow{color:var(--crema);padding:0 26px 16px}
+.rubriques button{all:unset;cursor:pointer;padding:11px 26px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.65;border-left:1px solid transparent}
+.rubriques button:hover{opacity:1}
+.rubriques button[aria-selected=true]{opacity:1;border-left-color:var(--crema);background:rgba(228,209,176,.06)}
+.rubriques button:focus-visible{outline:1px solid var(--crema);outline-offset:-3px}
+.rubriques .sep{margin-top:auto;padding:20px 26px 0;font-size:12px;color:rgba(228,209,176,.6)}
+.panneau{padding-block:40px 80px;padding-left:clamp(20px,4vw,56px);padding-right:var(--gxr)}
+.panneau h1{font-size:clamp(30px,3.2vw,44px);line-height:1.1;margin-top:10px}
+.panneau .chapo{color:rgba(58,37,25,.75);margin-top:10px;max-width:70ch}
+.chiffres{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;margin-top:34px;border-top:1px solid var(--filo);border-left:1px solid var(--filo)}
+.chiffres div{padding:22px 22px 20px;border-right:1px solid var(--filo);border-bottom:1px solid var(--filo);display:grid;gap:6px}
+.chiffres b{font-family:var(--display);font-weight:400;font-size:38px;line-height:1;font-variant-numeric:tabular-nums lining-nums}
+.chiffres span{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--tabacco)}
+.chiffres small{font-size:12.5px;color:rgba(58,37,25,.7)}
+.jauge{height:3px;background:var(--filo);margin-top:6px}
+.jauge i{display:block;height:100%;background:var(--noce)}
+.section{margin-top:44px}
+.section h2{font-size:24px}
+.section > p{color:rgba(58,37,25,.75);margin-top:6px;font-size:14.5px}
+.outils-ligne{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:end;margin-top:20px}
+.outils-ligne .champ{min-width:180px;flex:1 1 180px;max-width:320px}
+.defile-x{overflow-x:auto;position:relative;margin-top:20px;border-top:1px solid var(--filo)}
+table.reg{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
+table.reg th,table.reg td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--filo);vertical-align:top}
+table.reg th{font-weight:400;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--tabacco);white-space:nowrap}
+table.reg td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+table.reg small{color:var(--tabacco)}
+.pastille{display:inline-flex;align-items:center;gap:7px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;padding:3px 10px;border:1px solid currentColor;border-radius:999px;white-space:nowrap}
+.pastille::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.pastille.ok{color:var(--ok)} .pastille.alerte{color:var(--alerte)} .pastille.refus{color:var(--refus)} .pastille.neutre{color:var(--tabacco)}
+.cat{font-family:var(--display);font-size:16px}
+.places50{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:22px;max-width:760px}
+.places50 span{aspect-ratio:1.585;display:grid;place-items:center;font-size:12px;font-variant-numeric:tabular-nums;border:1px solid var(--filo);color:var(--tabacco);border-radius:3px}
+.places50 .confirme{background:var(--f-choc);color:var(--f-or);border-color:var(--f-choc)}
+.places50 .retire{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(138,59,34,.18) 5px 6px);color:var(--refus);border-color:rgba(138,59,34,.4)}
+.legende{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:12.5px;color:var(--tabacco)}
+.legende i{display:inline-block;width:14px;height:9px;margin-right:6px;vertical-align:middle;border:1px solid var(--filo);border-radius:2px}
+.formulaire{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 26px;margin-top:22px;max-width:880px;border:1px solid var(--filo);padding:26px;background:#FBF8F3}
+.formulaire .plein{grid-column:1/-1}
+.formulaire .stock{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.formulaire .boutons{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.case{margin-top:0}
+.entree{max-width:640px;padding-block:90px;padding-left:var(--gx);padding-right:var(--gxr);margin:0 auto}
+.entree h1{font-size:clamp(34px,4vw,52px);margin-top:14px}
+.entree p{margin-top:16px;color:rgba(58,37,25,.8)}
+.encadre{border:1px solid var(--filo);padding:20px 22px;margin-top:20px;font-size:14px;background:#FBF8F3;display:grid;gap:8px}
+.horloge{font-family:var(--display);font-size:20px}
+@media (max-width:900px){
+  .admin{grid-template-columns:1fr}
+  .rubriques{position:sticky;top:calc(58px + env(safe-area-inset-top,0px));z-index:5;height:auto;flex-direction:row;overflow-x:auto;padding:0;scrollbar-width:none}
+  .rubriques .eyebrow,.rubriques .sep{display:none}
+  .rubriques button{padding:15px 16px;white-space:nowrap;border-left:0;border-bottom:1px solid transparent}
+  .rubriques button[aria-selected=true]{border-bottom-color:var(--crema)}
+  .panneau{padding-left:var(--gx)}
+  .formulaire{grid-template-columns:1fr;padding:20px}
+  .places50{grid-template-columns:repeat(5,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="annonce">Nocelli Private Club &nbsp;·&nbsp; Administration</div>
+
+<header class="tete">
+  <div class="wrap nav">
+    <div style="display:flex;align-items:center">
+      <nav class="gauche" aria-label="Site">
+        <a href="club.html">Private Club</a>
+        <a href="membre.html">Espace membre</a>
+      </nav>
+    </div>
+    <a class="marque" href="index.html">NOCELLI</a>
+    <nav class="droite" aria-label="Session">
+      <a class="cta" href="#" id="sortir" hidden>Se déconnecter</a>
+    </nav>
+  </div>
+</header>
+
+<main id="app"><div class="entree"><span class="eyebrow">Chargement</span></div></main>
+
+<script src="club/vendor/qrcode.js"></script>
+<script src="club/regles.js"></script>
+<script src="club/donnees.js"></script>
+<script src="club/vendor/supabase.js"></script>
+<script src="club/config.js"></script>
+<script src="club/serveur.js"></script>
+<script src="club/cartes.js"></script>
+<script src="club/commun.js"></script>
+<script src="club/page-admin.js"></script>
+</body>
+</html>

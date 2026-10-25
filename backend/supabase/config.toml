@@ -1,0 +1,9 @@
+# Réglages lus par la commande « supabase functions deploy » (voir .github/workflows).
+project_id = "nocelli"
+
+[functions.paiement]
+verify_jwt = true
+
+# Stripe appelle le webhook sans compte Supabase : la signature Stripe est vérifiée dans la fonction.
+[functions.stripe-webhook]
+verify_jwt = false

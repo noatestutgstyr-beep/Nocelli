@@ -8,6 +8,7 @@
 <meta name="description" content="Nocelli Cardigan Noce, 50 pièces numérotées, CHF 139. Ouverture le mercredi 25 novembre à 19h00, heure suisse.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="club/cartes.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Bodoni+Moda:opsz,wght@6..96,400&family=Jost:wght@300;400;500&display=swap">
 <style>
 /* Layout: a quiet tailor's shop window. Warm paper background, photographs edge to edge, small plain capitals for navigation, a soft light serif for titles, split panels that alternate image and text. Walnut is kept for the garment, the video and the details. One warm look in every theme. */
@@ -309,7 +310,6 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
 <body>
 
 
-
 <div class="annonce"><span class="an-long">Prima Edizione · </span>50 pièces numérotées · Ouverture <span class="an-long">le mercredi 25 novembre à 19h</span><span class="an-court">le 25.11 à 19h</span></div>
 
 <header>
@@ -319,11 +319,13 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
       <nav class="gauche" aria-label="Sections">
         <a href="#piece">La pièce</a>
         <a href="#cent">Commander</a>
+        <a href="club.html">Private Club</a>
       </nav>
     </div>
     <a class="marque" href="#haut" aria-label="Nocelli, accueil">Nocelli</a>
     <nav class="droite" aria-label="Compte et inscription">
       <span class="devise-chf">CH · CHF</span>
+      <a class="icone" href="membre.html" aria-label="Mon compte"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4"/></svg></a>
       <a class="cta" href="#liste">M'inscrire</a>
     </nav>
   </div>
@@ -335,7 +337,9 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
     <li><a href="#numero">Le numéro</a></li>
     <li><a href="#" data-guide>Guide des tailles</a></li>
     <li><a href="#cent">Commander</a></li>
+    <li><a href="club.html">Private Club</a></li>
     <li><a href="#liste">M'inscrire</a></li>
+    <li><a href="membre.html">Mon compte</a></li>
   </ul>
   <p>Prima Edizione · 50 pièces · CHF 139</p>
 </div>
@@ -467,6 +471,19 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
     </div>
   </section>
 
+  <section class="split circolo" id="club">
+    <div class="split-img"><div class="club-cartes" id="club-cartes" role="img" aria-label="Les cartes du Nocelli Private Club : Founders Club chocolat et or, Signature Club noir et or"></div></div>
+    <div class="split-texte">
+      <span class="eyebrow">Private Club</span>
+      <h2>Le Private Club</h2>
+      <ul class="formules-mini">
+        <li><div><strong>Founders Club</strong><span>Pour les 50 acheteurs du Cardigan Noce. Nouvelles collections en avant-première.</span></div><b>Offert</b></li>
+        <li><div><strong>Signature Club</strong><span>Nouvelles collections en avant-première et événements privés.</span></div><b>CHF 59 / an</b></li>
+      </ul>
+      <div class="actions"><a class="btn plein" href="club.html">Découvrir le Private Club</a><a class="souligne" href="membre.html">Mon compte</a></div>
+    </div>
+  </section>
+
   <section class="liste" id="liste">
     <div class="wrap">
       <div class="boite">
@@ -561,6 +578,8 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
         <ul>
           <li><a href="#cent">50 pièces numérotées</a></li>
           <li><a href="#liste">Liste privée</a></li>
+          <li><a href="club.html">Nocelli Private Club</a></li>
+          <li><a href="membre.html">Mon compte</a></li>
         </ul>
       </div>
       <div>
@@ -581,6 +600,8 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
   <a class="btn plein" href="#liste">M'inscrire</a>
 </div>
 
+<script src="club/vendor/qrcode.js"></script>
+<script src="club/cartes.js"></script>
 <script>
 (function(){
   var body=document.body;
@@ -675,8 +696,12 @@ footer{padding-top:64px;border-top:1px solid var(--filo)}
     merci.hidden=false;
   });
 
+  // Les trois cartes du Private Club (club/cartes.js)
+  if(window.NocelliCartes){
+    var zc=document.getElementById('club-cartes');
+    ['founders','signature'].forEach(function(c){zc.appendChild(NocelliCartes.creer({categorie:c,numero:1,retournable:false}));});
+  }
 })();
 </script>
-
 </body>
 </html>

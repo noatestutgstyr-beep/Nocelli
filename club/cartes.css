@@ -1,0 +1,81 @@
+/* NOCELLI PRIVATE CLUB — les deux cartes de membre (85,6 × 54 mm).
+   Fichier séparé pour pouvoir afficher les cartes sur la page d'accueil sans le reste du club. */
+:root{
+  --f-choc:#30231D; --f-or:#C5AA83; --f-beige:#E4D2B5;
+  --s-noir:#111111; --s-anthra:#252525; --s-or:#C5AA83;
+  --doux:cubic-bezier(.2,.7,.2,1);
+}
+@keyframes revele{from{opacity:0;transform:translateY(40px) rotateX(55deg) scale(.86)}to{opacity:1;transform:none}}
+/* =====================================================================
+   CARTES DE MEMBRE — 85,6 × 54 mm. Tailles en unités du conteneur (cqw),
+   donc la même carte s'imprime, s'affiche en vignette ou en plein écran.
+   ===================================================================== */
+.carte{position:relative;width:100%;max-width:100%;aspect-ratio:85.6/54;container-type:inline-size;perspective:1400px;--rx:0deg;--ry:0deg;--mx:50%;--my:30%;--lueur:0;border-radius:3.7cqw}
+.carte-corps{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(calc(var(--ry) + var(--flip,0deg)));transition:transform .9s var(--doux);border-radius:inherit}
+.carte.vivante .carte-corps{transition:transform .25s ease-out}
+.carte.retournee{--flip:180deg}
+.carte .face{position:absolute;inset:0;border-radius:3.7cqw;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 1.2cqw 3.2cqw -1cqw rgba(17,10,6,.55),0 .3cqw .8cqw rgba(17,10,6,.25),inset 0 0 0 .12cqw rgba(255,255,255,.06)}
+.carte .verso{transform:rotateY(180deg)}
+.carte .grain{position:absolute;inset:0;pointer-events:none}
+.carte .reflet{position:absolute;inset:-20%;pointer-events:none;background:radial-gradient(circle at var(--mx) var(--my),rgba(255,246,228,.22),rgba(255,246,228,0) 42%);opacity:calc(.35 + var(--lueur) * .65);transition:opacity .6s;mix-blend-mode:soft-light}
+.carte .contenu *{margin:0}
+.carte .contenu{position:absolute;inset:0;display:grid;padding:7cqw 7.5cqw 6.2cqw}
+.carte .logo{font-family:var(--display);font-weight:400;letter-spacing:.32em;margin-right:-.32em;line-height:1;white-space:nowrap}
+.carte .mention{font-family:var(--body);font-weight:400;font-size:2.35cqw;letter-spacing:.5em;margin-right:-.5em;text-transform:uppercase;white-space:nowrap}
+.carte .numero{font-family:var(--body);font-weight:400;font-size:2.2cqw;letter-spacing:.32em;text-transform:uppercase;font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+.carte .petit{font-family:var(--body);font-weight:400;font-size:1.75cqw;letter-spacing:.3em;text-transform:uppercase;white-space:nowrap;opacity:.8}
+.carte .devise{font-family:var(--display);font-size:3.55cqw;line-height:1.32;letter-spacing:.12em;text-transform:uppercase;max-width:46cqw}
+.carte .qr{width:21cqw;aspect-ratio:1;padding:1.5cqw;border-radius:1.2cqw}
+.carte .qr svg{width:100%;height:100%}
+.carte .nom-membre{font-family:var(--display);font-style:italic;font-size:2.9cqw;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52cqw}
+
+/* Or champagne : dégradé de dorure, et un reflet qui suit le pointeur */
+.dorure{background:linear-gradient(100deg,#8C7350 0%,#C5AA83 22%,#F1E3C4 calc(var(--mx) - 6%),#FFF6E2 var(--mx),#E6D2AC calc(var(--mx) + 6%),#B39668 78%,#8C7350 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 .12cqw 0 rgba(0,0,0,.45)) drop-shadow(0 -.06cqw 0 rgba(255,240,210,.18))}
+
+/* 1. FOUNDERS — chocolat mat, dorure à chaud */
+.carte.founders .face{background:radial-gradient(120% 90% at 30% 20%,#3B2C24 0%,var(--f-choc) 55%,#251A15 100%);color:var(--f-or)}
+.carte.founders .recto .contenu{grid-template-rows:auto 1fr auto;justify-items:center}
+.carte.founders .filet-or{position:absolute;inset:3.4cqw;border:.14cqw solid rgba(197,170,131,.42);border-radius:2cqw;pointer-events:none}
+.carte.founders .symbole{width:5.2cqw;height:5.2cqw;color:var(--f-or)}
+.carte.founders .centre{align-self:center;display:grid;justify-items:center;gap:3.2cqw}
+.carte.founders .logo{font-size:10.6cqw}
+.carte.founders .mention{color:var(--f-beige);display:flex;align-items:center;gap:2.4cqw}
+.carte.founders .mention::before,.carte.founders .mention::after{content:"";width:6cqw;height:.12cqw;background:rgba(197,170,131,.6)}
+.carte.founders .pied{justify-self:stretch;display:flex;justify-content:space-between;align-items:end;color:var(--f-beige)}
+.carte.founders .numero b{font-weight:400;color:var(--f-or)}
+
+/* 2. EARLY ACCESS — ivoire papier, gaufrage brun */
+
+/* 3. SIGNATURE — noir mat, cannelures minérales ton sur ton, or en relief */
+.carte.signature .face{background:linear-gradient(150deg,#161616 0%,var(--s-noir) 55%,#0B0B0B 100%);color:var(--s-or)}
+.carte.signature .cannelures{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(37,37,37,0) 0 2.1cqw,rgba(37,37,37,.95) 2.1cqw 2.24cqw,rgba(0,0,0,.35) 2.24cqw 2.34cqw);-webkit-mask:linear-gradient(180deg,rgba(0,0,0,.95),rgba(0,0,0,.35) 70%,rgba(0,0,0,.15));mask:linear-gradient(180deg,rgba(0,0,0,.95),rgba(0,0,0,.35) 70%,rgba(0,0,0,.15))}
+.carte.signature .arche{position:absolute;left:50%;top:9%;width:58cqw;height:120%;transform:translateX(-50%);color:var(--s-anthra)}
+.carte.signature .recto .contenu{grid-template-rows:1fr auto;justify-items:center}
+.carte.signature .centre{align-self:center;display:grid;justify-items:center;gap:3.2cqw;margin-top:3cqw}
+.carte.signature .logo{font-size:10.2cqw}
+.carte.signature .mention{color:#9C8B73;font-size:2.2cqw}
+.carte.signature .pied{justify-self:stretch;display:flex;justify-content:space-between;align-items:end;color:#9C8B73}
+.carte.signature .numero b{font-weight:400;color:var(--s-or)}
+
+/* Versos */
+.carte .verso .contenu{grid-template-columns:1fr auto;grid-template-rows:1fr auto;gap:3cqw 4cqw;align-items:center}
+.carte .verso .bas-verso{grid-column:1/-1;display:flex;justify-content:space-between;align-items:end;gap:3cqw}
+.carte.founders .verso .devise{color:var(--f-beige)}
+.carte.founders .verso .qr{background:var(--f-beige)}
+.carte.founders .verso .bas-verso{color:rgba(228,210,181,.75)}
+.carte.signature .verso .devise{color:var(--s-or)}
+.carte.signature .verso .qr{background:#E8DCC6}
+.carte.signature .verso .bas-verso{color:#8E7F69}
+.carte .verso .qui{display:grid;gap:1.2cqw;min-width:0}
+.carte .nom-membre{max-width:60cqw}
+.carte .verso .marque-verso{font-family:var(--display);font-size:2.6cqw;letter-spacing:.4em}
+
+.carte[data-retournable]{cursor:pointer}
+.carte[data-retournable]:focus-visible{outline:1px solid var(--tabacco);outline-offset:6px}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .carte-corps{transform:rotateY(var(--flip,0deg))!important}
+}
+

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Cartes Nocelli à imprimer</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Jost:wght@300;400&display=swap">
+<link rel="stylesheet" href="cartes.css">
+<style>
+/* Fichier pour l'imprimeur : une carte par page, 85,6 × 54 mm, recto puis verso. */
+:root{--display:"Bodoni Moda",Georgia,serif;--body:"Jost","Helvetica Neue",Arial,sans-serif}
+@page{size:85.6mm 54mm;margin:0}
+html,body{margin:0;background:#fff}
+.page{width:85.6mm;height:54mm;break-after:page;overflow:hidden}
+.page .carte{width:85.6mm;border-radius:0}
+.page .carte .face{border-radius:0;box-shadow:none}
+.page .carte .carte-corps{transition:none}
+.page .reflet{display:none}
+.page .carte-corps{transform:none!important;transform-style:flat}
+.imp-recto .verso,.imp-verso .recto{display:none}
+.imp-verso .verso{transform:none}
+</style>
+</head>
+<body>
+<script>window.NOCELLI_SITE = 'https://noatestutgstyr-beep.github.io/Nocelli/';</script>
+<script src="vendor/qrcode.js"></script>
+<script src="cartes.js"></script>
+<script>
+// ?cat=founders&numero=7&nom=...&jeton=... ; sans paramètre : les deux spécimens.
+var q = new URLSearchParams(location.search);
+var liste = q.get('cat') ? [q.get('cat')] : ['founders', 'signature'];
+liste.forEach(function (cat) {
+  [false, true].forEach(function (verso) {
+    var p = document.createElement('div'); p.className = 'page';
+    var c = NocelliCartes.creer({ categorie: cat, numero: +q.get('numero') || 1, nom: q.get('nom') || '', jeton: q.get('jeton') || '', retournable: false, vivante: false });
+    p.classList.add(verso ? 'imp-verso' : 'imp-recto');
+    p.appendChild(c); document.body.appendChild(p);
+  });
+});
+</script>
+</body>
+</html>
