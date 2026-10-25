@@ -72,11 +72,20 @@
   }
 
   // « Mon compte » affiche le prénom quand on est connecté.
-  var s = window.Club && window.Club.session();
-  document.querySelectorAll('[data-lien-compte]').forEach(function (l) {
-    if (s) l.textContent = s.role === 'admin' ? 'Administration' : 'Mon compte';
-    if (s && s.role === 'admin') l.href = 'admin.html';
+  // (après le chargement de la session quand le vrai serveur est branché)
+  ((window.Club && window.Club.pret) || Promise.resolve()).then(function () {
+    var s = window.Club && window.Club.session();
+    document.querySelectorAll('[data-lien-compte]').forEach(function (l) {
+      if (s) l.textContent = s.role === 'admin' ? 'Administration' : 'Mon compte';
+      if (s && s.role === 'admin') l.href = 'admin.html';
+    });
   });
 
-  window.NC = { date: date, chf: chf, echapper: echapper, duree: duree, fenetre: fenetre };
+  // Message affiché après l'envoi d'un lien de connexion (vrai serveur).
+  function lienEnvoye(email) {
+    return '<span class="eyebrow">Vérifiez vos e-mails</span><h3>Un lien de connexion est parti.</h3>' +
+      '<p class="conditions">Nous l’avons envoyé à <b>' + echapper(email) + '</b>. Ouvrez-le sur cet appareil : vous revenez ici, connecté. Pensez à regarder dans les indésirables.</p>';
+  }
+
+  window.NC = { date: date, chf: chf, echapper: echapper, duree: duree, fenetre: fenetre, lienEnvoye: lienEnvoye };
 })();

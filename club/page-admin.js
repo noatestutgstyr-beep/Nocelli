@@ -9,7 +9,7 @@
     ['envois', 'Cartes à envoyer'],
     ['lancements', 'Lancements'], ['evenements', 'Événements'], ['carte', 'Vérifier une carte'],
     ['journal', 'Journal'], ['test', 'Outils de test']
-  ];
+  ].filter(function (r) { return Club.modeTest || r[0] !== 'test'; });   // les simulations n'existent qu'en mode test
   var actuelle = (location.hash.slice(1) || 'apercu');
   if (!RUBRIQUES.some(function (r) { return r[0] === actuelle; })) actuelle = 'apercu';
   var filtre = { cat: 'tous', q: '' };
@@ -23,7 +23,7 @@
     if (!estAdmin()) return entree();
     app.innerHTML = '<div class="admin"><nav class="rubriques" role="tablist" aria-label="Rubriques"><span class="eyebrow">Private Club</span>' +
       RUBRIQUES.map(function (r) { return '<button type="button" role="tab" data-r="' + r[0] + '" aria-selected="' + (r[0] === actuelle) + '">' + r[1] + '</button>'; }).join('') +
-      '<p class="sep"><span class="mode-test">Mode test</span></p></nav><section class="panneau" id="panneau" role="tabpanel"></section></div>';
+      '<p class="sep">' + (Club.modeTest ? '<span class="mode-test">Mode test</span>' : 'Serveur Supabase · paiements Stripe') + '</p></nav><section class="panneau" id="panneau" role="tabpanel"></section></div>';
     app.querySelector('.rubriques').addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-r]');
       if (!b) return;
@@ -36,11 +36,31 @@
   }
 
   function entree() {
+    if (!Club.modeTest) return entreeServeur();
     app.innerHTML = '<div class="entree"><span class="eyebrow">Accès réservé</span><h1>Administration du Private Club</h1>' +
       '<p>En production, seule une personne connectée avec un compte au rôle « administrateur » ouvre cette page, et chaque action est vérifiée par le serveur puis inscrite au journal.</p>' +
       '<div class="encadre"><span class="mode-test" style="justify-self:start">Mode test</span><p style="margin:0">Le serveur n’est pas encore branché. Vous pouvez essayer l’administration avec des données qui restent dans ce navigateur. Aucun membre réel n’est affiché, aucun paiement n’est possible.</p></div>' +
       '<div style="margin-top:26px"><button class="btn plein" type="button" id="entrer">Entrer en mode test</button></div></div>';
     document.getElementById('entrer').addEventListener('click', function () { A.entrer().then(demarrer); });
+  }
+
+  // Vrai serveur : connexion par lien e-mail avec un compte au rôle « admin ».
+  function entreeServeur() {
+    var s = Club.session();
+    app.innerHTML = '<div class="entree"><span class="eyebrow">Accès réservé</span><h1>Administration du Private Club</h1>' +
+      (s ? '<p>Le compte ' + e(s.email) + ' n’a pas le rôle administrateur.</p><div style="margin-top:26px"><button class="btn" type="button" id="autre">Changer de compte</button></div>'
+        : '<p>Connectez-vous avec l’adresse du compte administrateur. Nous vous envoyons un lien par e-mail.</p>' +
+          '<form id="f-adm" novalidate style="display:grid;gap:20px;max-width:420px;margin-top:26px"><div class="champ"><label for="adm-email">E-mail</label><input id="adm-email" type="email" autocomplete="email"></div>' +
+          '<p class="erreur" id="adm-err" role="alert"></p><button class="btn plein" type="submit">Recevoir mon lien</button></form>') + '</div>';
+    var autre = document.getElementById('autre');
+    if (autre) autre.addEventListener('click', function () { Club.deconnexion().then(demarrer); });
+    var f = document.getElementById('f-adm');
+    if (f) f.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      Club.connexion(document.getElementById('adm-email').value, '').then(function (r) {
+        f.innerHTML = NC.lienEnvoye(r.email);
+      }, erreurDans('adm-err'));
+    });
   }
 
   function panneau(h) { document.getElementById('panneau').innerHTML = h; }
@@ -64,10 +84,10 @@
         '<div><span>Revenu annuel</span><b>' + NC.chf(s.revenuAnnuel).replace('CHF ', '') + '</b><small>CHF, abonnements qui se renouvellent</small></div>' +
         '<div><span>Encaissé</span><b>' + NC.chf(s.encaisse).replace('CHF ', '') + '</b><small>CHF, adhésions et changements</small></div>' +
         '</div>' +
-        '<div class="section"><h2>Notifications envoyées aux membres</h2><p>À chaque lancement publié, les membres avec accès anticipé sont prévenus. En mode test, rien ne part : la liste montre ce qui serait envoyé.</p>' +
+        (Club.modeTest ? '<div class="section"><h2>Notifications envoyées aux membres</h2><p>À chaque lancement publié, les membres avec accès anticipé sont prévenus. En mode test, rien ne part : la liste montre ce qui serait envoyé.</p>' +
         (notes.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Date</th><th>Sujet</th><th>Destinataires</th><th>Ouverture membres</th></tr></thead><tbody>' +
           notes.map(function (n) { return '<tr><td class="n">' + NC.date(n.le, true) + '</td><td>' + e(n.sujet) + '</td><td class="n">' + n.destinataires + '</td><td class="n">' + NC.date(n.ouvertureMembres, true) + '</td></tr>'; }).join('') + '</tbody></table></div>'
-          : '<p style="margin-top:14px"><span class="pastille neutre">Aucune notification pour l’instant</span></p>') + '</div>');
+          : '<p style="margin-top:14px"><span class="pastille neutre">Aucune notification pour l’instant</span></p>') + '</div>' : ''));
     });
   }
 
@@ -305,7 +325,7 @@
     A.evenements().then(function (liste) {
       var enCours = edition && liste.filter(function (x) { return x.id === edition; })[0];
       panneau('<span class="eyebrow">Private Events</span><h1>Événements</h1>' +
-        '<p class="chapo">Seuls les membres Signature et Founders voient et réservent les événements publiés. Complet : liste d’attente, qui avance automatiquement quand une place se libère ou que vous augmentez la capacité.</p>' +
+        '<p class="chapo">Seuls les membres Signature (fondateurs compris s’ils ont Signature) voient et réservent les événements publiés. Complet : liste d’attente, qui avance automatiquement quand une place se libère ou que vous augmentez la capacité.</p>' +
         '<div class="section"><h2>' + (enCours ? 'Modifier « ' + e(enCours.titre) + ' »' : 'Nouvel événement') + '</h2>' + formEvenement(enCours) + '</div>' +
         '<div class="section"><h2>Événements et inscriptions</h2>' + (liste.length ? liste.map(function (x) {
           var conf = x.inscrits.filter(function (i) { return i.statut === 'confirme'; }).length;
@@ -415,5 +435,5 @@
     p.textContent = t;
   }
 
-  demarrer();
+  (Club.pret || Promise.resolve()).then(demarrer);
 })();

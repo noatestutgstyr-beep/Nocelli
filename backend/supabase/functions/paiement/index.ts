@@ -27,7 +27,6 @@ Deno.serve(async (req) => {
         // Twint et cartes, selon ce qui est activé dans Stripe.
         success_url: `${SITE}/membre.html?paiement=ok`,
         cancel_url: `${SITE}/club.html?paiement=annule`,
-        consent_collection: { terms_of_service: 'required' },
         locale: 'fr',
       }, `souscrire-${user.id}-${corps.plan}-${new Date().toISOString().slice(0, 13)}`);
       return reponse({ url: session.url });

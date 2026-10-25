@@ -7,7 +7,8 @@ export const STRIPE_SECRET = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
 export const PRIX: Record<string, string> = {
   signature: Deno.env.get('STRIPE_PRIX_SIGNATURE') ?? '',  // 59 CHF / an
 };
-export const SITE = Deno.env.get('SITE_URL') ?? 'https://nocelli.ch';
+// Adresse du site sans « / » final (SITE_URL peut en avoir un).
+export const SITE = (Deno.env.get('SITE_URL') ?? 'https://nocelli.ch').replace(/\/+$/, '');
 
 if (STRIPE_SECRET && !STRIPE_SECRET.startsWith('sk_test_') && Deno.env.get('PAIEMENTS_REELS') !== 'oui') {
   // Sécurité : tant que Noa n'a pas dit oui, seule une clé de TEST est acceptée.
@@ -56,8 +57,8 @@ export function baseUtilisateur(req: Request) {
 }
 
 export const CORS = {
-  'Access-Control-Allow-Origin': SITE,
-  'Access-Control-Allow-Headers': 'authorization, content-type, apikey',
+  'Access-Control-Allow-Origin': new URL(SITE).origin,   // le navigateur envoie l'origine sans chemin
+  'Access-Control-Allow-Headers': 'authorization, content-type, apikey, x-client-info',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 

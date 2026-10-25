@@ -271,3 +271,13 @@ select ok((select statut || '/' || motif from envois_cartes where compte_id = :'
 update compteur_fondateurs set prochain = :prochain_avant where id;
 update profils set role = 'client' where email = 'luca@exemple.ch';
 select set_config('request.jwt.claim.sub', '', false);
+
+-- Visiteur non connecté : lit les collections publiées et le compteur, rien d'autre.
+set role anon;
+select ok((select count(*) from lancements where not publie) = 0, 'visiteur : seulement les collections publiées');
+select ok(places_fondateurs_restantes() between 0 and 50, 'visiteur : places fondateurs restantes lisibles');
+do $$ begin
+  begin perform 1 from profils limit 1; raise exception 'lu';
+  exception when insufficient_privilege then perform ok(true, 'visiteur : aucun profil lisible'); end;
+end $$;
+reset role;

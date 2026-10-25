@@ -40,13 +40,16 @@
       '<div class="champ"><label for="c-nom">Prénom et nom <span style="letter-spacing:0;text-transform:none">(nouveau compte)</span></label><input id="c-nom" autocomplete="name" placeholder="Lorenzo Bianchi"></div>' +
       '<p class="erreur" id="c-err" role="alert"></p>' +
       '<button class="btn plein" type="submit">Recevoir mon lien de connexion</button>' +
-      '<p class="note">Pas de mot de passe : nous vous envoyons un lien de connexion par e-mail. <span class="mode-test">Mode test</span> ici, la connexion est immédiate.</p>' +
+      '<p class="note">Pas de mot de passe : nous vous envoyons un lien de connexion par e-mail.' + (Club.modeTest ? ' <span class="mode-test">Mode test</span> ici, la connexion est immédiate.' : '') + '</p>' +
       '</form></div><div class="apercu" id="apercu" aria-hidden="true"></div></div></section>';
     var ap = document.getElementById('apercu');
     ['founders', 'signature'].forEach(function (c) { ap.appendChild(C.creer({ categorie: c, numero: 1, retournable: false, vivante: false })); });
     document.getElementById('f-cnx').addEventListener('submit', function (ev) {
       ev.preventDefault();
-      Club.connexion(document.getElementById('c-email').value, document.getElementById('c-nom').value.trim()).then(rendre, function (err) {
+      Club.connexion(document.getElementById('c-email').value, document.getElementById('c-nom').value.trim()).then(function (r) {
+        if (r && r.lienEnvoye) { document.getElementById('f-cnx').innerHTML = '<div style="display:grid;gap:14px">' + NC.lienEnvoye(r.email) + '</div>'; return; }
+        rendre();
+      }, function (err) {
         document.getElementById('c-err').textContent = err.message + ' Exemple : nom@exemple.ch.';
       });
     });
@@ -282,7 +285,10 @@
   function brancherCollections() {
     document.querySelectorAll('[data-acheter]').forEach(function (b) {
       b.addEventListener('click', function () {
+        b.disabled = true;
         Club.reserverPiece(b.dataset.acheter, b.dataset.taille).then(function (cmd) {
+          // Vrai serveur : la pièce est réservée et la page de paiement sécurisée s'ouvre.
+          if (cmd && cmd.redirection) return NC.fenetre('<span class="eyebrow">Commande · taille ' + e(b.dataset.taille) + '</span><h3>Votre pièce est réservée 30 minutes.</h3><p class="conditions">Ouverture du paiement sécurisé…</p>');
           var w = NC.fenetre('<span class="eyebrow">Commande · taille ' + e(cmd.taille) + '</span><h3>Votre pièce est réservée 30 minutes.</h3>' +
             '<div class="paiement-test"><span class="mode-test">Mode test</span><p>Le paiement réel n’est pas encore branché. Aucun argent n’est débité. Choisissez la réponse de la banque :</p>' +
             '<div class="boutons"><button class="btn plein petit" type="button" data-ok>Paiement accepté</button><button class="btn petit" type="button" data-ko>Paiement refusé</button></div></div><p class="erreur" role="alert"></p>', { apres: rendre });
@@ -301,6 +307,7 @@
             });
           });
         }, function (err) {
+          b.disabled = false;
           NC.fenetre('<span class="eyebrow">Achat impossible</span><h3>' + e(err.message) + '</h3>');
         });
       });
@@ -371,5 +378,18 @@
     });
   }, 30000);
 
-  rendre();
+  // Retour de la page de paiement : Stripe confirme au serveur en quelques secondes.
+  function retourPaiement() {
+    var ok = params.get('paiement') === 'ok' || params.get('commande') === 'ok';
+    var annule = params.get('commande') === 'annulee';
+    if (!ok && !annule) return;
+    history.replaceState(null, '', location.pathname + location.hash);
+    if (annule) { NC.fenetre('<span class="eyebrow">Paiement annulé</span><h3>Rien n’a été débité.</h3><p class="conditions">La pièce reste réservée 30 minutes, puis elle est remise en vente.</p>'); return; }
+    NC.fenetre('<span class="eyebrow">Grazie</span><h3>Paiement reçu.</h3><p class="conditions">' +
+      (params.get('paiement') === 'ok' ? 'Votre adhésion Signature s’active dans un instant.' : 'Votre commande est confirmée. Elle apparaît dans « Mes commandes ».') + '</p>');
+    setTimeout(rendre, 4000);
+    setTimeout(rendre, 12000);
+  }
+
+  (Club.pret || Promise.resolve()).then(function () { rendre(); retourPaiement(); });
 })();

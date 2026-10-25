@@ -57,8 +57,8 @@
     b.addEventListener('click', function () { rejoindre(b.dataset.rejoindre); });
   });
   // Lien direct depuis une autre page : club.html#rejoindre-signature
-  var m = location.hash.match(/^#rejoindre-(signature)$/);
-  if (m) setTimeout(function () { rejoindre(m[1]); }, 400);
+  var m = location.hash.match(/^#rejoindre-(signature)$/) || location.search.match(/[?&]rejoindre=(signature)\b/);
+  if (m) (Club.pret || Promise.resolve()).then(function () { setTimeout(function () { rejoindre(m[1]); }, 400); });
 
   function rejoindre(plan) {
     var w = NC.fenetre('', { titre: 'Rejoindre ' + NOMS[plan] });
@@ -78,7 +78,10 @@
     w.corps.querySelector('form').addEventListener('submit', function (e) {
       e.preventDefault();
       var email = w.corps.querySelector('#id-email').value, nom = w.corps.querySelector('#id-prenom').value.trim();
-      Club.connexion(email, nom).then(function () { recap(w, plan); }, function (err) {
+      Club.connexion(email, nom, { rejoindre: plan }).then(function (r) {
+        if (r && r.lienEnvoye) return w.remplacer(NC.lienEnvoye(r.email));
+        recap(w, plan);
+      }, function (err) {
         w.corps.querySelector('#id-err').textContent = err.message + ' Exemple : nom@exemple.ch.';
       });
     });
@@ -107,7 +110,14 @@
     w.corps.querySelector('#payer').addEventListener('click', function () {
       var err = w.corps.querySelector('#r-err');
       if (!w.corps.querySelector('#accepte').checked) { err.textContent = 'Cochez la case pour confirmer que vous avez lu les conditions.'; return; }
-      Club.demarrerAbonnement(plan).then(function (ab) { paiementTest(w, plan, ab); }, function (e) {
+      var bouton = w.corps.querySelector('#payer');
+      bouton.disabled = true;
+      Club.demarrerAbonnement(plan).then(function (ab) {
+        // Vrai serveur : la page de paiement sécurisée s'ouvre.
+        if (ab && ab.redirection) return w.remplacer('<span class="eyebrow">Paiement</span><h3>Ouverture du paiement sécurisé…</h3>');
+        paiementTest(w, plan, ab);
+      }, function (e) {
+        bouton.disabled = false;
         err.innerHTML = NC.echapper(e.message) + ' <a href="membre.html">Ouvrir mon espace membre</a>';
       });
     });

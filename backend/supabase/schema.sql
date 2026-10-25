@@ -109,6 +109,12 @@ create table if not exists public.compteur_fondateurs (
 );
 insert into public.compteur_fondateurs (id) values (true) on conflict do nothing;
 
+-- Places fondateurs encore libres (page du club, lisible par tous).
+create or replace function public.places_fondateurs_restantes() returns integer
+language sql stable security definer set search_path = public as $$
+  select greatest(0, 51 - prochain) from public.compteur_fondateurs where id
+$$;
+
 -- ---------------------------------------------------------------------------
 -- Abonnements Early Access (29 CHF/an) et Signature (59 CHF/an)
 -- Le prestataire de paiement (Stripe) est la référence pour la facturation ;
@@ -749,6 +755,8 @@ grant execute on function public.droits(uuid), public.reserver_piece(uuid, text)
   public.inscrire_evenement(uuid), public.annuler_inscription(uuid),
   public.est_admin(), public.peut_souscrire(uuid, text),
   public.enregistrer_adresse(text, text, text, text, text, text) to authenticated;
+-- Visiteurs : lire les collections publiées (la règle appelle est_admin) et le compteur fondateurs.
+grant execute on function public.est_admin(), public.places_fondateurs_restantes() to anon, authenticated;
 grant execute on function public.admin_reattribuer_numero(integer, uuid, text),
   public.admin_suspendre(uuid, boolean, text),
   public.admin_enregistrer_lancement(uuid, text, text, text, numeric, timestamptz, integer, boolean, jsonb),
