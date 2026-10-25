@@ -3,16 +3,24 @@
 // Stripe : le site et la base ne voient jamais un numéro de carte.
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
-export const STRIPE_SECRET = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
+// Espaces ou retour à la ligne collés avec la clé : sans effet.
+export const STRIPE_SECRET = (Deno.env.get('STRIPE_SECRET_KEY') ?? '').trim();
 export const PRIX: Record<string, string> = {
-  signature: Deno.env.get('STRIPE_PRIX_SIGNATURE') ?? '',  // 59 CHF / an
+  signature: (Deno.env.get('STRIPE_PRIX_SIGNATURE') ?? '').trim(),  // 59 CHF / an
 };
 // Adresse du site sans « / » final (SITE_URL peut en avoir un).
-export const SITE = (Deno.env.get('SITE_URL') ?? 'https://nocelli.ch').replace(/\/+$/, '');
+export const SITE = (Deno.env.get('SITE_URL') ?? 'https://nocelli.ch').trim().replace(/\/+$/, '');
 
-if (STRIPE_SECRET && !STRIPE_SECRET.startsWith('sk_test_') && Deno.env.get('PAIEMENTS_REELS') !== 'oui') {
-  // Sécurité : tant que Noa n'a pas dit oui, seule une clé de TEST est acceptée.
-  throw new Error('Clé Stripe réelle refusée : mettre PAIEMENTS_REELS=oui seulement au lancement.');
+// Sécurité : tant que Noa n'a pas dit oui, seule une clé de TEST est acceptée.
+// Renvoie la raison du refus (sans jamais montrer la clé), ou null si la clé convient.
+export function cleRefusee(): string | null {
+  if (!STRIPE_SECRET) return 'STRIPE_SECRET_KEY manquante dans les secrets Supabase.';
+  if (/^(sk|rk)_test_/.test(STRIPE_SECRET)) return null;
+  if (/^(sk|rk)_live_/.test(STRIPE_SECRET)) {
+    return Deno.env.get('PAIEMENTS_REELS') === 'oui' ? null : 'Clé Stripe réelle refusée : mettre PAIEMENTS_REELS=oui seulement au lancement.';
+  }
+  if (/^pk_/.test(STRIPE_SECRET)) return 'STRIPE_SECRET_KEY contient la clé publiable (pk_) : il faut la clé secrète sk_test_.';
+  return `STRIPE_SECRET_KEY ne ressemble pas à une clé Stripe (elle commence par « ${STRIPE_SECRET.slice(0, 3)} »). Il faut la clé secrète sk_test_.`;
 }
 
 function formulaire(obj: Record<string, unknown>, prefixe = ''): string[] {
@@ -27,6 +35,8 @@ function formulaire(obj: Record<string, unknown>, prefixe = ''): string[] {
 }
 
 export async function stripe(methode: 'GET' | 'POST' | 'DELETE', chemin: string, corps?: Record<string, unknown>, idempotence?: string) {
+  const refus = cleRefusee();
+  if (refus) throw new Error(refus);
   const r = await fetch(`https://api.stripe.com/v1/${chemin}`, {
     method: methode,
     headers: {
