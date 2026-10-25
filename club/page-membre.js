@@ -11,7 +11,7 @@
     ['Achat pendant la période réservée', ['founders', 'early', 'signature']],
     ['Nouvelles couleurs et nouveaux modèles en avance', ['founders', 'early', 'signature']],
     ['Notifications prioritaires des lancements', ['founders', 'early', 'signature']],
-    ['Carte de membre personnelle', ['founders', 'early', 'signature']],
+    ['Carte de membre personnelle, numérique et imprimée', ['founders', 'early', 'signature'], 'La carte imprimée est envoyée une fois par la poste'],
     ['Invitations aux événements privés', ['founders', 'signature'], 'Selon la capacité et les conditions de chaque événement'],
     ['Présentations et expériences exclusives', ['founders', 'signature']],
     ['Votes sur les futures collections', ['founders', 'signature']],
@@ -68,6 +68,7 @@
       '</div></section>';
 
     html += '<section class="bloc" id="adhesion"><div class="wrap">' + (d.membre ? blocAdhesion(s) : blocNonMembre(s)) + '</div></section>';
+    if (d.membre) html += '<section class="bloc" id="envoi"><div class="wrap">' + blocEnvoi(s) + '</div></section>';
     if (d.membre) html += '<section class="bloc"><div class="wrap"><div class="bloc-tete"><div><span class="eyebrow">I Privilegi</span><h2>Vos avantages actifs</h2></div></div>' + listeAvantages(d.categorie) + '</div></section>';
     html += '<section class="bloc" id="collections"><div class="wrap">' + blocCollections(s) + '</div></section>';
     if (d.membre) html += '<section class="bloc" id="evenements"><div class="wrap">' + blocEvenements(s) + '</div></section>';
@@ -85,6 +86,7 @@
       document.getElementById('carte-plein').addEventListener('click', function () { C.pleinEcran(s.carte); });
     }
     brancherGestion(s);
+    brancherEnvoi(s);
     brancherCollections();
     brancherEvenements();
     var nomBtn = document.getElementById('modifier-nom');
@@ -118,6 +120,8 @@
       if (ab.statut === 'impaye') lignes += '<div><dt>Paiement</dt><dd>Le renouvellement n’a pas pu être prélevé. Vos avantages restent actifs jusqu’au ' + NC.date(ab.fin + 7 * 864e5) + '. Mettez à jour votre moyen de paiement.</dd></div>';
     }
     lignes += '<div><dt>Statut</dt><dd>' + statutAbonnement(s) + '</dd></div>';
+    var env = envoiActuel(s);
+    if (env) lignes += '<div><dt>Carte imprimée</dt><dd>' + pastilleEnvoi(env) + ' <a class="lien" href="#envoi" style="margin-left:10px;font-size:9.5px">Détails</a></dd></div>';
 
     return '<div class="adhesion">' +
       '<div class="scene" id="scene-carte"><div class="outils"><button class="lien" type="button" id="carte-retourner">Retourner</button><button class="lien" type="button" id="carte-plein">Plein écran</button></div></div>' +
@@ -125,6 +129,81 @@
       '<dl class="fiche">' + lignes + '</dl>' +
       (d.categorie === 'founders' ? '<p style="margin-top:22px;font-size:14px;color:rgba(58,37,25,.78)">Vous faites partie des cinquante premiers. Votre carte imprimée et numérotée accompagne votre cardigan.</p>' : blocGestion(s)) +
       '</div></div>';
+  }
+
+  /* ----- Carte imprimée envoyée par la poste ----- */
+  var PAYS = { CH: 'Suisse', LI: 'Liechtenstein' };
+
+  function envoiActuel(s) {
+    var l = (s.envois || []).filter(function (x) { return x.categorie === s.droits.categorie; });
+    return l.length ? l[l.length - 1] : null;
+  }
+
+  function pastilleEnvoi(env) {
+    if (env.statut === 'envoyee') return '<span class="pastille ok">Envoyée le ' + NC.date(env.envoyeeLe) + '</span>';
+    if (env.statut === 'adresse_manquante') return '<span class="pastille alerte">Adresse à indiquer</span>';
+    return '<span class="pastille neutre">En préparation</span>';
+  }
+
+  function texteEnvoi(env) {
+    var colis = env.mode === 'colis';
+    if (env.statut === 'envoyee') return colis
+      ? 'Votre carte est partie le ' + NC.date(env.envoyeeLe) + ', glissée dans le colis de votre cardigan.'
+      : 'Votre carte est partie le ' + NC.date(env.envoyeeLe) + ' par courrier B. Comptez deux à quatre jours ouvrables.';
+    if (env.statut === 'adresse_manquante') return 'Indiquez l’adresse où recevoir votre carte. Elle est imprimée sur papier épais, avec votre numéro, et envoyée une seule fois : elle reste valable tant que vous êtes membre.';
+    return colis
+      ? 'Votre carte numérotée sera glissée dans le colis de votre cardigan NC-01.'
+      : 'Votre carte est en préparation. Elle partira par la poste, sous enveloppe, à l’adresse ci-dessous.';
+  }
+
+  function blocEnvoi(s) {
+    var env = envoiActuel(s), a = s.compte.adresse;
+    var adresse = a ? '<address style="font-style:normal;line-height:1.7">' + e(a.nom) + '<br>' + e(a.rue) + (a.complement ? '<br>' + e(a.complement) : '') + '<br>' + e(a.npa) + ' ' + e(a.localite) + '<br>' + PAYS[a.pays] + '</address>' : '';
+    var modifiable = !env || env.statut !== 'envoyee';
+    return '<div class="bloc-tete"><div><span class="eyebrow">Per posta</span><h2>Votre carte imprimée</h2></div>' +
+      '<p>' + texteEnvoi(env || { statut: 'adresse_manquante' }) + '</p></div>' +
+      '<div class="adhesion" style="align-items:start"><div>' +
+      (env ? '<dl class="fiche"><div><dt>Carte</dt><dd><b>' + NOMS[env.categorie] + '</b></dd></div><div><dt>Envoi</dt><dd>' + pastilleEnvoi(env) + '</dd></div>' +
+        '<div><dt>Par</dt><dd>' + (env.mode === 'colis' ? 'Dans le colis du cardigan' : 'Courrier B, sous enveloppe') + '</dd></div></dl>' : '') +
+      '</div><div id="zone-adresse">' +
+      (a ? '<span class="eyebrow">Adresse de livraison</span><div style="margin-top:14px">' + adresse + '</div>' +
+        (modifiable ? '<button class="btn petit" type="button" id="adresse-modifier" style="margin-top:18px">Modifier l’adresse</button>' : '<p style="margin-top:14px;font-size:13px;color:var(--tabacco)">Vous avez déménagé ? Modifiez votre adresse ici pour vos prochains envois.</p><button class="btn petit" type="button" id="adresse-modifier" style="margin-top:12px">Modifier l’adresse</button>')
+        : formulaireAdresse(null)) +
+      '</div></div>';
+  }
+
+  function formulaireAdresse(a) {
+    a = a || {};
+    function champ(id, label, val, attrs) {
+      return '<div class="champ"><label for="a-' + id + '">' + label + '</label><input id="a-' + id + '" name="' + id + '" value="' + e(val || '') + '" ' + (attrs || '') + '></div>';
+    }
+    return '<form id="f-adresse" novalidate style="display:grid;gap:20px;max-width:460px">' +
+      champ('nom', 'Nom sur l’enveloppe', a.nom, 'autocomplete="name" required maxlength="80"') +
+      champ('rue', 'Rue et numéro', a.rue, 'autocomplete="address-line1" required maxlength="120"') +
+      champ('complement', 'Complément (facultatif)', a.complement, 'autocomplete="address-line2" maxlength="120"') +
+      '<div style="display:grid;grid-template-columns:110px 1fr;gap:18px">' +
+      champ('npa', 'NPA', a.npa, 'autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required') +
+      champ('localite', 'Localité', a.localite, 'autocomplete="address-level2" required maxlength="60"') + '</div>' +
+      '<div class="champ"><label for="a-pays">Pays</label><select id="a-pays" name="pays" autocomplete="country">' +
+      Object.keys(PAYS).map(function (k) { return '<option value="' + k + '"' + (a.pays === k ? ' selected' : '') + '>' + PAYS[k] + '</option>'; }).join('') + '</select></div>' +
+      '<p style="font-size:13px;color:var(--tabacco)">Votre adresse ne sert qu’à l’envoi de votre carte et de vos commandes. Elle n’apparaît ni sur la carte ni dans son QR code.</p>' +
+      '<div><button class="btn plein" type="submit">Enregistrer l’adresse</button></div><p class="erreur" id="adresse-erreur" role="alert"></p></form>';
+  }
+
+  function brancherEnvoi(s) {
+    var zone = document.getElementById('zone-adresse');
+    if (!zone) return;
+    var mod = document.getElementById('adresse-modifier');
+    if (mod) mod.addEventListener('click', function () { zone.innerHTML = formulaireAdresse(s.compte.adresse); brancherEnvoi(s); document.getElementById('a-nom').focus(); });
+    var f = document.getElementById('f-adresse');
+    if (!f) return;
+    f.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var v = {};
+      ['nom', 'rue', 'complement', 'npa', 'localite', 'pays'].forEach(function (k) { v[k] = f.elements[k].value; });
+      Club.enregistrerAdresse(v).then(function () { rendre(); setTimeout(function () { var x = document.getElementById('envoi'); if (x) x.scrollIntoView(); }, 200); },
+        function (err) { document.getElementById('adresse-erreur').textContent = err.message; });
+    });
   }
 
   function blocGestion(s) {

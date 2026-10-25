@@ -18,7 +18,8 @@
     ['Invitations aux événements privés', 1, 0, 1],
     ['Expériences exclusives', 1, 0, 1],
     ['Votes sur les futures collections', 1, 0, 1],
-    ['Carte personnelle', 1, 1, 1],
+    ['Carte numérique dans l’espace membre', 1, 1, 1],
+    ['Carte imprimée envoyée chez vous', 1, 1, 1],
     ['Statut à vie sans cotisation', 1, 0, 0]
   ];
   document.getElementById('lignes-comparer').innerHTML = LIGNES.map(function (l) {
@@ -141,8 +142,8 @@
     Club.monEspace().then(function (esp) {
       w.remplacer('<span class="eyebrow">Benvenuto</span><h3>Bienvenue au ' + NOMS[plan] + '.</h3>' +
         '<div data-ici style="margin-top:24px"></div>' +
-        '<p class="conditions">Votre carte numérique est prête dans votre espace membre.</p>' +
-        '<div style="display:grid;margin-top:20px"><a class="btn plein" href="membre.html">Voir ma carte</a></div>');
+        '<p class="conditions">Votre carte numérique est prête dans votre espace membre. Indiquez-y votre adresse : votre carte imprimée vous sera envoyée par la poste.</p>' +
+        '<div style="display:grid;margin-top:20px"><a class="btn plein" href="membre.html#envoi">Voir ma carte et donner mon adresse</a></div>');
       var c = C.creer(esp.carte);
       c.style.animation = 'revele 1.3s var(--doux) both';
       w.corps.querySelector('[data-ici]').appendChild(c);

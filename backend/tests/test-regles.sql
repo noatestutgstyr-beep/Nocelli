@@ -202,3 +202,67 @@ select admin_reattribuer_numero(2, :'b', 'nouvel achat');
 select ok((select compte_id from places_fondateurs where numero = 2) = :'b'::uuid, 'numéro retiré redonné manuellement, tracé');
 update profils set role = 'client' where email = 'luca@exemple.ch';
 select set_config('request.jwt.claim.sub', '', false);
+
+-- ---------------------------------------------------------------------------
+\echo '— Carte imprimée envoyée par la poste'
+select test_compte('poste@exemple.ch') as po, test_compte('autre@exemple.ch') as au \gset
+select webhook();
+select synchroniser_abonnement('evt_po1', :'po', 'sub_po', 'early', 'actif', now(), now() + interval '1 year', true, null);
+select ok((select statut from envois_cartes where compte_id = :'po') = 'adresse_manquante', 'nouvel abonné : carte en attente d''adresse');
+select ok((select mode from envois_cartes where compte_id = :'po') = 'poste', 'abonné : carte par la poste');
+set role authenticated;
+select set_config('request.jwt.claim.sub', :'po', false);
+do $$ begin
+  begin perform enregistrer_adresse('Luca Rossi', 'Via Nassa 12', '', '690', 'Lugano', 'CH'); raise exception 'NPA accepté';
+  exception when check_violation then perform ok(true, 'NPA invalide refusé'); end;
+  begin perform enregistrer_adresse('Luca Rossi', 'Via Nassa 12', '', '6900', 'Lugano', 'FR'); raise exception 'pays accepté';
+  exception when check_violation then perform ok(true, 'pays hors Suisse / Liechtenstein refusé'); end;
+end $$;
+select enregistrer_adresse('Luca Rossi', 'Via Nassa 12', '', '6900', 'Lugano', 'CH');
+select ok((select statut from envois_cartes where compte_id = :'po') = 'a_preparer', 'adresse donnée : carte à préparer');
+select ok((select count(*) from envois_cartes where compte_id <> :'po') = 0, 'un client ne voit que ses propres envois');
+select ok((select count(*) from adresses where compte_id <> :'po') = 0, 'un client ne voit que sa propre adresse');
+do $$ begin
+  begin update envois_cartes set statut = 'envoyee'; raise exception 'écriture acceptée';
+  exception when insufficient_privilege then perform ok(true, 'un client ne peut pas modifier un envoi'); end;
+  begin perform admin_marquer_carte_envoyee((select id from envois_cartes limit 1)); raise exception 'accepté';
+  exception when insufficient_privilege then perform ok(true, 'un client ne peut pas marquer une carte envoyée'); end;
+end $$;
+reset role;
+select webhook();
+select synchroniser_abonnement('evt_po2', :'po', 'sub_po', 'signature', 'actif', now(), now() + interval '1 year', true, null);
+select ok((select statut || '/' || motif from envois_cartes where compte_id = :'po' and categorie = 'early') = 'annulee/remplacee', 'passage à Signature avant l''envoi : carte Early annulée');
+select ok((select statut from envois_cartes where compte_id = :'po' and categorie = 'signature') = 'a_preparer', 'carte Signature à préparer');
+update profils set role = 'admin' where email = 'luca@exemple.ch';
+select set_config('request.jwt.claim.sub', :'luca', false);
+select set_config('request.jwt.claim.role', '', false);
+select admin_marquer_carte_envoyee((select id from envois_cartes where compte_id = :'po' and categorie = 'signature'));
+select ok((select adresse->>'npa' from envois_cartes where compte_id = :'po' and statut = 'envoyee') = '6900', 'envoi : adresse figée pour la trace');
+select ok(exists (select 1 from journal_admin where action = 'carte_envoyee' and cible = :'po'), 'envoi inscrit au journal');
+do $$ begin
+  begin perform admin_marquer_carte_envoyee((select id from envois_cartes where statut = 'envoyee' limit 1)); raise exception 'deux fois';
+  exception when raise_exception then perform ok(sqlerrm like 'envoi_pas_pret%', 'une carte ne part pas deux fois'); end;
+end $$;
+select webhook();
+select synchroniser_abonnement('evt_po3', :'po', 'sub_po', 'signature', 'actif', now() + interval '1 year', now() + interval '2 years', true, null);
+select ok((select count(*) from envois_cartes where compte_id = :'po' and statut <> 'annulee') = 1, 'renouvellement : aucune nouvelle carte');
+select set_config('request.jwt.claim.role', '', false);
+select admin_remplacer_carte(:'po', 'carte perdue');
+select ok((select motif from envois_cartes where compte_id = :'po' and statut = 'a_preparer') = 'remplacement', 'carte perdue : nouvelle carte, même numéro');
+do $$ begin
+  begin perform admin_remplacer_carte((select id from profils where email = 'poste@exemple.ch'), 'encore'); raise exception 'deux en cours';
+  exception when unique_violation then perform ok(true, 'jamais deux cartes en préparation pour un compte'); end;
+end $$;
+select ok((select mode from envois_cartes where compte_id = :'a' and categorie = 'founders') = 'colis', 'fondateur : carte dans le colis du cardigan');
+select ok((select numero from envois_cartes where compte_id = :'b' and categorie = 'founders' and statut <> 'annulee') = 2, 'numéro redonné : carte avec ce numéro');
+select test_compte('remb@exemple.ch') as rb \gset
+select test_commande(:'rb') as crb \gset
+select prochain as prochain_avant from compteur_fondateurs \gset
+update compteur_fondateurs set prochain = 40 where id;   -- un numéro libre pour ce test
+select ok(confirmer_paiement_commande(:'crb', 'pay_rb') = 40, 'paiement NC-01 : place 040');
+select ok((select statut from envois_cartes where compte_id = :'rb') = 'adresse_manquante', 'nouveau fondateur : carte prévue');
+select fermer_commande(:'crb', 'remboursee', 'refund_rb');
+select ok((select statut || '/' || motif from envois_cartes where compte_id = :'rb') = 'annulee/plus_membre', 'fondateur remboursé avant l''envoi : carte annulée');
+update compteur_fondateurs set prochain = :prochain_avant where id;
+update profils set role = 'client' where email = 'luca@exemple.ch';
+select set_config('request.jwt.claim.sub', '', false);

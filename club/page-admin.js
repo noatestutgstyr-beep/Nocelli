@@ -6,6 +6,7 @@
   var NOMS = { founders: 'Founders', early: 'Early Access', signature: 'Signature' };
   var RUBRIQUES = [
     ['apercu', 'Vue d’ensemble'], ['membres', 'Membres'], ['fondateurs', 'Les 50 fondateurs'],
+    ['envois', 'Cartes à envoyer'],
     ['lancements', 'Lancements'], ['evenements', 'Événements'], ['carte', 'Vérifier une carte'],
     ['journal', 'Journal'], ['test', 'Outils de test']
   ];
@@ -46,7 +47,7 @@
   function erreurDans(id) { return function (err) { var el = document.getElementById(id); if (el) el.textContent = err.message; }; }
 
   function afficher() {
-    ({ apercu: apercu, membres: membres, fondateurs: fondateurs, lancements: lancements, evenements: evenements, carte: carte, journal: journal, test: outils })[actuelle]();
+    ({ apercu: apercu, membres: membres, fondateurs: fondateurs, envois: envois, lancements: lancements, evenements: evenements, carte: carte, journal: journal, test: outils })[actuelle]();
   }
 
   /* ---------- Vue d'ensemble ---------- */
@@ -99,12 +100,13 @@
         [['tous', 'Tous les comptes'], ['founders', 'Founders'], ['early', 'Early Access'], ['signature', 'Signature'], ['expires', 'Abonnements expirés'], ['aucun', 'Sans adhésion'], ['suspendus', 'Suspendus']].map(function (o) { return '<option value="' + o[0] + '"' + (filtre.cat === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
         '</select></div><div class="champ"><label for="f-q">Rechercher</label><input id="f-q" placeholder="Nom ou e-mail" value="' + e(filtre.q) + '"></div></div>' +
         '<p class="erreur" id="m-err" role="alert"></p>' +
-        (vus.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Membre</th><th>Catégorie</th><th>N°</th><th>Statut</th><th>Échéance</th><th>Accès</th></tr></thead><tbody>' +
+        (vus.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Membre</th><th>Catégorie</th><th>N°</th><th>Statut</th><th>Échéance</th><th>Carte</th><th>Accès</th></tr></thead><tbody>' +
           vus.map(function (m) {
             var num = m.numero ? (m.categorie === 'founders' ? ('00' + m.numero).slice(-3) + ' / 050' : ('000' + m.numero).slice(-4)) : '';
             return '<tr><td>' + e(m.nom || '–') + '<br><small>' + e(m.email) + '</small></td>' +
               '<td class="cat">' + (m.categorie ? NOMS[m.categorie] : '<small>Aucune</small>') + '</td><td class="n">' + num + '</td>' +
               '<td>' + statutAb(m) + '</td><td class="n">' + (m.abonnement && m.abonnement.fin && m.categorie !== 'founders' ? NC.date(m.abonnement.fin) : '') + '</td>' +
+              '<td>' + (m.carte ? pastilleEnvoi(m.carte) : '') + '</td>' +
               '<td><button class="btn petit" type="button" data-suspendre="' + m.id + '" data-etat="' + (m.suspendu ? '0' : '1') + '">' + (m.suspendu ? 'Rétablir' : 'Suspendre') + '</button></td></tr>';
           }).join('') + '</tbody></table></div>' : '<p style="margin-top:22px"><span class="pastille neutre">Aucun compte dans cette sélection</span></p>'));
       document.getElementById('f-cat').addEventListener('change', function (ev) { filtre.cat = ev.target.value; membres(); });
@@ -119,6 +121,83 @@
           w.corps.querySelector('form').addEventListener('submit', function (ev) {
             ev.preventDefault();
             A.suspendre(b.dataset.suspendre, suspendre, w.corps.querySelector('#motif').value.trim()).then(function () { w.fermer(); membres(); }, erreurDans('s-err'));
+          });
+        });
+      });
+    });
+  }
+
+  /* ---------- Cartes imprimées à envoyer ---------- */
+  var filtreEnvoi = 'a_preparer';
+  function pastilleEnvoi(st) {
+    return ({ adresse_manquante: '<span class="pastille alerte">Adresse manquante</span>', a_preparer: '<span class="pastille neutre">À préparer</span>',
+      envoyee: '<span class="pastille ok">Envoyée</span>', annulee: '<span class="pastille refus">Annulée</span>' })[st] || '';
+  }
+  function libelleCarte(x) {
+    return NOMS[x.categorie] + ' · ' + (x.categorie === 'founders' ? ('00' + x.numero).slice(-3) + ' / 050' : ('000' + x.numero).slice(-4));
+  }
+  function lignesAdresse(a, pays) {
+    return a ? [a.nom, a.rue, a.complement, a.npa + ' ' + a.localite, a.pays === 'CH' ? '' : pays[a.pays]].filter(Boolean) : [];
+  }
+  var MOTIFS_ANNULATION = { remplacee: 'catégorie changée avant l’envoi', plus_membre: 'n’est plus membre', nouveau: '' };
+
+  function envois() {
+    A.envois().then(function (r) {
+      var l = r.envois, k = r.couts;
+      function compte(f) { return l.filter(f).length; }
+      function somme(f) { return Math.round(l.filter(f).reduce(function (t, x) { return t + x.cout; }, 0) * 100) / 100; }
+      var aPrep = function (x) { return x.statut === 'a_preparer'; };
+      var enCours = function (x) { return x.statut === 'a_preparer' || x.statut === 'adresse_manquante'; };
+      var vus = l.filter(function (x) { return filtreEnvoi === 'toutes' || x.statut === filtreEnvoi; });
+      var poste = Math.round((k.carte + k.numero + k.enveloppe + k.timbre) * 100) / 100, colis = Math.round((k.carte + k.numero) * 100) / 100;
+      panneau('<span class="eyebrow">Per posta</span><h1>Cartes à envoyer</h1>' +
+        '<p class="chapo">Chaque membre reçoit sa carte imprimée une seule fois par catégorie : un renouvellement n’envoie rien, un passage à Signature envoie la carte Signature. Les fondateurs la reçoivent dans le colis de leur cardigan. Une carte pas encore partie est annulée si la personne n’est plus membre.</p>' +
+        '<div class="chiffres">' +
+        '<div><span>À préparer</span><b>' + compte(aPrep) + '</b><small>' + compte(function (x) { return aPrep(x) && x.mode === 'poste'; }) + ' par la poste, ' + compte(function (x) { return aPrep(x) && x.mode === 'colis'; }) + ' dans un colis NC-01</small></div>' +
+        '<div><span>Adresse manquante</span><b>' + compte(function (x) { return x.statut === 'adresse_manquante'; }) + '</b><small>le membre la donne dans son espace</small></div>' +
+        '<div><span>Envoyées</span><b>' + compte(function (x) { return x.statut === 'envoyee'; }) + '</b><small>' + NC.chf(somme(function (x) { return x.statut === 'envoyee'; })) + ' estimés</small></div>' +
+        '<div><span>Coût à venir</span><b>' + NC.chf(somme(enCours)).replace('CHF ', '') + '</b><small>CHF estimés, cartes en attente</small></div>' +
+        '</div>' +
+        '<div class="encadre"><b style="font-weight:500">Coût estimé par carte</b>' +
+        '<span>Par la poste : ' + NC.chf(poste) + ' = carte ' + NC.chf(k.carte) + ' + numéro au tampon ' + NC.chf(k.numero) + ' + enveloppe C6 ' + NC.chf(k.enveloppe) + ' + courrier B ' + NC.chf(k.timbre) + '.</span>' +
+        '<span>Dans le colis NC-01 (fondateurs) : ' + NC.chf(colis) + ', sans enveloppe ni timbre.</span>' +
+        '<small style="color:var(--tabacco)">Prix relevés le 25.10.2026 : carte 350 g avec dorure chez Flyerking, série de 50 par modèle (environ CHF 170 la série, trois modèles) ; courrier B à CHF 1.10 dès 2027 (CHF 1.00 en 2026). La Poste n’accepte pas une carte seule : il faut l’enveloppe C6.</small></div>' +
+        '<div class="outils-ligne"><div class="champ"><label for="f-env">Afficher</label><select id="f-env">' +
+        [['a_preparer', 'À préparer'], ['adresse_manquante', 'Adresse manquante'], ['envoyee', 'Envoyées'], ['annulee', 'Annulées'], ['toutes', 'Toutes']].map(function (o) { return '<option value="' + o[0] + '"' + (filtreEnvoi === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+        '</select></div>' + (compte(function (x) { return aPrep(x) && x.mode === 'poste'; }) ? '<button class="btn petit" type="button" id="copier-adresses">Copier les adresses à poster</button>' : '') + '</div>' +
+        '<p class="erreur" id="e-err" role="alert"></p><p id="e-msg" role="status" style="font-size:14px;color:var(--ok)"></p>' +
+        (vus.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Membre</th><th>Carte</th><th>Adresse</th><th>Par</th><th>Statut</th><th></th></tr></thead><tbody>' +
+          vus.map(function (x) {
+            var adr = lignesAdresse(x.adresse, r.pays).map(e).join('<br>');
+            return '<tr><td>' + e(x.nomCompte || '–') + '<br><small>' + e(x.email) + '</small>' + (x.motif === 'remplacement' ? '<br><small>Nouvelle carte</small>' : '') + '</td>' +
+              '<td class="n">' + libelleCarte(x) + '</td><td>' + (adr || '<small>Pas encore donnée</small>') + '</td>' +
+              '<td>' + (x.mode === 'colis' ? 'Colis NC-01' : 'Courrier B') + '<br><small>' + NC.chf(x.cout) + '</small></td>' +
+              '<td>' + pastilleEnvoi(x.statut) + (x.statut === 'envoyee' ? '<br><small>' + NC.date(x.envoyeeLe) + '</small>' : x.statut === 'annulee' ? '<br><small>' + e(MOTIFS_ANNULATION[x.motif] || '') + '</small>' : '') + '</td>' +
+              '<td>' + (x.statut === 'a_preparer' ? '<button class="btn petit" type="button" data-envoyee="' + x.id + '">Marquer envoyée</button>' :
+                x.statut === 'envoyee' ? '<button class="btn petit" type="button" data-remplacer="' + x.compteId + '">Nouvelle carte</button>' : '') + '</td></tr>';
+          }).join('') + '</tbody></table></div>' : '<p style="margin-top:22px"><span class="pastille neutre">Aucune carte dans cette sélection</span></p>'));
+      document.getElementById('f-env').addEventListener('change', function (ev) { filtreEnvoi = ev.target.value; envois(); });
+      var cop = document.getElementById('copier-adresses');
+      if (cop) cop.addEventListener('click', function () {
+        var t = l.filter(function (x) { return aPrep(x) && x.mode === 'poste'; }).map(function (x) { return lignesAdresse(x.adresse, r.pays).concat('[' + libelleCarte(x) + ']').join('\n'); }).join('\n\n');
+        var ok = function () { document.getElementById('e-msg').textContent = 'Adresses copiées : collez-les dans votre modèle d’étiquettes.'; };
+        var secours = function () {
+          var w = NC.fenetre('<span class="eyebrow">Adresses à poster</span><h3>Sélectionnez et copiez</h3><textarea readonly style="width:100%;min-height:260px;margin-top:16px;font:inherit;font-size:14px;padding:10px">' + e(t) + '</textarea>');
+          var ta = w.corps.querySelector('textarea'); ta.focus(); ta.select();
+        };
+        try { navigator.clipboard.writeText(t).then(ok, secours); } catch (_) { secours(); }
+      });
+      document.querySelectorAll('[data-envoyee]').forEach(function (b) {
+        b.addEventListener('click', function () { A.marquerCarteEnvoyee(b.dataset.envoyee).then(envois, erreurDans('e-err')); });
+      });
+      document.querySelectorAll('[data-remplacer]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var w = NC.fenetre('<span class="eyebrow">Action tracée</span><h3>Envoyer une nouvelle carte</h3>' +
+            '<p class="conditions">Pour une carte perdue, abîmée ou jamais arrivée. Même numéro, envoi par la poste à l’adresse actuelle du membre.</p>' +
+            '<form novalidate style="display:grid;gap:18px;margin-top:18px"><div class="champ"><label for="motif3">Motif (inscrit au journal)</label><input id="motif3" placeholder="Carte perdue"></div><p class="erreur" id="n-err" role="alert"></p><button class="btn plein" type="submit">Préparer la nouvelle carte</button></form>');
+          w.corps.querySelector('form').addEventListener('submit', function (ev) {
+            ev.preventDefault();
+            A.remplacerCarte(b.dataset.remplacer, w.corps.querySelector('#motif3').value.trim()).then(function () { w.fermer(); filtreEnvoi = 'a_preparer'; envois(); }, erreurDans('n-err'));
           });
         });
       });

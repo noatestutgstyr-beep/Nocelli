@@ -64,6 +64,7 @@
       lancements: {},       // id -> { id, nom, produit, publicLe, heuresAnticipees, stock, publie }
       evenements: {},       // id -> { id, titre, description, date, lieu, capacite, prix, conditions, publie, annule }
       inscriptions: {},     // id -> { id, evenementId, compteId, statut, creeLe }
+      envois: {},           // id -> { id, compteId, categorie, numero, mode, statut, creeLe, envoyeeLe, adresse, motif }
       notifications: [],
       journal: [],
       traites: {},          // identifiants d'événements de paiement déjà traités (idempotence)
@@ -527,6 +528,112 @@
     return null;
   }
 
+  /* ---------- Carte physique envoyée par la poste ----------
+   *
+   * Chaque membre reçoit sa carte imprimée UNE fois par catégorie : le numéro est
+   * à vie, un renouvellement n'envoie rien. Passer d'Early Access à Signature
+   * envoie la carte Signature. Un fondateur reçoit sa carte dans le colis de son
+   * cardigan NC-01 (pas de timbre). Une carte pas encore partie est annulée si la
+   * personne n'est plus membre ou change de catégorie avant l'envoi.
+   * Statuts : adresse_manquante -> a_preparer -> envoyee, ou annulee.
+   */
+  // Coûts estimés par carte, CHF TVA comprise, prix relevés le 25.10.2026 (voir
+  // le dossier « Carte de membre Nocelli ») : carte 350 g avec dorure, série de
+  // 50 par modèle chez Flyerking ; numéro au tampon ; enveloppe C6 ; courrier B 2027.
+  var COUTS_CARTE = { carte: 3.39, numero: 0.71, enveloppe: 0.26, timbre: 1.10 };
+  var PAYS_ENVOI = { CH: 'Suisse', LI: 'Liechtenstein' };
+  var EN_COURS = { adresse_manquante: true, a_preparer: true };
+
+  function texte(v, max) { return String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, max); }
+
+  function adresseValide(a) {
+    return !!(a && a.nom && a.rue && /^\d{4}$/.test(a.npa) && a.localite && PAYS_ENVOI[a.pays]);
+  }
+
+  function coutEnvoi(e) {
+    var k = COUTS_CARTE.carte + COUTS_CARTE.numero;
+    if (e.mode === 'poste') k += COUTS_CARTE.enveloppe + COUTS_CARTE.timbre;
+    return Math.round(k * 100) / 100;
+  }
+
+  function envoisDe(etat, compteId) {
+    etat.envois = etat.envois || {};
+    var l = [];
+    for (var id in etat.envois) if (etat.envois[id].compteId === compteId) l.push(etat.envois[id]);
+    l.sort(function (a, b) { return a.creeLe - b.creeLe; });
+    return l;
+  }
+
+  function enregistrerAdresse(etat, compteId, a) {
+    var cpt = etat.comptes[compteId];
+    if (!cpt) throw Refus('introuvable', 'Compte introuvable.');
+    a = a || {};
+    var adr = {
+      nom: texte(a.nom, 80), rue: texte(a.rue, 120), complement: texte(a.complement, 120),
+      npa: texte(a.npa, 4), localite: texte(a.localite, 60), pays: texte(a.pays || 'CH', 2).toUpperCase()
+    };
+    if (!PAYS_ENVOI[adr.pays]) throw Refus('pays', 'Les cartes partent pour l’instant en Suisse et au Liechtenstein.');
+    if (!adresseValide(adr)) throw Refus('adresse', 'Indiquez le nom, la rue et le numéro, le NPA (4 chiffres) et la localité.');
+    cpt.adresse = adr;
+    envoisDe(etat, compteId).forEach(function (e) { if (e.statut === 'adresse_manquante') e.statut = 'a_preparer'; });
+    return adr;
+  }
+
+  // Met l'envoi du compte en accord avec ses droits. Appelée après chaque changement ; sans effet si rien ne change.
+  function synchroniserEnvoi(etat, compteId, now) {
+    var cpt = etat.comptes[compteId];
+    var d = droits(etat, compteId, now);
+    var mes = envoisDe(etat, compteId);
+    mes.forEach(function (e) {
+      if (EN_COURS[e.statut] && e.categorie !== d.categorie) {
+        e.statut = 'annulee'; e.annuleeLe = now; e.motif = d.membre ? 'remplacee' : 'plus_membre';
+      }
+    });
+    if (!d.membre) return null;
+    for (var i = 0; i < mes.length; i++) if (mes[i].categorie === d.categorie && mes[i].statut !== 'annulee') return mes[i];
+    var e = {
+      id: nouvelId(etat, 'env'), compteId: compteId, categorie: d.categorie,
+      numero: d.categorie === 'founders' ? d.fondateur.numero : cpt.numeroMembre,
+      mode: d.categorie === 'founders' ? 'colis' : 'poste',
+      statut: adresseValide(cpt.adresse) ? 'a_preparer' : 'adresse_manquante',
+      creeLe: now, envoyeeLe: null, motif: 'nouveau'
+    };
+    etat.envois[e.id] = e;
+    return e;
+  }
+
+  function synchroniserEnvois(etat, now) {
+    for (var id in etat.comptes) if (etat.comptes[id].role !== 'admin') synchroniserEnvoi(etat, id, now);
+  }
+
+  function marquerCarteEnvoyee(etat, envoiId, now) {
+    var e = (etat.envois || {})[envoiId];
+    if (!e) throw Refus('introuvable', 'Envoi introuvable.');
+    if (e.statut === 'envoyee') throw Refus('deja', 'Cette carte est déjà marquée comme envoyée.');
+    if (e.statut !== 'a_preparer') throw Refus('pas_pret', e.statut === 'adresse_manquante' ? 'Il manque l’adresse du membre.' : 'Cet envoi est annulé.');
+    e.statut = 'envoyee';
+    e.envoyeeLe = now;
+    e.adresse = JSON.parse(JSON.stringify(etat.comptes[e.compteId].adresse)); // l'adresse utilisée, pour la trace
+    return e;
+  }
+
+  // Carte perdue ou abîmée : une nouvelle carte de la catégorie actuelle, par la poste.
+  function remplacerCarte(etat, compteId, now) {
+    var d = droits(etat, compteId, now);
+    if (!d.membre) throw Refus('non_membre', 'Ce compte n’est pas membre.');
+    var mes = envoisDe(etat, compteId);
+    for (var i = 0; i < mes.length; i++) if (EN_COURS[mes[i].statut]) throw Refus('en_cours', 'Une carte est déjà en préparation pour ce membre.');
+    var cpt = etat.comptes[compteId];
+    var e = {
+      id: nouvelId(etat, 'env'), compteId: compteId, categorie: d.categorie,
+      numero: d.categorie === 'founders' ? d.fondateur.numero : cpt.numeroMembre,
+      mode: 'poste', statut: adresseValide(cpt.adresse) ? 'a_preparer' : 'adresse_manquante',
+      creeLe: now, envoyeeLe: null, motif: 'remplacement'
+    };
+    etat.envois[e.id] = e;
+    return e;
+  }
+
   /* ---------- Tableau de bord ---------- */
 
   function statistiques(etat, now) {
@@ -566,6 +673,9 @@
     peutAcheter: peutAcheter, reserverPiece: reserverPiece, libererCommandesExpirees: libererCommandesExpirees,
     placesRestantes: placesRestantes, inscriptionDe: inscriptionDe, inscrireEvenement: inscrireEvenement,
     annulerInscription: annulerInscription, promouvoirListeAttente: promouvoirListeAttente,
-    statistiques: statistiques
+    statistiques: statistiques,
+    COUTS_CARTE: COUTS_CARTE, PAYS_ENVOI: PAYS_ENVOI, adresseValide: adresseValide, coutEnvoi: coutEnvoi,
+    envoisDe: envoisDe, enregistrerAdresse: enregistrerAdresse, synchroniserEnvoi: synchroniserEnvoi,
+    synchroniserEnvois: synchroniserEnvois, marquerCarteEnvoyee: marquerCarteEnvoyee, remplacerCarte: remplacerCarte
   };
 });

@@ -16,7 +16,7 @@ serveur. Rien n'est activé : il faut l'accord de Noa et deux comptes gratuits.
 | `supabase/schema.sql` | Tables, sécurité ligne par ligne (RLS), règles du club en SQL : 50 places fondateurs sous verrou, abonnements, accès anticipé, stock, événements et liste d'attente, journal d'administration. |
 | `supabase/functions/paiement` | Ouvre un paiement Stripe (adhésion, achat d'une pièce), change de formule, arrête ou reprend le renouvellement. |
 | `supabase/functions/stripe-webhook` | Seule porte par laquelle un paiement active un droit. Signature vérifiée, chaque événement traité une seule fois. |
-| `tests/test-schema.sh` | 54 tests de règles + 3 tests de concurrence (60 paiements simultanés pour 50 places, 20 inscriptions pour 5 places, 12 achats pour 3 pièces). |
+| `tests/test-schema.sh` | 76 tests de règles + 3 tests de concurrence (60 paiements simultanés pour 50 places, 20 inscriptions pour 5 places, 12 achats pour 3 pièces). |
 
 Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, PostgreSQL local).
 
@@ -36,7 +36,12 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
   paiement n'arrive pas en 30 minutes.
 - **Événements** : inscription Founders et Signature uniquement, verrou sur la dernière place,
   liste d'attente qui avance automatiquement.
-- **Clients** : ne peuvent rien écrire d'autre que leur nom. Ni catégorie, ni abonnement, ni place.
+- **Carte imprimée** : une carte par catégorie et par compte, envoyée une fois (un renouvellement
+  n'envoie rien, un passage à Signature envoie la carte Signature). Fondateurs : dans le colis du
+  cardigan. Une carte pas encore partie est annulée si le compte n'est plus membre. Jamais deux
+  cartes en préparation pour un compte (index unique). Adresse en Suisse ou au Liechtenstein,
+  lisible seulement par son titulaire et l'administration ; elle n'est jamais dans le QR code.
+- **Clients** : ne peuvent rien écrire d'autre que leur nom et leur adresse d'envoi. Ni catégorie, ni abonnement, ni place.
 - **Données bancaires** : jamais sur nos serveurs, uniquement chez Stripe.
 - **QR code des cartes** : un jeton aléatoire de 32 caractères, sans donnée personnelle ; la page
   ouverte demande toujours la connexion.
@@ -56,7 +61,8 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
    `customer.subscription.*`, `invoice.paid`, `invoice.upcoming`, `charge.refunded`).
 5. Remplacer dans `club/donnees.js` les appels au serveur de test par les appels Supabase
    (mêmes noms de fonctions), et passer `modeTest` à `false`.
-6. Planifier `liberer_commandes_expirees()` toutes les 5 minutes (Supabase > Cron).
+6. Planifier `liberer_commandes_expirees()` toutes les 5 minutes et `synchroniser_envois()` une fois
+   par jour (Supabase > Cron).
 
 Les fonctions Stripe n'ont pas encore pu être testées contre Stripe (aucun compte) : à vérifier
 en mode test à l'étape 4.

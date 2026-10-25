@@ -38,7 +38,9 @@
       try {
         var m = charger();
         R.libererCommandesExpirees(m.etat, maintenant());
+        R.synchroniserEnvois(m.etat, maintenant());
         var r = fn(m.etat, maintenant(), m);
+        R.synchroniserEnvois(m.etat, maintenant());
         sauver();
         setTimeout(function () { ok(r); }, 120);
       } catch (e) { sauver(); ko(e); }
@@ -129,6 +131,10 @@
     modifierNom: function (nom) {
       return appel(function (etat, now, m) { moi(etat, m).nom = String(nom || '').slice(0, 80); });
     },
+    // Adresse où envoyer la carte imprimée (Suisse et Liechtenstein).
+    enregistrerAdresse: function (adresse) {
+      return appel(function (etat, now, m) { return copie(R.enregistrerAdresse(etat, moi(etat, m).id, adresse)); });
+    },
 
     /* ----- Vitrine du club ----- */
     placesFondateurs: function () {
@@ -168,6 +174,7 @@
           evenements: evenements,
           commandes: commandes,
           paiements: etat.paiements.filter(function (p) { return p.compteId === c.id; }),
+          envois: copie(R.envoisDe(etat, c.id)).filter(function (e) { return e.statut !== 'annulee'; }),
           maintenant: now
         };
       });
@@ -259,6 +266,7 @@
           liste.push({
             id: c.id, email: c.email, nom: c.nom, creeLe: c.creeLe, suspendu: c.suspendu,
             categorie: d.categorie, numero: f ? f.numero : c.numeroMembre,
+            carte: (function () { var l = R.envoisDe(etat, c.id).filter(function (e) { return e.statut !== 'annulee'; }); return l.length ? l[l.length - 1].statut : null; })(),
             abonnement: dernier ? { plan: dernier.plan, statut: dernier.statut, fin: dernier.fin, renouvellementAuto: dernier.renouvellementAuto, debut: dernier.debut } : null,
             commandesNC01: Object.keys(etat.commandes).filter(function (k) { var x = etat.commandes[k]; return x.compteId === c.id && x.produit === R.PRODUIT_FONDATEUR && x.statut === 'payee'; }).length
           });
@@ -375,6 +383,40 @@
         // Capacité augmentée : la liste d'attente avance.
         if (!nouveau && cap > avant) while (R.promouvoirListeAttente(etat, e.id, now)) {}
         journal(etat, a, nouveau ? 'Événement créé' : 'Événement modifié', e.titre, { date: new Date(e.date).toISOString(), capacite: cap, prix: e.prix, publie: e.publie, annule: e.annule }, now);
+        return copie(e);
+      });
+    },
+    /* ----- Cartes imprimées à envoyer ----- */
+    envois: function () {
+      return appel(function (etat, now, m) {
+        exigerAdmin(etat, m);
+        var l = [];
+        for (var id in etat.envois) {
+          var e = copie(etat.envois[id]);
+          var c = etat.comptes[e.compteId];
+          e.email = c.email; e.nomCompte = c.nom;
+          if (e.statut !== 'envoyee') e.adresse = c.adresse ? copie(c.adresse) : null;
+          e.cout = R.coutEnvoi(e);
+          l.push(e);
+        }
+        l.sort(function (a, b) { return a.creeLe - b.creeLe; });
+        return { envois: l, couts: R.COUTS_CARTE, pays: R.PAYS_ENVOI };
+      });
+    },
+    marquerCarteEnvoyee: function (envoiId) {
+      return appel(function (etat, now, m) {
+        var a = exigerAdmin(etat, m);
+        var e = R.marquerCarteEnvoyee(etat, envoiId, now);
+        journal(etat, a, 'Carte envoyée', etat.comptes[e.compteId].email, { categorie: e.categorie, numero: e.numero, mode: e.mode === 'colis' ? 'dans le colis NC-01' : 'courrier B' }, now);
+        return copie(e);
+      });
+    },
+    remplacerCarte: function (compteId, motif) {
+      return appel(function (etat, now, m) {
+        var a = exigerAdmin(etat, m);
+        if (!motif) throw R.Refus('motif', 'Indiquez un motif : il est inscrit au journal.');
+        var e = R.remplacerCarte(etat, compteId, now);
+        journal(etat, a, 'Nouvelle carte demandée', etat.comptes[compteId].email, { motif: motif }, now);
         return copie(e);
       });
     },

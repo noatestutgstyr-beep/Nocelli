@@ -362,3 +362,102 @@ test('statistiques : membres par catégorie et revenus', () => {
   assert.equal(s.revenuAnnuel, 88);
   assert.equal(s.encaisse, 88);
 });
+
+/* ---------- Carte physique envoyée par la poste ---------- */
+
+const ADRESSE = { nom: 'Luca Rossi', rue: 'Via Nassa 12', npa: '6900', localite: 'Lugano', pays: 'CH' };
+
+test('un nouvel abonné attend sa carte ; elle est prête dès que l’adresse est donnée', () => {
+  const e = R.etatVide();
+  const cpt = client(e, 1);
+  assert.equal(R.synchroniserEnvoi(e, cpt.id, T0), null, 'pas membre : pas de carte');
+  abonner(e, cpt.id, 'early');
+  const env = R.synchroniserEnvoi(e, cpt.id, T0);
+  assert.equal(env.statut, 'adresse_manquante');
+  assert.equal(env.mode, 'poste');
+  assert.equal(env.numero, cpt.numeroMembre);
+  R.enregistrerAdresse(e, cpt.id, ADRESSE);
+  assert.equal(env.statut, 'a_preparer');
+  assert.equal(R.synchroniserEnvoi(e, cpt.id, T0).id, env.id, 'pas de second envoi');
+});
+
+test('adresse refusée si incomplète ou hors Suisse / Liechtenstein', () => {
+  const e = R.etatVide();
+  const cpt = client(e, 1);
+  assert.throws(() => R.enregistrerAdresse(e, cpt.id, { ...ADRESSE, npa: '690' }), { code: 'adresse' });
+  assert.throws(() => R.enregistrerAdresse(e, cpt.id, { ...ADRESSE, pays: 'FR' }), { code: 'pays' });
+  assert.equal(R.enregistrerAdresse(e, cpt.id, { ...ADRESSE, pays: 'li', npa: '9490', localite: 'Vaduz' }).pays, 'LI');
+});
+
+test('le fondateur reçoit sa carte dans le colis du cardigan, sans timbre', () => {
+  const e = R.etatVide();
+  const cpt = client(e, 1);
+  R.confirmerPaiementCommande(e, commande(e, cpt.id).id, T0);
+  const env = R.synchroniserEnvoi(e, cpt.id, T0);
+  assert.equal(env.categorie, 'founders');
+  assert.equal(env.mode, 'colis');
+  assert.equal(env.numero, 1);
+  const c = R.COUTS_CARTE;
+  assert.equal(R.coutEnvoi(env), Math.round((c.carte + c.numero) * 100) / 100);
+  assert.ok(R.coutEnvoi({ mode: 'poste' }) > R.coutEnvoi(env));
+});
+
+test('la carte n’est envoyée qu’une fois : un renouvellement n’en renvoie pas', () => {
+  const e = R.etatVide();
+  const cpt = client(e, 1);
+  R.enregistrerAdresse(e, cpt.id, ADRESSE);
+  abonner(e, cpt.id, 'signature');
+  const env = R.synchroniserEnvoi(e, cpt.id, T0);
+  R.marquerCarteEnvoyee(e, env.id, T0 + H);
+  assert.equal(env.statut, 'envoyee');
+  assert.deepEqual(env.adresse, { ...ADRESSE, complement: '' });
+  assert.throws(() => R.marquerCarteEnvoyee(e, env.id, T0 + H), { code: 'deja' });
+  // Un an plus tard, renouvellement payé : toujours une seule carte.
+  R.synchroniserEnvoi(e, cpt.id, T0 + 400 * J);
+  assert.equal(R.envoisDe(e, cpt.id).length, 1);
+});
+
+test('passage à Signature avant l’envoi : la carte Early est annulée, la Signature la remplace', () => {
+  const e = R.etatVide();
+  const cpt = client(e, 1);
+  R.enregistrerAdresse(e, cpt.id, ADRESSE);
+  abonner(e, cpt.id, 'early');
+  const early = R.synchroniserEnvoi(e, cpt.id, T0);
+  R.changerFormule(e, cpt.id, 'signature', T0 + J);
+  const a = R.abonnementCourant(e, cpt.id, T0 + J);
+  R.confirmerPassageSignature(e, a.id, 'evt_passage', T0 + J);
+  const sig = R.synchroniserEnvoi(e, cpt.id, T0 + J);
+  assert.equal(early.statut, 'annulee');
+  assert.equal(early.motif, 'remplacee');
+  assert.equal(sig.categorie, 'signature');
+  assert.equal(sig.statut, 'a_preparer');
+});
+
+test('fondateur remboursé avant l’envoi : sa carte n’est pas envoyée', () => {
+  const e = R.etatVide();
+  const cpt = client(e, 1);
+  const cmd = commande(e, cpt.id);
+  R.confirmerPaiementCommande(e, cmd.id, T0);
+  const env = R.synchroniserEnvoi(e, cpt.id, T0);
+  R.rembourserCommande(e, cmd.id, 'remboursee', T0 + H);
+  R.synchroniserEnvoi(e, cpt.id, T0 + H);
+  assert.equal(env.statut, 'annulee');
+  assert.equal(env.motif, 'plus_membre');
+  assert.throws(() => R.marquerCarteEnvoyee(e, env.id, T0 + H), { code: 'pas_pret' });
+});
+
+test('carte perdue : une seule nouvelle carte à la fois, par la poste', () => {
+  const e = R.etatVide();
+  const cpt = client(e, 1);
+  R.enregistrerAdresse(e, cpt.id, ADRESSE);
+  R.confirmerPaiementCommande(e, commande(e, cpt.id).id, T0);
+  const env = R.synchroniserEnvoi(e, cpt.id, T0);
+  assert.throws(() => R.remplacerCarte(e, cpt.id, T0), { code: 'en_cours' });
+  R.marquerCarteEnvoyee(e, env.id, T0);
+  const neuve = R.remplacerCarte(e, cpt.id, T0 + J);
+  assert.equal(neuve.mode, 'poste');
+  assert.equal(neuve.numero, 1);
+  assert.equal(neuve.motif, 'remplacement');
+  assert.equal(R.synchroniserEnvoi(e, cpt.id, T0 + J).id, env.id, 'la synchronisation ne crée rien de plus');
+  assert.equal(R.envoisDe(e, cpt.id).length, 2);
+});

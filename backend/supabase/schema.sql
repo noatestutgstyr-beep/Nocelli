@@ -272,6 +272,7 @@ begin
   -- Un fondateur ne paie plus : on note l'arrêt du renouvellement (le webhook l'applique chez Stripe).
   update public.abonnements set renouvellement_auto = false, maj_le = now()
    where compte_id = c.compte_id and statut in ('actif', 'impaye');
+  perform public.synchroniser_envoi(c.compte_id);
   return v_numero;
 end $$;
 
@@ -312,6 +313,7 @@ begin
      set statut = 'retire', retire_le = now(),
          motif = case p_statut when 'remboursee' then 'Commande remboursée' else 'Commande annulée' end
    where numero = v_place;
+  perform public.synchroniser_envoi(c.compte_id);
   return 'retiree';
 end $$;
 
@@ -335,6 +337,7 @@ begin
      set compte_id = p_compte, commande_id = v_cmd, statut = 'confirme',
          attribue_le = now(), retire_le = null, motif = null
    where numero = p_numero;
+  perform public.synchroniser_envoi(p_compte);
   perform public.journaliser('reattribuer_numero', p_numero::text,
     jsonb_build_object('ancien', v_ancien, 'nouveau', p_compte, 'motif', p_motif));
 end $$;
@@ -367,6 +370,7 @@ begin
     update public.profils set numero_membre = nextval('public.numero_membre_seq')
      where id = p_compte and numero_membre is null;
   end if;
+  perform public.synchroniser_envoi(p_compte);
   return 'ok';
 exception when unique_violation then
   -- Un deuxième abonnement vivant pour ce compte : refusé, il faut le rembourser.
@@ -505,6 +509,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   perform public.exiger_admin();
   update public.profils set suspendu = p_suspendu where id = p_compte;
+  perform public.synchroniser_envoi(p_compte);
   perform public.journaliser(case when p_suspendu then 'suspendre' else 'retablir' end, p_compte::text,
     jsonb_build_object('motif', p_motif));
 end $$;
@@ -565,6 +570,129 @@ begin
 end $$;
 
 -- ===========================================================================
+-- CARTE IMPRIMÉE envoyée par la poste
+-- ===========================================================================
+-- Une carte par catégorie et par compte, envoyée une fois (le numéro est à vie,
+-- un renouvellement n'envoie rien). Fondateurs : carte glissée dans le colis
+-- du cardigan. Une carte pas encore partie est annulée si le compte n'est plus
+-- membre ou change de catégorie. Même logique que club/regles.js.
+create table if not exists public.adresses (
+  compte_id  uuid primary key references public.profils(id) on delete cascade,
+  nom        text not null check (length(nom) between 1 and 80),
+  rue        text not null check (length(rue) between 1 and 120),
+  complement text not null default '' check (length(complement) <= 120),
+  npa        text not null check (npa ~ '^[0-9]{4}$'),
+  localite   text not null check (length(localite) between 1 and 60),
+  pays       text not null default 'CH' check (pays in ('CH', 'LI')),
+  maj_le     timestamptz not null default now()
+);
+
+create table if not exists public.envois_cartes (
+  id         uuid primary key default gen_random_uuid(),
+  compte_id  uuid not null references public.profils(id),
+  categorie  text not null check (categorie in ('founders', 'early', 'signature')),
+  numero     integer not null,
+  mode       text not null check (mode in ('poste', 'colis')),
+  statut     text not null check (statut in ('adresse_manquante', 'a_preparer', 'envoyee', 'annulee')),
+  motif      text not null default 'nouveau',
+  adresse    jsonb,                       -- l'adresse utilisée, figée à l'envoi
+  cree_le    timestamptz not null default now(),
+  envoyee_le timestamptz,
+  annulee_le timestamptz
+);
+-- Jamais deux cartes en préparation pour le même compte.
+create unique index if not exists envoi_en_cours_unique on public.envois_cartes (compte_id)
+  where statut in ('adresse_manquante', 'a_preparer');
+
+-- Interne : met l'envoi d'un compte en accord avec ses droits. Sans effet si rien ne change.
+create or replace function public.synchroniser_envoi(p_compte uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare v_cat text; v_num integer;
+begin
+  perform 1 from public.profils where id = p_compte for update;   -- un appel à la fois par compte
+  select categorie into v_cat from public.droits_de(p_compte);
+  update public.envois_cartes
+     set statut = 'annulee', annulee_le = now(),
+         motif = case when v_cat is null then 'plus_membre' else 'remplacee' end
+   where compte_id = p_compte and statut in ('adresse_manquante', 'a_preparer')
+     and categorie is distinct from v_cat;
+  if v_cat is null then return; end if;
+  if exists (select 1 from public.envois_cartes where compte_id = p_compte and categorie = v_cat and statut <> 'annulee') then
+    return;
+  end if;
+  if v_cat = 'founders' then
+    select numero into v_num from public.places_fondateurs where compte_id = p_compte and statut = 'confirme';
+  else
+    select numero_membre into v_num from public.profils where id = p_compte;
+  end if;
+  insert into public.envois_cartes (compte_id, categorie, numero, mode, statut)
+  values (p_compte, v_cat, v_num, case when v_cat = 'founders' then 'colis' else 'poste' end,
+          case when exists (select 1 from public.adresses where compte_id = p_compte) then 'a_preparer' else 'adresse_manquante' end);
+end $$;
+
+-- Planifiée (Supabase > Cron, une fois par jour) : rattrape les adhésions arrivées à échéance.
+create or replace function public.synchroniser_envois() returns integer
+language plpgsql security definer set search_path = public as $$
+declare v uuid; n integer := 0;
+begin
+  for v in select id from public.profils where role = 'client' loop
+    perform public.synchroniser_envoi(v); n := n + 1;
+  end loop;
+  return n;
+end $$;
+
+-- Ouverte aux clients : leur propre adresse, rien d'autre.
+create or replace function public.enregistrer_adresse(
+  p_nom text, p_rue text, p_complement text, p_npa text, p_localite text, p_pays text default 'CH')
+returns void language plpgsql security definer set search_path = public as $$
+declare v_moi uuid := auth.uid();
+begin
+  if v_moi is null then raise exception 'connexion' using errcode = '42501'; end if;
+  insert into public.adresses as a (compte_id, nom, rue, complement, npa, localite, pays)
+  values (v_moi, trim(p_nom), trim(p_rue), coalesce(trim(p_complement), ''), trim(p_npa), trim(p_localite), upper(coalesce(p_pays, 'CH')))
+  on conflict (compte_id) do update set nom = excluded.nom, rue = excluded.rue, complement = excluded.complement,
+    npa = excluded.npa, localite = excluded.localite, pays = excluded.pays, maj_le = now();
+  update public.envois_cartes set statut = 'a_preparer'
+   where compte_id = v_moi and statut = 'adresse_manquante';
+end $$;
+
+create or replace function public.admin_marquer_carte_envoyee(p_envoi uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare e public.envois_cartes;
+begin
+  perform public.exiger_admin();
+  select * into e from public.envois_cartes where id = p_envoi for update;
+  if not found then raise exception 'envoi_introuvable'; end if;
+  if e.statut <> 'a_preparer' then raise exception 'envoi_pas_pret: %', e.statut; end if;
+  update public.envois_cartes
+     set statut = 'envoyee', envoyee_le = now(),
+         adresse = (select to_jsonb(a) - 'compte_id' - 'maj_le' from public.adresses a where a.compte_id = e.compte_id)
+   where id = e.id;
+  perform public.journaliser('carte_envoyee', e.compte_id::text,
+    jsonb_build_object('categorie', e.categorie, 'numero', e.numero, 'mode', e.mode));
+end $$;
+
+-- Carte perdue ou abîmée : nouvelle carte de la catégorie actuelle, par la poste.
+create or replace function public.admin_remplacer_carte(p_compte uuid, p_motif text) returns void
+language plpgsql security definer set search_path = public as $$
+declare v_cat text; v_num integer;
+begin
+  perform public.exiger_admin();
+  if coalesce(trim(p_motif), '') = '' then raise exception 'motif_obligatoire'; end if;
+  perform 1 from public.profils where id = p_compte for update;
+  select categorie into v_cat from public.droits_de(p_compte);
+  if v_cat is null then raise exception 'non_membre'; end if;
+  select numero into v_num from public.envois_cartes
+   where compte_id = p_compte and categorie = v_cat and statut = 'envoyee' order by envoyee_le desc limit 1;
+  if v_num is null then raise exception 'aucune_carte_envoyee'; end if;
+  insert into public.envois_cartes (compte_id, categorie, numero, mode, statut, motif)
+  values (p_compte, v_cat, v_num, 'poste',
+          case when exists (select 1 from public.adresses where compte_id = p_compte) then 'a_preparer' else 'adresse_manquante' end,
+          'remplacement');
+  perform public.journaliser('carte_remplacee', p_compte::text, jsonb_build_object('motif', p_motif));
+end $$;
+
+-- ===========================================================================
 -- SÉCURITÉ DES LIGNES (RLS) : chacun ne lit que ce qui le concerne
 -- ===========================================================================
 alter table public.profils             enable row level security;
@@ -579,6 +707,8 @@ alter table public.stock_lancement     enable row level security;
 alter table public.evenements          enable row level security;
 alter table public.inscriptions        enable row level security;
 alter table public.journal_admin       enable row level security;
+alter table public.adresses            enable row level security;
+alter table public.envois_cartes       enable row level security;
 
 -- Lecture : soi-même, ou l'administration.
 drop policy if exists lire_soi on public.profils;
@@ -593,6 +723,10 @@ drop policy if exists lire_soi on public.paiements;
 create policy lire_soi on public.paiements for select using (compte_id = auth.uid() or public.est_admin());
 drop policy if exists lire_soi on public.inscriptions;
 create policy lire_soi on public.inscriptions for select using (compte_id = auth.uid() or public.est_admin());
+drop policy if exists lire_soi on public.adresses;
+create policy lire_soi on public.adresses for select using (compte_id = auth.uid() or public.est_admin());
+drop policy if exists lire_soi on public.envois_cartes;
+create policy lire_soi on public.envois_cartes for select using (compte_id = auth.uid() or public.est_admin());
 drop policy if exists lire_admin on public.journal_admin;
 create policy lire_admin on public.journal_admin for select using (public.est_admin());
 drop policy if exists lire_admin on public.webhooks_traites;
@@ -613,7 +747,8 @@ create policy lire_membres on public.evenements for select using (
 revoke all on all tables in schema public from anon, authenticated;
 grant select on public.profils, public.commandes, public.places_fondateurs, public.abonnements,
   public.paiements, public.inscriptions, public.journal_admin, public.webhooks_traites,
-  public.lancements, public.stock_lancement, public.evenements to authenticated;
+  public.lancements, public.stock_lancement, public.evenements,
+  public.adresses, public.envois_cartes to authenticated;
 grant select on public.lancements, public.stock_lancement to anon;
 grant select on public.evenements_places to authenticated;
 grant update (nom) on public.profils to authenticated;
@@ -624,12 +759,14 @@ create policy modifier_nom on public.profils for update using (id = auth.uid()) 
 revoke execute on all functions in schema public from public, anon, authenticated;
 grant execute on function public.droits(uuid), public.reserver_piece(uuid, text),
   public.inscrire_evenement(uuid), public.annuler_inscription(uuid),
-  public.est_admin(), public.peut_souscrire(uuid, text) to authenticated;
+  public.est_admin(), public.peut_souscrire(uuid, text),
+  public.enregistrer_adresse(text, text, text, text, text, text) to authenticated;
 grant execute on function public.admin_reattribuer_numero(integer, uuid, text),
   public.admin_suspendre(uuid, boolean, text),
   public.admin_enregistrer_lancement(uuid, text, text, text, numeric, timestamptz, integer, boolean, jsonb),
   public.admin_enregistrer_evenement(uuid, text, text, timestamptz, text, integer, numeric, text, boolean, boolean),
-  public.admin_verifier_carte(text) to authenticated;   -- chacune vérifie exiger_admin()
+  public.admin_verifier_carte(text),
+  public.admin_marquer_carte_envoyee(uuid), public.admin_remplacer_carte(uuid, text) to authenticated;   -- chacune vérifie exiger_admin()
 -- Le webhook (clé service_role, jamais dans le navigateur) appelle le reste.
 grant execute on all functions in schema public to service_role;
 grant all on all tables in schema public to service_role;
