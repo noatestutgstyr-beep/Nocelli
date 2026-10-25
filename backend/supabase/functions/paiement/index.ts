@@ -3,12 +3,11 @@
 //            | { action: 'annuler_renouvellement' } | { action: 'reprendre_renouvellement' }
 //            | { action: 'acheter', commande_id }   (commande créée par reserver_piece)
 // Rien n'est activé ici : seule la confirmation de Stripe (webhook) active un droit.
-import { baseService, baseUtilisateur, CORS, PRIX, reponse, SITE, stripe } from '../_commun/stripe.ts';
+import { baseService, CORS, PRIX, reponse, SITE, stripe, utilisateur } from '../_commun/stripe.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
-  const moi = baseUtilisateur(req);
-  const { data: { user } } = await moi.auth.getUser();
+  const user = await utilisateur(req);
   if (!user) return reponse({ erreur: 'connexion_requise' }, 401);
   const service = baseService();
   const corps = await req.json().catch(() => ({}));
@@ -33,8 +32,8 @@ Deno.serve(async (req) => {
     }
 
     if (corps.action === 'acheter') {
-      // La commande appartient à la personne (RLS) et réserve déjà la pièce.
-      const { data: cmd } = await moi.from('commandes').select('*').eq('id', corps.commande_id).single();
+      // La commande doit appartenir à la personne et réserve déjà la pièce.
+      const { data: cmd } = await service.from('commandes').select('*').eq('id', corps.commande_id).eq('compte_id', user.id).maybeSingle();
       if (!cmd || cmd.statut !== 'en_attente') return reponse({ erreur: 'commande_invalide' }, 409);
       const { data: lan } = await service.from('lancements').select('nom, prix').eq('id', cmd.lancement_id).single();
       const session = await stripe('POST', 'checkout/sessions', {
@@ -54,7 +53,7 @@ Deno.serve(async (req) => {
     }
 
     // Les autres actions portent sur l'abonnement vivant de la personne.
-    const { data: ab } = await moi.from('abonnements').select('*').in('statut', ['actif', 'impaye']).maybeSingle();
+    const { data: ab } = await service.from('abonnements').select('*').eq('compte_id', user.id).in('statut', ['actif', 'impaye']).maybeSingle();
     if (!ab) return reponse({ erreur: 'pas_abonne' }, 409);
     const sub = await stripe('GET', `subscriptions/${ab.stripe_abonnement}`);
 

@@ -62,7 +62,7 @@
     if (/JWT|session/i.test(brut)) return Refus('connexion', MESSAGES.connexion);
     if (/Failed to fetch|NetworkError|Load failed/i.test(brut)) return Refus('reseau', 'Le serveur ne répond pas. Vérifiez votre connexion internet et réessayez.');
     console.error(err);
-    return Refus('erreur', 'Une erreur est survenue. Réessayez dans un instant.');
+    return Refus('erreur', 'Une erreur est survenue. Réessayez dans un instant. (Détail : ' + brut.slice(0, 160) + ')');
   }
   function ok(r) { if (r.error) throw traduire(r.error); return r.data; }
   function rpc(nom, args) { return db.rpc(nom, args || {}).then(ok); }
@@ -73,7 +73,9 @@
     return db.functions.invoke(nom, { body: corps }).then(function (r) {
       if (r.error) {
         var ctx = r.error.context;
-        if (ctx && ctx.json) return ctx.json().then(function (j) { throw traduire({ message: j.erreur || r.error.message }); });
+        if (ctx && ctx.json) return ctx.json().catch(function () { return {}; }).then(function (j) {
+          throw traduire({ message: j.erreur || j.message || j.msg || (r.error.message + ' ' + (ctx.status || '')) });
+        });
         throw traduire(r.error);
       }
       if (r.data && r.data.erreur) throw traduire({ message: r.data.erreur });

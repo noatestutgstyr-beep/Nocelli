@@ -41,19 +41,19 @@ export async function stripe(methode: 'GET' | 'POST' | 'DELETE', chemin: string,
   return json;
 }
 
-// Client « service » : réservé aux fonctions serveur (webhook), contourne la RLS.
+// Client « service » : réservé aux fonctions serveur, contourne la RLS.
 export function baseService() {
   return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
     auth: { persistSession: false },
   });
 }
 
-// Client au nom de la personne connectée : la RLS s'applique.
-export function baseUtilisateur(req: Request) {
-  return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
-    global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
-    auth: { persistSession: false },
-  });
+// Personne connectée, lue dans son jeton de session (vérifié par Supabase Auth).
+export async function utilisateur(req: Request) {
+  const jeton = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
+  if (!jeton) return null;
+  const { data, error } = await baseService().auth.getUser(jeton);
+  return error ? null : data.user;
 }
 
 export const CORS = {
