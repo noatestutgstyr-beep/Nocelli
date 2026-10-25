@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
         success_url: `${SITE}/membre.html?paiement=ok`,
         cancel_url: `${SITE}/club.html?paiement=annule`,
         locale: 'fr',
-      }, `souscrire-${user.id}-${corps.plan}-${new Date().toISOString().slice(0, 13)}`);
+      }, `souscrire-${user.id}-${crypto.randomUUID()}`);   // un essai = une clé (une clé réutilisée avec d'autres paramètres est refusée par Stripe)
       return reponse({ url: session.url });
     }
 
@@ -63,6 +63,7 @@ Deno.serve(async (req) => {
     }
     return reponse({ erreur: 'action_inconnue' }, 400);
   } catch (e) {
+    console.error('paiement', corps.action, e);
     return reponse({ erreur: String((e as Error).message) }, 502);
   }
 });
