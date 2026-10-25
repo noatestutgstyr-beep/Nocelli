@@ -12,9 +12,6 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       PROJET: ejpzgvizznylfgzxngut
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - name: Jeton présent ?
         run: |
@@ -27,4 +24,6 @@ jobs:
         with:
           version: latest
       - run: supabase functions deploy paiement --project-ref "$PROJET"
+        working-directory: backend
       - run: supabase functions deploy stripe-webhook --project-ref "$PROJET" --no-verify-jwt
+        working-directory: backend
