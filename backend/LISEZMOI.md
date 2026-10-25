@@ -46,23 +46,27 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
 - **QR code des cartes** : un jeton aléatoire de 32 caractères, sans donnée personnelle ; la page
   ouverte demande toujours la connexion.
 
-## Mise en service (quand Noa dit oui)
+## Mise en service (faite le 25.10.2026, mode test)
 
-1. **Supabase** (gratuit, compte à créer) : nouveau projet en Europe (Zurich ou Francfort),
-   coller `supabase/schema.sql` dans SQL Editor, activer la connexion par e-mail (lien magique).
-2. **Stripe** (sans abonnement mensuel, commission par paiement) : compte en **mode test**,
-   créer un prix annuel en CHF (59, Signature), activer TWINT et les cartes.
-3. Secrets dans Supabase (Project Settings > Edge Functions) : `STRIPE_SECRET_KEY` (clé `sk_test_`),
-   `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRIX_SIGNATURE`, `SITE_URL`.
-   La fonction refuse une clé réelle tant que `PAIEMENTS_REELS=oui` n'est pas posé.
-4. Déployer : `supabase functions deploy paiement` et
-   `supabase functions deploy stripe-webhook --no-verify-jwt`, puis déclarer l'adresse du webhook
-   dans Stripe (événements : `checkout.session.completed`, `checkout.session.expired`,
-   `customer.subscription.*`, `invoice.paid`, `charge.refunded`).
-5. Remplacer dans `club/donnees.js` les appels au serveur de test par les appels Supabase
-   (mêmes noms de fonctions), et passer `modeTest` à `false`.
-6. Planifier `liberer_commandes_expirees()` toutes les 5 minutes et `synchroniser_envois()` une fois
-   par jour (Supabase > Cron).
+1. **Supabase** : projet `ejpzgvizznylfgzxngut` (offre gratuite). `supabase/schema.sql` puis
+   `supabase/mise-a-jour-1.sql` collés dans SQL Editor. Connexion par e-mail, Site URL et
+   Redirect URL `https://noatestutgstyr-beep.github.io/Nocelli/**`.
+2. **Stripe** : compte en **mode test**, un seul produit, Signature Club 59 CHF par an.
+3. **Secrets Supabase** (Edge Functions > Secrets) : `STRIPE_SECRET_KEY` (`sk_test_`),
+   `STRIPE_PRIX_SIGNATURE`, `SITE_URL`, `STRIPE_WEBHOOK_SECRET`. La fonction refuse une clé réelle
+   tant que `PAIEMENTS_REELS=oui` n'est pas posé.
+4. **Fonctions** : mises en ligne par `.github/workflows/supabase-fonctions.yml` à chaque changement
+   (secret GitHub `SUPABASE_ACCESS_TOKEN`). Webhook Stripe vers
+   `https://ejpzgvizznylfgzxngut.supabase.co/functions/v1/stripe-webhook` (événements :
+   `checkout.session.completed`, `checkout.session.expired`, `customer.subscription.*`,
+   `invoice.paid`, `charge.refunded`).
+5. **Site** : `club/config.js` donne l'adresse du projet et la clé publique ; `club/serveur.js` remplace
+   alors le serveur de test. Sans `config.js`, le club repasse en mode test.
+6. **Tâches planifiées** (pg_cron, posées par `mise-a-jour-1.sql`) : `liberer_commandes_expirees()`
+   toutes les 5 minutes, `synchroniser_envois()` chaque nuit.
+7. **Administrateur** : après une première connexion, dans SQL Editor :
+   `update public.profils set role = 'admin' where email = '<adresse>';`
 
-Les fonctions Stripe n'ont pas encore pu être testées contre Stripe (aucun compte) : à vérifier
-en mode test à l'étape 4.
+Avant les vrais paiements : activer le compte Stripe, recréer le prix en mode réel, remplacer la clé
+par `sk_live_` et poser `PAIEMENTS_REELS=oui` (avec l'accord de Noa), rédiger CGV et protection des
+données.
