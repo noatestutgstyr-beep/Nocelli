@@ -125,6 +125,9 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .piece-photos{display:grid;gap:14px}
 .piece-photo{background:#E9DFCF;margin:0}
 .piece-photo img{width:100%;mix-blend-mode:multiply}
+.piece-photo.mode360,.piece-photo.sans-fond{background:none}
+.piece-photo.mode360 .zoom,.piece-photo:not(.mode360) .v360{display:none}
+.piece-photo.sans-fond img{mix-blend-mode:normal;aspect-ratio:4/5;object-fit:contain;padding:5% 9%;filter:drop-shadow(0 22px 26px rgba(58,37,25,.09))}
 .piece-info{position:sticky;top:calc(var(--head) + 40px + env(safe-area-inset-top,0px))}
 .piece h2{font-size:clamp(34px,3.6vw,52px);line-height:1.08;margin-top:16px}
 .prix-ligne{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-top:18px}
@@ -300,6 +303,37 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .coll-rangee .apparait:nth-child(3),.porte-rangee .apparait:nth-child(3),.galerie .apparait:nth-child(3){transition-delay:.24s}
 .coll-rangee .apparait:nth-child(4){transition-delay:.36s}
 
+/* Cardigan détouré et visionneuse 360° */
+.coll-carte.detoure .cadre{background:none;overflow:visible}
+.coll-carte.detoure img{object-fit:contain;padding:8% 7% 6%;filter:drop-shadow(0 16px 20px rgba(58,37,25,.09))}
+.vues button.detoure{background:none}
+.vues button.detoure img{object-fit:contain;padding:6px}
+.v360-vignette{position:relative}
+.v360-vignette span{position:absolute;left:0;right:0;bottom:3px;font-size:8.5px;letter-spacing:.16em;color:var(--tabacco);text-align:center}
+.v360{position:relative;aspect-ratio:4/5;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.v360 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab;opacity:0;transition:opacity .9s ease;outline:none;filter:drop-shadow(0 22px 26px rgba(58,37,25,.09))}
+.v360.saisi canvas{cursor:grabbing}
+.v360.zoome canvas{cursor:move;touch-action:none;-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent);mask-composite:intersect}
+.v360.pret.zoome .v360-ui{opacity:0}
+.v360.zoome canvas{filter:none}
+.v360.pret canvas{opacity:1}
+.v360 .v360-repos{mix-blend-mode:normal;position:absolute;top:50%;left:50%;height:89%;width:auto;max-width:none;transform:translate(-50%,-50%);transition:opacity .9s ease;filter:drop-shadow(0 22px 26px rgba(58,37,25,.09));pointer-events:none}
+.v360.pret .v360-repos{opacity:0}
+.v360-ui,.v360-outils{position:absolute;bottom:0;display:flex;align-items:center;gap:14px;opacity:0;transition:opacity .8s ease .3s}
+.v360.pret .v360-ui,.v360.pret .v360-outils{opacity:1}
+.v360-ui{left:0;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);pointer-events:none}
+.v360-tag{border:1px solid rgba(138,108,82,.55);border-radius:999px;padding:4px 10px 4px 12px;letter-spacing:.18em}
+.v360-aide{transition:opacity .6s ease}
+.v360.touche .v360-aide{opacity:0}
+.v360-outils{right:0}
+.v360-face{font:inherit;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);background:none;border:0;padding:8px 0;cursor:pointer}
+.v360-face:hover{color:var(--noce)}
+.v360-loupe{position:relative;width:32px;height:32px;border:1px solid rgba(58,37,25,.3);border-radius:50%;background:none;cursor:pointer;padding:0}
+.v360-loupe::before,.v360-loupe::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1px;background:var(--noce);transform:translate(-50%,-50%)}
+.v360-loupe::after{transform:translate(-50%,-50%) rotate(90deg);transition:transform .35s ease}
+.v360.zoome .v360-loupe::after{transform:translate(-50%,-50%) rotate(0deg)}
+.loupe{background:var(--avorio)}
+
 /* Guide des tailles */
 .tailles-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 .guide-lien{background:none;border:0;padding:4px 0;cursor:pointer;font-family:var(--body);font-size:12.5px;text-decoration:underline;text-underline-offset:3px;color:inherit}
@@ -348,6 +382,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   .coll-rangee,.porte-rangee{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:76%;overflow-x:auto;scroll-snap-type:x mandatory;margin-left:calc(-1 * var(--gx));margin-right:calc(-1 * var(--gxr));padding-left:var(--gx);padding-right:var(--gxr);scrollbar-width:none}
   .coll-rangee::-webkit-scrollbar,.porte-rangee::-webkit-scrollbar{display:none}
   .coll-carte,.porte-rangee figure{scroll-snap-align:start}
+  .v360-ui{left:var(--gx)}
+  .v360-aide{display:none}
+  .v360-outils{right:var(--gxr)}
   .vues{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:64px;overflow-x:auto;padding-left:var(--gx);padding-right:var(--gxr);scrollbar-width:none}
   .defile{display:block}
   .etapes{grid-template-columns:1fr;gap:30px;margin-top:56px}
@@ -447,9 +484,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         <a class="lien" href="#piece">Voir la pièce</a>
       </div>
       <div class="coll-rangee">
-        <a class="coll-carte" href="#piece"><div class="cadre"><img src="img/tp-face.jpg" alt="Le Cardigan Noce vu de face"><img class="survol" src="img/tp-dos.jpg" alt="" aria-hidden="true"></div><b>Le Cardigan Noce</b><span>Chocolat · CHF 139</span></a>
-        <a class="coll-carte" href="#piece"><div class="cadre"><img src="img/tp-dos.jpg" alt="Le Cardigan Noce vu de dos"></div><b>Vue de dos</b><span>Épaule naturelle, coupe ajustée</span></a>
-        <a class="coll-carte" href="#piece"><div class="cadre"><img src="img/tp-cote.jpg" alt="Le Cardigan Noce vu de côté"></div><b>Vue de côté</b><span>Col montant, 7 cm</span></a>
+        <a class="coll-carte detoure" href="#piece"><div class="cadre"><img src="img/cardigan-face.webp" alt="Le Cardigan Noce vu de face"><img class="survol" src="img/cardigan-dos.webp" alt="" aria-hidden="true"></div><b>Le Cardigan Noce</b><span>Chocolat · CHF 139</span></a>
+        <a class="coll-carte detoure" href="#piece"><div class="cadre"><img src="img/cardigan-dos.webp" alt="Le Cardigan Noce vu de dos"></div><b>Vue de dos</b><span>Épaule naturelle, coupe ajustée</span></a>
+        <a class="coll-carte detoure" href="#piece"><div class="cadre"><img src="img/cardigan-cote.webp" alt="Le Cardigan Noce vu de côté"></div><b>Vue de côté</b><span>Col montant, 7 cm</span></a>
         <a class="coll-carte etiq" href="#numero"><div class="cadre"><img src="img/tp-etiquette.jpg" alt="Étiquette tissée au col : NOCELLI, N° 01 / 50"></div><b>Le numéro au col</b><span>N° 01 à N° 50</span></a>
       </div>
     </div>
@@ -484,10 +521,18 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   <section class="piece" id="piece">
     <div class="wrap piece-grid">
       <div class="piece-photos">
-        <figure class="piece-photo"><button type="button" class="zoom" id="zoom-ouvrir" aria-label="Agrandir la photo"><img id="vue" src="img/tp-face.jpg" alt="Le Cardigan Noce vu de face"></button></figure>
+        <figure class="piece-photo mode360">
+          <div class="v360" id="v360">
+            <img class="v360-repos" src="img/cardigan-face.webp" alt="Le Cardigan Noce vu de face">
+            <canvas tabindex="0" aria-label="Le Cardigan Noce en 360° : faites glisser pour le tourner, ou utilisez les flèches gauche et droite"></canvas>
+            <div class="v360-ui" aria-hidden="true"><span class="v360-tag">360°</span><span class="v360-aide">Glisser pour tourner</span></div>
+            <div class="v360-outils"><button type="button" class="v360-face">Vue de face</button><button type="button" class="v360-loupe" aria-label="Agrandir"></button></div>
+          </div>
+          <button type="button" class="zoom" id="zoom-ouvrir" aria-label="Agrandir la photo"><img id="vue" src="img/cardigan-dos.webp" alt="Le Cardigan Noce vu de dos"></button>
+        </figure>
         <div class="vues" aria-label="Autres vues">
-          <button type="button" class="actif" data-src="img/tp-face.jpg" data-alt="Le Cardigan Noce vu de face"><img src="img/tp-face.jpg" alt="Face"></button>
-          <button type="button" data-src="img/tp-dos.jpg" data-alt="Le Cardigan Noce vu de dos"><img src="img/tp-dos.jpg" alt="Dos"></button>
+          <button type="button" class="actif detoure v360-vignette" data-mode="360"><img src="img/cardigan-face.webp" alt="Vue 360°"><span aria-hidden="true">360°</span></button>
+          <button type="button" class="detoure" data-src="img/cardigan-dos.webp" data-alt="Le Cardigan Noce vu de dos"><img src="img/cardigan-dos.webp" alt="Dos"></button>
           <button type="button" data-src="img/porte-face.jpg" data-alt="Le cardigan porté, de face"><img src="img/porte-face.jpg" alt="Porté, de face"></button>
           <button type="button" data-src="img/porte-dos.jpg" data-alt="Le cardigan porté, de dos"><img src="img/porte-dos.jpg" alt="Porté, de dos"></button>
           <button type="button" data-src="img/tp-col.jpg" data-alt="Gros plan sur le col montant"><img src="img/tp-col.jpg" alt="Col"></button>
@@ -713,6 +758,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   <a class="btn plein" href="#liste">M'inscrire</a>
 </div>
 
+<script src="js/v360.js"></script>
 <script src="club/vendor/qrcode.js"></script>
 <script src="club/cartes.js"></script>
 <script>
@@ -753,7 +799,15 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   // Vues de la pièce et loupe
   var vue=document.getElementById('vue');
   var vues=document.querySelectorAll('.vues button');
-  vues.forEach(function(b){b.addEventListener('click',function(){vue.src=b.dataset.src;vue.alt=b.dataset.alt;vues.forEach(function(x){x.classList.toggle('actif',x===b);});});});
+  var cadre=document.querySelector('.piece-photo');
+  vues.forEach(function(b){b.addEventListener('click',function(){
+    var m360=b.dataset.mode==='360';
+    cadre.classList.toggle('mode360',m360);
+    cadre.classList.toggle('sans-fond',!m360&&b.classList.contains('detoure'));
+    if(!m360){vue.src=b.dataset.src;vue.alt=b.dataset.alt;}
+    vues.forEach(function(x){x.classList.toggle('actif',x===b);});
+  });});
+  if(window.NocelliV360)NocelliV360(document.getElementById('v360'),'img/360/');
   var loupe=document.getElementById('loupe'),loupeImg=document.getElementById('loupe-img');
   document.getElementById('zoom-ouvrir').addEventListener('click',function(){loupeImg.src=vue.src;loupeImg.alt=vue.alt;if(loupe.showModal)loupe.showModal();});
   loupe.addEventListener('click',function(){loupe.close();});
