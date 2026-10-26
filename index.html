@@ -659,6 +659,32 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 <script>
 (function(){
   var body=document.body;
+  // Une page ouverte par un lien s'affiche en haut (sur la fiche : le modèle 3D) ou sur la section visée (#collection…).
+  // L'aperçu claude.ai peut ensuite remettre la position de défilement de la page précédente : on l'annule pendant
+  // les premières secondes, jusqu'à ce que le visiteur fasse défiler ou touche la page lui-même.
+  var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
+  if(!(nav&&/back_forward|reload/.test(nav.type))){
+    var racine=document.documentElement,libre=false,debut=Date.now(),limite=debut+8000,ancre=null;
+    try{ancre=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));}catch(e){}
+    var placer=function(){
+      if(libre||Date.now()>limite)return;
+      var y=0;
+      if(ancre){
+        var marge=(parseFloat(getComputedStyle(ancre).scrollMarginTop)||0)+(parseFloat(getComputedStyle(racine).scrollPaddingTop)||0);
+        y=Math.max(0,Math.min(ancre.getBoundingClientRect().top+window.pageYOffset-marge,racine.scrollHeight-window.innerHeight));
+      }
+      if(Math.abs(window.pageYOffset-y)>4){var sb=racine.style.scrollBehavior;racine.style.scrollBehavior='auto';window.scrollTo(0,y);racine.style.scrollBehavior=sb;}
+    };
+    ['wheel','touchstart','keydown','pointerdown'].forEach(function(t){addEventListener(t,function(){libre=true;},{capture:true,passive:true});});
+    addEventListener('scroll',placer,{passive:true});
+    placer();
+    addEventListener('load',function(){limite=Math.max(limite,Date.now()+8000);placer();[200,1000,2500,5000].forEach(function(d){setTimeout(placer,d);});});
+    // Dans un cadre aussi haut que la page (sans défilement propre), c'est la page qui l'entoure qu'il faut remonter
+    var sommet=document.querySelector('.annonce');
+    if(!ancre&&sommet&&window.top!==window&&'IntersectionObserver' in window){
+      new IntersectionObserver(function(es){if(!libre&&Date.now()-debut<4000&&!es[es.length-1].isIntersecting&&!window.pageYOffset)sommet.scrollIntoView({block:'start'});}).observe(sommet);
+    }
+  }
   // Apparition douce des photos et des titres
   if('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches){
     document.documentElement.classList.add('js');
