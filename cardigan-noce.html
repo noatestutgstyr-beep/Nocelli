@@ -664,6 +664,12 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 <script>
 (function(){
   var body=document.body;
+  // En arrivant depuis la collection, la page s'ouvre en haut, sur le modèle 3D (aussi dans un cadre qui garde le défilement)
+  var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
+  if(!location.hash&&!(nav&&nav.type==='back_forward')){
+    var haut=function(){window.scrollTo(0,0);var t=document.querySelector('.annonce');if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});};
+    haut();addEventListener('load',function(){if(window.scrollY<40)haut();});
+  }
   // Apparition douce des photos et des titres
   if('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches){
     document.documentElement.classList.add('js');

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nocelli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Nocelli, vêtements pour homme en séries numérotées. Prima Edizione le mercredi 25 novembre à 19h00, heure suisse.">
+<meta name="description" content="Nocelli, pièces en séries numérotées. La collection d'automne sort le mercredi 25 novembre à 19h00, heure suisse. Inscription par e-mail pour commander.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="club/cartes.css">
@@ -72,20 +72,19 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .menu li a{display:block;font-family:var(--display);font-size:32px;line-height:1.2;text-decoration:none;padding-block:16px;border-bottom:1px solid var(--filo)}
 .menu p{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--tabacco)}
 
-/* Hero */
-.hero{position:relative;background:var(--noce-scuro);color:var(--avorio);overflow:hidden}
-.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;min-height:min(calc(100svh - var(--head) - 38px),900px)}
-.hero-photo{position:relative;overflow:hidden;min-height:520px}
-.hero-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 16%;animation:respiro 16s cubic-bezier(.2,.6,.2,1) both}
-@keyframes respiro{from{transform:scale(1.07)}to{transform:scale(1)}}
-.hero-texte{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:26px;padding-block:72px;padding-left:clamp(28px,5vw,88px);padding-right:var(--gxr)}
+/* Hero : la porte du coffre s'ouvre en fond, sur toute la largeur ; la marque et l'annonce par-dessus */
+.hero{position:relative;background:var(--noce-scuro);color:var(--avorio);overflow:hidden;min-height:min(calc(100svh - var(--head) - 38px),860px);display:flex;align-items:center}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%;background:var(--noce-scuro)}
+.hero-voile{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,12,8,.86) 0%,rgba(20,12,8,.62) 30%,rgba(20,12,8,.12) 56%,rgba(20,12,8,0) 70%),linear-gradient(0deg,rgba(20,12,8,.5) 0%,rgba(20,12,8,0) 30%)}
+.hero-texte{position:relative;width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:22px;padding-block:72px}
+.hero-texte > *{max-width:560px}
 .hero-texte .eyebrow{color:var(--crema)}
-.hero h1{font-size:clamp(42px,5.4vw,86px);line-height:1.02}
-.hero h1 em{color:var(--crema)}
-.hero p{max-width:30ch;font-size:17px;color:rgba(247,243,236,.8)}
+.hero h1.hero-marque{font-size:clamp(46px,6.4vw,100px);line-height:1;letter-spacing:.3em;margin-right:-.3em;font-weight:400}
+.hero p{max-width:34ch;font-size:17px;color:rgba(247,243,236,.84)}
+.hero p.hero-annonce{font-family:var(--display);font-size:clamp(22px,2.2vw,30px);line-height:1.25;color:var(--avorio);max-width:22ch}
 .hero .actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px 30px;margin-top:6px}
 .hero .actions .lien{color:var(--crema)}
-.hero .n{font-family:var(--display);font-style:italic;font-size:15px;color:var(--crema);letter-spacing:.06em}
+.hero .compte{width:100%}
 
 /* Manifesto */
 .manifesto{padding-block:clamp(100px,14vw,190px);text-align:center}
@@ -335,10 +334,17 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .loupe{background:var(--avorio)}
 
 /* Collection : plusieurs pièces */
-.coll-rangee.produits{grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,28px)}
-.coll-carte.bientot .cadre{background:rgba(236,227,213,.55);display:grid;place-items:center}
-.coll-carte.bientot .cadre span{font-family:var(--display);font-size:clamp(22px,2.2vw,30px);color:var(--tabacco);letter-spacing:.06em}
-.coll-carte.bientot b{color:var(--tabacco)}
+.coll-une{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,90px);align-items:center;text-decoration:none}
+.coll-une > *{min-width:0}
+.coll-une .cadre{position:relative;aspect-ratio:4/5;max-height:70svh;width:100%}
+.coll-une img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:3% 6%;filter:drop-shadow(0 18px 24px rgba(58,37,25,.10));transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.coll-une .survol{opacity:0}
+.coll-une:hover .survol{opacity:1}
+.coll-une:hover img{transform:scale(1.02)}
+.coll-une .texte{display:grid;gap:18px;justify-items:start;max-width:40ch}
+.coll-une .texte b{font-family:var(--display);font-weight:400;font-size:clamp(32px,3.4vw,50px);line-height:1.06}
+.coll-une .texte p{color:rgba(58,37,25,.8)}
+.coll-une .prix{font-family:var(--display);font-size:24px}
 /* Page produit */
 .fil{display:flex;gap:10px;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);margin-bottom:clamp(28px,4vw,48px)}
 .fil a{text-decoration:none}
@@ -373,12 +379,14 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   .nav nav.gauche{display:none}
   .burger{display:inline-flex}
   .nav nav.droite a:not(.cta){display:none}
-  .hero-grid{grid-template-columns:1fr;min-height:0}
-  .hero-photo{position:absolute;inset:0;min-height:0}
-  .hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,20,13,0) 35%,rgba(33,20,13,.55) 62%,rgba(33,20,13,.92) 100%)}
-  .hero-texte{min-height:calc(100svh - var(--head) - 36px);max-height:860px;padding-block:48px 44px;padding-left:var(--gx);gap:20px}
-  .hero h1{font-size:clamp(40px,11vw,64px)}
+  /* Téléphone : la vidéo en haut, le texte commence sur son bas fondu */
+  .hero{--hv:min(118vw,620px);display:block;min-height:0}
+  .hero-video{bottom:auto;height:var(--hv);object-position:84% 50%}
+  .hero-voile{bottom:auto;height:var(--hv);background:linear-gradient(180deg,rgba(20,12,8,0) 55%,rgba(30,18,12,.85) 85%,var(--noce-scuro) 100%)}
+  .hero-texte{padding-top:calc(var(--hv) - 96px);padding-bottom:48px;gap:18px}
+  .hero h1.hero-marque{font-size:clamp(36px,11.5vw,64px)}
   .hero p{font-size:16px}
+  .hero p.hero-annonce{font-size:22px}
   .pourqui-grid,.nom-grid,.piece-grid,.dos,#numero,.pied,.circolo-grid{grid-template-columns:1fr}
   .pourqui figure{order:2}
   .piece-info{position:static}
@@ -397,7 +405,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   .v360-ui{left:var(--gx)}
   .v360-aide{display:none}
   .v360-outils{right:var(--gxr)}
-  .coll-rangee.produits{grid-template-columns:none}
+  .coll-une{grid-template-columns:1fr;gap:20px}
+  .coll-une .cadre{aspect-ratio:1/1}
   .vues{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:64px;overflow-x:auto;padding-left:var(--gx);padding-right:var(--gxr);scrollbar-width:none}
   .defile{display:block}
   .etapes{grid-template-columns:1fr;gap:30px;margin-top:56px}
@@ -466,26 +475,29 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 
 <main id="haut">
   <section class="hero">
-    <div class="hero-grid">
-      <div class="hero-photo"><img src="img/porte-face.jpg" alt="Jeune homme portant le Cardigan Noce de Nocelli, coloris chocolat"></div>
-      <div class="hero-texte">
-        <span class="eyebrow">Maison Nocelli · Prima Edizione</span>
-        <h1>Vêtements pour homme, <em>en séries numérotées.</em></h1>
-        <p>Première collection le mercredi 25 novembre à 19h00, heure suisse.</p>
-        <div class="actions">
-          <a class="btn clair" href="#collection">Découvrir la collection</a>
-          <a class="lien" href="#liste">M'inscrire</a>
+    <video class="hero-video" id="coffre" muted playsinline autoplay preload="auto" poster="img/coffre-debut.jpg" aria-hidden="true" tabindex="-1">
+      <source src="video/coffre.mp4" type="video/mp4">
+      <source src="video/coffre.webm" type="video/webm">
+    </video>
+    <div class="hero-voile" aria-hidden="true"></div>
+    <div class="wrap hero-texte">
+      <span class="eyebrow">Prima Edizione</span>
+      <h1 class="hero-marque">NOCELLI</h1>
+      <p class="hero-annonce">La collection d'automne est sur le point de sortir.</p>
+      <p>Pour commander, inscrivez-vous avec votre adresse e-mail.</p>
+      <div class="actions">
+        <a class="btn clair" href="#liste">M'inscrire</a>
+        <a class="lien" href="#collection">Découvrir la collection</a>
+      </div>
+      <div class="compte" data-compte>
+        <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mercredi 25 novembre · 19h00, heure suisse</span></div>
+        <div class="compte-grille" role="timer" aria-live="off">
+          <div><b data-u="j">--</b><span>Jours</span></div>
+          <div><b data-u="h">--</b><span>Heures</span></div>
+          <div><b data-u="m">--</b><span>Minutes</span></div>
+          <div><b data-u="s">--</b><span>Secondes</span></div>
         </div>
-        <div class="compte" data-compte>
-          <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mercredi 25 novembre · 19h00, heure suisse</span></div>
-          <div class="compte-grille" role="timer" aria-live="off">
-            <div><b data-u="j">--</b><span>Jours</span></div>
-            <div><b data-u="h">--</b><span>Heures</span></div>
-            <div><b data-u="m">--</b><span>Minutes</span></div>
-            <div><b data-u="s">--</b><span>Secondes</span></div>
-          </div>
-          <p class="compte-fin" hidden>La Prima Edizione est ouverte.</p>
-        </div>
+        <p class="compte-fin" hidden>La collection d'automne est ouverte.</p>
       </div>
     </div>
   </section>
@@ -495,7 +507,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <div class="filet"></div>
       <span class="eyebrow">La maison</span>
       <h2>Nocelli</h2>
-      <p>Des vêtements pour homme, en petites séries numérotées. Une coupe nette, une matière choisie, aucun logo à l'extérieur. Le nom vient de <em>noce</em>, le noyer en italien.</p>
+      <p>Des pièces en petites séries numérotées. Une coupe nette, une matière choisie, aucun logo à l'extérieur. Le nom vient de <em>noce</em>, le noyer en italien.</p>
     </div>
   </section>
 
@@ -504,11 +516,16 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <div class="coll-tete">
         <div><span class="eyebrow">Prima Edizione</span><h2>La collection</h2></div>
       </div>
-      <div class="coll-rangee produits">
-        <a class="coll-carte detoure" href="cardigan-noce.html"><div class="cadre"><img src="img/cardigan-face.webp" alt="Le Cardigan Noce vu de face"><img class="survol" src="img/cardigan-dos.webp" alt="" aria-hidden="true"></div><b>Le Cardigan Noce</b><span>Mérinos extrafin · Chocolat · CHF 139</span></a>
-        <div class="coll-carte bientot" aria-label="Prochaine pièce, bientôt"><div class="cadre"><span>N° 002</span></div><b>Prochaine pièce</b><span>Bientôt</span></div>
-        <div class="coll-carte bientot" aria-label="Prochaine pièce, bientôt"><div class="cadre"><span>N° 003</span></div><b>Prochaine pièce</b><span>Bientôt</span></div>
-      </div>
+      <a class="coll-une" href="cardigan-noce.html">
+        <div class="cadre"><img src="img/cardigan-face.webp" alt="Le Cardigan Noce vu de face"><img class="survol" src="img/cardigan-dos.webp" alt="" aria-hidden="true"></div>
+        <div class="texte">
+          <span class="eyebrow">La Maglia · N° 001</span>
+          <b>Le Cardigan Noce</b>
+          <p>Cardigan zippé en mérinos extrafin, coloris chocolat. 50 pièces, chacune numérotée au col.</p>
+          <span class="prix">CHF 139</span>
+          <span class="lien">Voir la pièce</span>
+        </div>
+      </a>
     </div>
   </section>
 
@@ -645,7 +662,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   // Apparition douce des photos et des titres
   if('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches){
     document.documentElement.classList.add('js');
-    var cibles=document.querySelectorAll('.coll-carte,.porte-rangee figure,.galerie figure,.coll-tete,.porte-tete,.details-tete,#maison .wrap,.cent .wrap > *');
+    var cibles=document.querySelectorAll('.coll-une .cadre,.coll-une .texte,.coll-carte,.porte-rangee figure,.galerie figure,.coll-tete,.porte-tete,.details-tete,#maison .wrap,.cent .wrap > *');
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vu');io.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
     cibles.forEach(function(c){c.classList.add('apparait');io.observe(c);});
   }
@@ -674,6 +691,18 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     if(liste)new IntersectionObserver(function(es){es.forEach(function(e){vis.liste=e.isIntersecting;});maj();},{threshold:0.05}).observe(liste);
   }
   maj();
+
+  // Coffre : joue une fois puis reste ouvert sur la dernière image
+  var coffre=document.getElementById('coffre');
+  if(coffre){
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+      // sans animation : on ne charge pas la vidéo, l'image du coffre ouvert reste affichée
+      coffre.removeAttribute('autoplay');coffre.pause();coffre.poster='img/coffre-fin.jpg';
+      while(coffre.firstChild)coffre.removeChild(coffre.firstChild);
+      coffre.removeAttribute('src');coffre.load();
+    }
+    else{var pr=coffre.play();if(pr&&pr.catch)pr.catch(function(){});}
+  }
 
   // Vues de la pièce et loupe
   var vue=document.getElementById('vue');
