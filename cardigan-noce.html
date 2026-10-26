@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Le Cardigan Noce · Nocelli</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Le Cardigan Noce de Nocelli : mérinos extrafin, 50 pièces numérotées au col, CHF 139. Ouverture le mercredi 25 novembre à 19h00, heure suisse.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="club/cartes.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Jost:wght@300;400;500&display=swap">
+<style>
+/* Layout: an Italian maison's lookbook. Wide margins, hairline rules, small spaced capitals, photographs given room to breathe. Ivory pages alternate with walnut bands. One warm look, deliberately, in every theme. */
+:root{
+  --avorio:#F7F3EC;      /* ivory page */
+  --sabbia:#ECE3D5;      /* sand */
+  --noce:#3A2519;        /* walnut, the cardigan */
+  --noce-scuro:#21140D;  /* dark walnut, bands */
+  --tabacco:#8A6C52;     /* tobacco, muted text */
+  --crema:#E4D1B0;       /* embroidery cream, accent on dark */
+  --filo:rgba(58,37,25,.16);     /* hairline on light */
+  --filo-scuro:rgba(228,209,176,.22); /* hairline on dark */
+  --display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --body:"Jost","Futura","Century Gothic","Helvetica Neue",Arial,sans-serif;
+  --gx:max(24px,env(safe-area-inset-left,0px));
+  --gxr:max(24px,env(safe-area-inset-right,0px));
+  --head:64px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;background:var(--avorio);-webkit-text-size-adjust:100%}
+body{background:var(--avorio);color:var(--noce);font-family:var(--body);font-weight:300;font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:1px solid var(--tabacco);outline-offset:4px}
+.wrap{max-width:1320px;margin:0 auto;padding-left:var(--gx);padding-right:var(--gxr)}
+.eyebrow{display:block;font-family:var(--body);font-weight:400;font-size:10.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--tabacco)}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:-.005em}
+h2{font-size:clamp(30px,3.4vw,48px);line-height:1.12}
+em{font-style:italic}
+p{margin:0}
+.lien{display:inline-flex;align-items:center;gap:12px;font-size:11px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;padding-block:6px;border-bottom:1px solid currentColor}
+.lien::after{content:"";width:22px;height:1px;background:currentColor;transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.lien:hover::after{width:40px}
+.btn{display:inline-flex;justify-content:center;align-items:center;font-family:var(--body);font-size:11px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;min-height:52px;padding:0 34px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer;transition:background .5s,color .5s,border-color .5s}
+.btn.plein{background:var(--noce);color:var(--avorio);border-color:var(--noce)}
+.btn.plein:hover{background:var(--noce-scuro);border-color:var(--noce-scuro)}
+.btn.clair{color:var(--avorio);border-color:rgba(247,243,236,.7)}
+.btn.clair:hover{background:var(--avorio);color:var(--noce);border-color:var(--avorio)}
+
+/* Annonce + header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--avorio)}
+.annonce{background:var(--noce-scuro);color:var(--crema);text-align:center;font-size:10px;letter-spacing:.32em;text-transform:uppercase;padding-block:10px;padding-left:var(--gx);padding-right:var(--gxr)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(247,243,236,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--filo)}
+.nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--head)}
+.nav nav{display:flex;gap:34px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase}
+.nav nav a{text-decoration:none;opacity:.75;transition:opacity .3s}
+.nav nav a:hover{opacity:1}
+.nav .droite{justify-content:flex-end}
+.marque{font-family:var(--display);font-size:21px;letter-spacing:.46em;margin-right:-.46em;text-decoration:none;text-align:center;white-space:nowrap}
+.burger{display:none;width:44px;height:44px;margin-left:-10px;background:none;border:0;cursor:pointer;padding:0;align-items:center;justify-content:center}
+.burger span{display:block;width:20px;height:1px;background:var(--noce);position:relative}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:20px;height:1px;background:var(--noce);transition:transform .4s}
+.burger span::before{top:-6px}.burger span::after{top:6px}
+.menu-ouvert .burger span{background:transparent}
+.menu-ouvert .burger span::before{transform:translateY(6px) rotate(45deg)}
+.menu-ouvert .burger span::after{transform:translateY(-6px) rotate(-45deg)}
+.menu{position:fixed;inset:0;z-index:15;background:var(--avorio);padding-top:calc(var(--head) + 90px + env(safe-area-inset-top,0px));padding-left:var(--gx);padding-right:var(--gxr);padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;justify-content:space-between}
+.menu ul{list-style:none;margin:0;padding:0;display:grid}
+.menu li a{display:block;font-family:var(--display);font-size:32px;line-height:1.2;text-decoration:none;padding-block:16px;border-bottom:1px solid var(--filo)}
+.menu p{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--tabacco)}
+
+/* Hero */
+.hero{position:relative;background:var(--noce-scuro);color:var(--avorio);overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;min-height:min(calc(100svh - var(--head) - 38px),900px)}
+.hero-photo{position:relative;overflow:hidden;min-height:520px}
+.hero-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 16%;animation:respiro 16s cubic-bezier(.2,.6,.2,1) both}
+@keyframes respiro{from{transform:scale(1.07)}to{transform:scale(1)}}
+.hero-texte{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:26px;padding-block:72px;padding-left:clamp(28px,5vw,88px);padding-right:var(--gxr)}
+.hero-texte .eyebrow{color:var(--crema)}
+.hero h1{font-size:clamp(42px,5.4vw,86px);line-height:1.02}
+.hero h1 em{color:var(--crema)}
+.hero p{max-width:30ch;font-size:17px;color:rgba(247,243,236,.8)}
+.hero .actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px 30px;margin-top:6px}
+.hero .actions .lien{color:var(--crema)}
+.hero .n{font-family:var(--display);font-style:italic;font-size:15px;color:var(--crema);letter-spacing:.06em}
+
+/* Manifesto */
+.manifesto{padding-block:clamp(100px,14vw,190px);text-align:center}
+.manifesto h2{font-size:clamp(30px,4.2vw,58px);line-height:1.16;max-width:19ch;margin:24px auto 0}
+.manifesto h2 em{color:var(--tabacco)}
+.manifesto p{max-width:54ch;margin:34px auto 0;color:rgba(58,37,25,.8)}
+.filet{width:1px;height:72px;background:var(--tabacco);margin:0 auto 28px;opacity:.5}
+
+/* Pour qui */
+.pourqui{background:var(--sabbia);padding-block:clamp(84px,11vw,160px)}
+.pourqui-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(40px,8vw,130px);align-items:center}
+.pourqui-grid > *{min-width:0}
+.pourqui figure{margin:0}
+.pourqui img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 20%}
+.pourqui figcaption{margin-top:14px;font-size:12px;letter-spacing:.06em;color:var(--tabacco)}
+.pourqui h2{margin-top:18px}
+.lignes{list-style:none;margin:44px 0 0;padding:0}
+.lignes li{font-family:var(--display);font-size:clamp(19px,1.7vw,23px);line-height:1.42;padding-block:22px;border-top:1px solid var(--filo)}
+.lignes li:last-child{border-bottom:1px solid var(--filo)}
+.lignes li span{display:block;font-family:var(--body);font-size:15px;color:var(--tabacco);margin-top:6px;line-height:1.6}
+
+/* Le nom */
+.nom{background:var(--noce);color:var(--avorio);padding-block:clamp(96px,13vw,180px);overflow:hidden}
+.nom-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(40px,6vw,96px);align-items:end}
+.nom-grid > *{min-width:0}
+.nom .eyebrow{color:var(--crema)}
+.mot{font-family:var(--display);font-size:clamp(68px,14vw,214px);line-height:.86;letter-spacing:-.02em;margin-top:26px}
+.mot i{color:var(--crema)}
+.phon{font-family:var(--display);font-style:italic;font-size:17px;color:var(--crema);margin-top:24px}
+.nom-texte{display:grid;gap:20px;color:rgba(247,243,236,.84);max-width:44ch}
+.nom-texte strong{font-weight:400;color:var(--avorio)}
+
+/* La pièce */
+.piece{padding-block:clamp(84px,11vw,160px)}
+.piece-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(40px,7vw,120px);align-items:start}
+.piece-grid > *{min-width:0}
+.piece-photos{display:grid;gap:14px}
+.piece-photo{background:#E9DFCF;margin:0}
+.piece-photo img{width:100%;mix-blend-mode:multiply}
+.piece-photo.mode360,.piece-photo.sans-fond{background:none}
+.piece-photo.mode360 .zoom,.piece-photo:not(.mode360) .v360{display:none}
+.piece-photo.sans-fond img{mix-blend-mode:normal;aspect-ratio:4/5;object-fit:contain;padding:5% 9%;filter:drop-shadow(0 22px 26px rgba(58,37,25,.09))}
+.piece-info{position:sticky;top:calc(var(--head) + 40px + env(safe-area-inset-top,0px))}
+.piece h2{font-size:clamp(34px,3.6vw,52px);line-height:1.08;margin-top:16px}
+.prix-ligne{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-top:18px}
+.montant{font-family:var(--display);font-size:28px;font-variant-numeric:tabular-nums}
+.montant small{font-family:var(--body);font-size:11px;letter-spacing:.22em;color:var(--tabacco);margin-left:6px}
+.prix-note{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--tabacco)}
+.piece .intro{margin-top:26px;max-width:46ch}
+.tailles-info{margin-top:30px}
+.tailles-info .chips{display:flex;gap:8px;margin-top:12px}
+.tailles-info .chips span{min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--filo);font-size:12px;letter-spacing:.18em}
+.piece .cta{display:grid;gap:12px;margin-top:30px}
+.piece .cta .btn{width:100%}
+.piece .cta small{font-size:12.5px;color:var(--tabacco);text-align:center}
+.fiche{margin-top:40px;border-top:1px solid var(--filo)}
+.fiche details{border-bottom:1px solid var(--filo)}
+.fiche summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:56px;font-size:11px;font-weight:400;letter-spacing:.26em;text-transform:uppercase}
+.fiche summary::-webkit-details-marker{display:none}
+.fiche summary::after{content:"+";font-family:var(--display);font-size:20px;font-weight:400;letter-spacing:0;color:var(--tabacco);transition:transform .3s}
+.fiche details[open] summary::after{transform:rotate(45deg)}
+.fiche dl{margin:0 0 22px;display:grid;grid-template-columns:auto 1fr;gap:10px 26px;font-size:15px}
+.fiche dt{color:var(--tabacco);font-size:13px}
+.fiche dd{margin:0}
+.fiche .texte{padding-bottom:22px;font-size:15px;max-width:46ch}
+
+/* Details */
+.details{background:var(--noce-scuro);color:var(--avorio);padding-block:clamp(84px,10vw,140px)}
+.details-tete{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:20px 40px;margin-bottom:48px}
+.details-tete .eyebrow{color:var(--crema)}
+.details h2{margin-top:14px}
+.details-tete p{max-width:38ch;color:rgba(247,243,236,.7)}
+.galerie{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.galerie figure{margin:0;min-width:0}
+.galerie .cadre{overflow:hidden}
+.galerie img{width:100%;object-fit:cover;aspect-ratio:16/10;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.galerie figure:hover img{transform:scale(1.04)}
+.galerie figcaption{margin-top:16px;display:grid;gap:2px}
+.galerie figcaption b{font-family:var(--display);font-weight:400;font-size:19px}
+.galerie figcaption span{font-size:14px;color:rgba(247,243,236,.62)}
+.g1,.g2,.g3,.g4,.g5,.g6{grid-column:span 2}
+.defile{display:none;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--crema);margin-top:22px}
+
+/* Citation */
+.dos{display:grid;grid-template-columns:1fr 1fr;background:var(--sabbia)}
+.dos > *{min-width:0}
+.dos img{width:100%;height:100%;object-fit:cover;object-position:50% 40%;max-height:860px}
+.dos-texte{display:flex;flex-direction:column;justify-content:center;gap:26px;padding-block:80px;padding-left:clamp(28px,7vw,110px);padding-right:var(--gxr)}
+.dos blockquote{margin:0;font-family:var(--display);font-size:clamp(34px,4.2vw,62px);line-height:1.1}
+.dos blockquote em{color:var(--tabacco)}
+.dos-texte p{max-width:40ch}
+#numero{grid-template-columns:1.15fr .85fr;background:var(--noce-scuro);color:var(--avorio)}
+.teaser{margin:0;display:grid;place-items:center;background:#0d0806;padding-block:clamp(0px,4vw,56px)}
+#numero .teaser img{display:block;width:min(560px,86%);height:auto;max-height:none;aspect-ratio:auto;object-fit:contain}
+#numero .eyebrow{color:var(--crema)}
+#numero blockquote em{color:var(--crema)}
+#numero .dos-texte p{color:rgba(247,243,236,.8)}
+#numero .lien{color:var(--crema)}
+
+/* Cinquante */
+.cent{padding-block:clamp(96px,13vw,180px);background:var(--sabbia);text-align:center}
+.chiffre{font-family:var(--display);font-size:clamp(130px,24vw,320px);line-height:.8;letter-spacing:-.04em}
+.chiffre sup{font-size:.15em;letter-spacing:.2em;vertical-align:top;position:relative;top:.6em;color:var(--tabacco);font-style:italic}
+.cent h2{font-size:clamp(28px,3.2vw,44px);margin-top:40px}
+.cent p{max-width:54ch;margin:22px auto 0}
+.etapes{display:grid;grid-template-columns:repeat(3,1fr);max-width:1000px;margin:70px auto 0;padding:0;text-align:left}
+.etapes li{list-style:none;padding:28px 28px 0;border-left:1px solid var(--filo)}
+.etapes b{display:block;font-family:var(--display);font-weight:400;font-style:italic;font-size:15px;color:var(--tabacco)}
+.etapes strong{display:block;font-family:var(--display);font-weight:400;font-size:23px;margin-top:6px}
+.etapes span{display:block;font-size:15px;margin-top:8px;color:rgba(58,37,25,.78)}
+
+/* Liste privée */
+.liste{position:relative;background:var(--noce-scuro);color:var(--avorio);overflow:hidden}
+.liste-fond{position:absolute;inset:0;background:url(img/d-maille.jpg) center/cover;opacity:.3}
+.liste-in{position:relative;padding-block:clamp(96px,12vw,170px);display:grid;justify-items:center;text-align:center}
+.liste .eyebrow{color:var(--crema)}
+.liste h2{font-size:clamp(36px,4.8vw,68px);line-height:1.05;margin-top:20px;max-width:16ch}
+.liste .sous{max-width:46ch;margin-top:22px;color:rgba(247,243,236,.8)}
+form{margin-top:48px;width:100%;max-width:620px;display:grid;grid-template-columns:1fr 1fr;gap:26px 22px;text-align:left}
+form .full{grid-column:1/-1}
+label{display:block;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--crema);margin-bottom:6px}
+input{width:100%;font:inherit;font-size:16px;color:var(--avorio);background:transparent;border:0;border-bottom:1px solid rgba(228,209,176,.5);padding:12px 0;border-radius:0;-webkit-appearance:none;appearance:none}
+input::placeholder{color:rgba(247,243,236,.38)}
+input:focus{outline:none;border-bottom-color:var(--crema)}
+.tailles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.tailles label{margin:0;cursor:pointer;position:relative}
+.tailles input{position:absolute;opacity:0;width:1px;height:1px}
+.tailles span{display:flex;align-items:center;justify-content:center;height:50px;border:1px solid rgba(228,209,176,.4);font-size:12px;letter-spacing:.22em;color:var(--avorio);transition:background .3s,color .3s}
+.tailles input:checked + span{background:var(--crema);color:var(--noce-scuro);border-color:var(--crema)}
+.tailles input:focus-visible + span{outline:1px solid var(--crema);outline-offset:3px}
+form .btn{width:100%}
+.erreur{font-size:14px;color:var(--crema);min-height:1.4em;margin-bottom:-14px}
+.merci{margin-top:48px;max-width:520px;border:1px solid var(--filo-scuro);padding:44px 32px}
+.merci h3{font-size:30px;margin-top:10px}
+.merci p{margin-top:14px;color:rgba(247,243,236,.8)}
+.mention{margin-top:30px;font-size:12.5px;color:rgba(247,243,236,.55);max-width:56ch}
+
+footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var(--filo)}
+.pied{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:40px}
+.pied > *{min-width:0}
+.pied .marque{text-align:left;display:block;font-size:24px}
+.pied p{font-size:14px;color:var(--tabacco);margin-top:16px;max-width:34ch}
+.pied h4{margin:0 0 14px;font-weight:400;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco)}
+.pied ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+.pied ul a{text-decoration:none}
+.bas{margin-top:60px;padding-top:22px;border-top:1px solid var(--filo);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:11.5px;letter-spacing:.08em;color:var(--tabacco)}
+
+/* Compte à rebours */
+.compte{margin-top:8px;max-width:440px;border-top:1px solid var(--filo-scuro);padding-top:20px}
+.compte-tete{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;align-items:baseline}
+.compte-tete .eyebrow{color:var(--crema)}
+.compte-date{font-family:var(--display);font-style:italic;font-size:15px;color:rgba(247,243,236,.8)}
+.compte-grille{display:grid;grid-template-columns:repeat(4,1fr);margin-top:14px}
+.compte-grille div{display:grid;justify-items:start;gap:2px;padding-right:10px}
+.compte-grille div + div{border-left:1px solid var(--filo-scuro);padding-left:16px}
+.compte-grille b{font-family:var(--display);font-weight:400;font-size:clamp(30px,3.2vw,44px);line-height:1;font-variant-numeric:tabular-nums lining-nums;color:var(--avorio)}
+.compte-grille span{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--crema)}
+.compte-fin{font-family:var(--display);font-size:22px;color:var(--crema);margin-top:12px}
+.compte-liste{margin:40px auto 0;width:100%;max-width:520px;text-align:left}
+.compte-liste .compte-grille div{justify-items:center;padding-right:0}
+.compte-liste .compte-grille div + div{padding-left:0}
+
+/* Private Club (aperçu, la page complète est club.html) */
+.circolo{background:var(--sabbia);padding-block:clamp(90px,12vw,170px)}
+.circolo-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(48px,8vw,130px);align-items:center}
+.circolo-grid > *{min-width:0}
+.club-cartes{position:relative;aspect-ratio:1.25/1;max-width:560px;width:100%;justify-self:center}
+.club-cartes .carte{position:absolute;width:72%;left:14%;top:26%}
+.club-cartes .carte:nth-child(1){transform:translate(-10%,-22%) rotate(-7deg)}
+.club-cartes .carte:nth-child(2){transform:translate(10%,14%) rotate(3deg)}
+.circolo h2{margin-top:18px}
+.circolo .chapo{margin-top:22px;max-width:44ch}
+.formules-mini{list-style:none;margin:34px 0 0;padding:0;border-top:1px solid var(--filo)}
+.formules-mini li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-block:18px;border-bottom:1px solid var(--filo)}
+.formules-mini strong{font-family:var(--display);font-weight:400;font-size:21px;line-height:1.3}
+.formules-mini span{display:block;font-size:14px;color:rgba(58,37,25,.75)}
+.formules-mini b{font-family:var(--display);font-weight:400;font-size:19px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.circolo .actions{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;margin-top:30px}
+
+/* Collection, porté, galerie produit */
+.collection{padding-block:clamp(72px,8vw,120px)}
+.coll-tete,.porte-tete{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px 40px;margin-bottom:34px}
+.coll-tete h2,.porte-tete h2{margin-top:12px}
+.porte-tete h2 em{color:var(--tabacco)}
+.coll-rangee{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.coll-carte{text-decoration:none;min-width:0;display:grid;gap:4px}
+.coll-carte .cadre{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EEE8DF;margin-bottom:12px}
+.coll-carte img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.coll-carte .survol{opacity:0}
+.coll-carte.etiq .cadre{background:#1E120C}
+.coll-carte.etiq img{object-fit:contain}
+.coll-carte:hover .survol{opacity:1}
+.coll-carte:hover img{transform:scale(1.03)}
+.coll-carte b{font-family:var(--display);font-weight:400;font-size:19px}
+.coll-carte span{font-size:13.5px;color:var(--tabacco)}
+.porte{background:var(--sabbia);padding-block:clamp(72px,8vw,120px)}
+.porte-rangee{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.porte-rangee figure{margin:0;min-width:0}
+.porte-rangee img{width:100%;aspect-ratio:166/195;object-fit:cover}
+.porte-rangee figcaption{margin-top:12px;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco)}
+.zoom{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
+.vues{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.vues button{padding:0;border:1px solid transparent;background:#EEE8DF;cursor:pointer;aspect-ratio:1/1;overflow:hidden}
+.vues button.actif{border-color:var(--noce)}
+.vues img{width:100%;height:100%;object-fit:cover}
+.loupe{border:0;padding:0;width:min(96vw,1100px);height:min(94svh,1100px);max-width:none;max-height:none;background:#EEE8DF}
+.loupe::backdrop{background:rgba(33,20,13,.7)}
+.loupe img{width:100%;height:100%;object-fit:contain;cursor:zoom-out}
+.loupe .fermer{position:absolute;top:10px;right:14px;margin:0;z-index:1}
+
+/* Apparition douce au défilement */
+.js .apparait{opacity:0;transform:translateY(22px);transition:opacity 1.2s cubic-bezier(.2,.7,.2,1),transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.js .apparait.vu{opacity:1;transform:none}
+.coll-rangee .apparait:nth-child(2),.porte-rangee .apparait:nth-child(2),.galerie .apparait:nth-child(2){transition-delay:.12s}
+.coll-rangee .apparait:nth-child(3),.porte-rangee .apparait:nth-child(3),.galerie .apparait:nth-child(3){transition-delay:.24s}
+.coll-rangee .apparait:nth-child(4){transition-delay:.36s}
+
+/* Cardigan détouré et visionneuse 360° */
+.coll-carte.detoure .cadre{background:none;overflow:visible}
+.coll-carte.detoure img{object-fit:contain;padding:8% 7% 6%;filter:drop-shadow(0 16px 20px rgba(58,37,25,.09))}
+.vues button.detoure{background:none}
+.vues button.detoure img{object-fit:contain;padding:6px}
+.v360-vignette{position:relative}
+.v360-vignette span{position:absolute;left:0;right:0;bottom:3px;font-size:8.5px;letter-spacing:.16em;color:var(--tabacco);text-align:center}
+.v360{position:relative;aspect-ratio:4/5;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.v360 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab;opacity:0;transition:opacity .9s ease;outline:none;filter:drop-shadow(0 22px 26px rgba(58,37,25,.09))}
+.v360.saisi canvas{cursor:grabbing}
+.v360.zoome canvas{cursor:move;touch-action:none;-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent);mask-composite:intersect}
+.v360.pret.zoome .v360-ui{opacity:0}
+.v360.zoome canvas{filter:none}
+.v360.pret canvas{opacity:1}
+.v360 .v360-repos{mix-blend-mode:normal;position:absolute;top:50%;left:50%;height:89%;width:auto;max-width:none;transform:translate(-50%,-50%);transition:opacity .9s ease;filter:drop-shadow(0 22px 26px rgba(58,37,25,.09));pointer-events:none}
+.v360.pret .v360-repos{opacity:0}
+.v360-ui,.v360-outils{position:absolute;bottom:0;display:flex;align-items:center;gap:14px;opacity:0;transition:opacity .8s ease .3s}
+.v360.pret .v360-ui,.v360.pret .v360-outils{opacity:1}
+.v360-ui{left:0;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);pointer-events:none}
+.v360-tag{border:1px solid rgba(138,108,82,.55);border-radius:999px;padding:4px 10px 4px 12px;letter-spacing:.18em}
+.v360-aide{transition:opacity .6s ease}
+.v360.touche .v360-aide{opacity:0}
+.v360-outils{right:0}
+.v360-face{font:inherit;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);background:none;border:0;padding:8px 0;cursor:pointer}
+.v360-face:hover{color:var(--noce)}
+.v360-loupe{position:relative;width:32px;height:32px;border:1px solid rgba(58,37,25,.3);border-radius:50%;background:none;cursor:pointer;padding:0}
+.v360-loupe::before,.v360-loupe::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1px;background:var(--noce);transform:translate(-50%,-50%)}
+.v360-loupe::after{transform:translate(-50%,-50%) rotate(90deg);transition:transform .35s ease}
+.v360.zoome .v360-loupe::after{transform:translate(-50%,-50%) rotate(0deg)}
+.loupe{background:var(--avorio)}
+
+/* Collection : plusieurs pièces */
+.coll-rangee.produits{grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,28px)}
+.coll-carte.bientot .cadre{background:rgba(236,227,213,.55);display:grid;place-items:center}
+.coll-carte.bientot .cadre span{font-family:var(--display);font-size:clamp(22px,2.2vw,30px);color:var(--tabacco);letter-spacing:.06em}
+.coll-carte.bientot b{color:var(--tabacco)}
+/* Page produit */
+.fil{display:flex;gap:10px;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);margin-bottom:clamp(28px,4vw,48px)}
+.fil a{text-decoration:none}
+.fil a:hover{color:var(--noce)}
+.page-produit .piece{padding-top:clamp(36px,5vw,64px)}
+.piece h1.titre-piece{font-size:clamp(34px,3.6vw,52px);line-height:1.08;margin-top:16px}
+
+/* Guide des tailles */
+.tailles-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.guide-lien{background:none;border:0;padding:4px 0;cursor:pointer;font-family:var(--body);font-size:12.5px;text-decoration:underline;text-underline-offset:3px;color:inherit}
+.form-guide{justify-self:start;margin-top:-12px;color:var(--crema)}
+.guide{border:0;padding:0;width:min(640px,calc(100% - 32px));max-height:calc(100svh - 48px);background:var(--avorio);color:var(--noce)}
+.guide::backdrop{background:rgba(33,20,13,.55)}
+.guide-in{padding:clamp(24px,4vw,44px)}
+.guide-tete{display:flex;justify-content:space-between;align-items:start;gap:16px}
+.guide h2{font-size:30px;line-height:1.1}
+.guide h3{font-family:var(--body);font-size:10.5px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);margin:26px 0 8px}
+.fermer{background:none;border:0;font-size:28px;line-height:1;cursor:pointer;width:44px;height:44px;margin:-8px -10px 0 0;color:var(--noce)}
+.guide-intro{font-size:14px;margin-top:12px}
+.guide-note{color:var(--tabacco);font-size:12.5px;margin-top:10px}
+.guide table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums lining-nums}
+.guide th,.guide td{padding:9px 6px;border-bottom:1px solid var(--filo);text-align:center;font-weight:300}
+.guide thead th{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:400}
+.guide tbody th{text-align:left;font-weight:400}
+.guide thead th:first-child{text-align:left}
+
+/* Barre de réservation (téléphone) */
+.barre{display:none}
+
+@media (max-width:960px){
+  :root{--head:58px;--gx:max(20px,env(safe-area-inset-left,0px));--gxr:max(20px,env(safe-area-inset-right,0px))}
+  .nav nav.gauche{display:none}
+  .burger{display:inline-flex}
+  .nav nav.droite a:not(.cta){display:none}
+  .hero-grid{grid-template-columns:1fr;min-height:0}
+  .hero-photo{position:absolute;inset:0;min-height:0}
+  .hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(33,20,13,0) 35%,rgba(33,20,13,.55) 62%,rgba(33,20,13,.92) 100%)}
+  .hero-texte{min-height:calc(100svh - var(--head) - 36px);max-height:860px;padding-block:48px 44px;padding-left:var(--gx);gap:20px}
+  .hero h1{font-size:clamp(40px,11vw,64px)}
+  .hero p{font-size:16px}
+  .pourqui-grid,.nom-grid,.piece-grid,.dos,#numero,.pied,.circolo-grid{grid-template-columns:1fr}
+  .pourqui figure{order:2}
+  .piece-info{position:static}
+  .piece-photos{margin-left:calc(-1 * var(--gx));margin-right:calc(-1 * var(--gxr))}
+  .dos img{max-height:560px;aspect-ratio:1/1}
+  .teaser{padding-block:0}
+  .teaser{padding-block:56px}
+  .dos-texte{padding-left:var(--gx);padding-block:64px 80px}
+  .galerie{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:78%;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin-left:calc(-1 * var(--gx));margin-right:calc(-1 * var(--gxr));padding-left:var(--gx);padding-right:var(--gxr);scrollbar-width:none}
+  .galerie::-webkit-scrollbar{display:none}
+  .galerie figure{grid-column:auto;scroll-snap-align:start}
+  .galerie img{aspect-ratio:4/5}
+  .coll-rangee,.porte-rangee{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:76%;overflow-x:auto;scroll-snap-type:x mandatory;margin-left:calc(-1 * var(--gx));margin-right:calc(-1 * var(--gxr));padding-left:var(--gx);padding-right:var(--gxr);scrollbar-width:none}
+  .coll-rangee::-webkit-scrollbar,.porte-rangee::-webkit-scrollbar{display:none}
+  .coll-carte,.porte-rangee figure{scroll-snap-align:start}
+  .v360-ui{left:var(--gx)}
+  .v360-aide{display:none}
+  .v360-outils{right:var(--gxr)}
+  .coll-rangee.produits{grid-template-columns:none}
+  .vues{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:64px;overflow-x:auto;padding-left:var(--gx);padding-right:var(--gxr);scrollbar-width:none}
+  .defile{display:block}
+  .etapes{grid-template-columns:1fr;gap:30px;margin-top:56px}
+  .etapes li{padding:0 0 0 22px}
+  .barre{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:12;align-items:center;justify-content:space-between;gap:14px;background:rgba(247,243,236,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--filo);padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:var(--gx);padding-right:var(--gxr);transform:translateY(0);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+  .barre.cachee{transform:translateY(110%)}
+  .barre .t{display:grid;line-height:1.3;min-width:0}
+  .barre .t b{font-family:var(--display);font-weight:400;font-size:16px;white-space:nowrap}
+  .barre .t span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tabacco);white-space:nowrap}
+  .barre .btn{min-height:46px;padding:0 20px;flex:none}
+  footer{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:520px){
+  body{font-size:15.5px}
+  .annonce{font-size:9.5px;letter-spacing:.2em}
+  .marque{font-size:18px;letter-spacing:.36em;margin-right:-.36em}
+  .nav nav.droite .cta{font-size:10px;letter-spacing:.2em}
+  .hero .actions .btn{width:100%}
+  .hero .actions .lien{display:none}
+  .compte-grille div + div{padding-left:12px}
+  form{grid-template-columns:1fr}
+  .fiche dl{grid-template-columns:1fr;gap:2px}
+  .fiche dd{margin-bottom:10px}
+  .lignes li{padding-block:18px}
+  .manifesto h2{font-size:30px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+
+
+<div class="annonce">Prima Edizione &nbsp;·&nbsp; 50 pièces numérotées &nbsp;·&nbsp; Ouverture le 25 novembre à 19h</div>
+
+<header>
+  <div class="wrap nav">
+    <div style="display:flex;align-items:center">
+      <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><span></span></button>
+      <nav class="gauche" aria-label="Sections">
+        <a href="index.html#collection">Collection</a>
+        <a href="club.html">Private Club</a>
+      </nav>
+    </div>
+    <a class="marque" href="index.html">NOCELLI</a>
+    <nav class="droite" aria-label="Liste privée">
+      <a href="index.html#maison">La maison</a>
+      <a class="cta" href="index.html#liste">Liste privée</a>
+    </nav>
+  </div>
+</header>
+
+<div class="menu" id="menu" hidden>
+  <ul>
+    <li><a href="index.html#collection">Collection</a></li>
+    <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
+    <li><a href="index.html#maison">La maison</a></li>
+    <li><a href="index.html#liste">Liste privée</a></li>
+    <li><a href="club.html">Private Club</a></li>
+    <li><a href="membre.html">Mon compte</a></li>
+  </ul>
+  <p>Prima Edizione · Ouverture le 25 novembre</p>
+</div>
+
+<main id="haut" class="page-produit">
+  <section class="piece" id="piece">
+    <nav class="wrap fil" aria-label="Fil d'Ariane"><a href="index.html#collection">Collection</a><span aria-hidden="true">/</span><span>Le Cardigan Noce</span></nav>
+    <div class="wrap piece-grid">
+      <div class="piece-photos">
+        <figure class="piece-photo mode360">
+          <div class="v360" id="v360">
+            <img class="v360-repos" src="img/cardigan-face.webp" alt="Le Cardigan Noce vu de face">
+            <canvas tabindex="0" aria-label="Le Cardigan Noce en 360° : faites glisser pour le tourner, ou utilisez les flèches gauche et droite"></canvas>
+            <div class="v360-ui" aria-hidden="true"><span class="v360-tag">360°</span><span class="v360-aide">Glisser pour tourner</span></div>
+            <div class="v360-outils"><button type="button" class="v360-face">Vue de face</button><button type="button" class="v360-loupe" aria-label="Agrandir"></button></div>
+          </div>
+          <button type="button" class="zoom" id="zoom-ouvrir" aria-label="Agrandir la photo"><img id="vue" src="img/cardigan-dos.webp" alt="Le Cardigan Noce vu de dos"></button>
+        </figure>
+        <div class="vues" aria-label="Autres vues">
+          <button type="button" class="actif detoure v360-vignette" data-mode="360"><img src="img/cardigan-face.webp" alt="Vue 360°"><span aria-hidden="true">360°</span></button>
+          <button type="button" class="detoure" data-src="img/cardigan-dos.webp" data-alt="Le Cardigan Noce vu de dos"><img src="img/cardigan-dos.webp" alt="Dos"></button>
+          <button type="button" data-src="img/d-col.jpg" data-alt="Gros plan sur le col montant"><img src="img/d-col.jpg" alt="Col"></button>
+          <button type="button" data-src="img/d-etiquette.jpg" data-alt="Gros plan sur l'étiquette NOCELLI N° 01 / 50"><img src="img/d-etiquette.jpg" alt="Étiquette"></button>
+          <button type="button" data-src="img/d-poignet.jpg" data-alt="Gros plan sur le poignet en côte"><img src="img/d-poignet.jpg" alt="Finitions"></button>
+        </div>
+      </div>
+      <div class="piece-info">
+        <span class="eyebrow">La Maglia · N° 001</span>
+        <h1 class="titre-piece">Le Cardigan Noce</h1>
+        <div class="prix-ligne">
+          <span class="montant">CHF 139</span>
+          <span class="prix-note">TVA incluse · Coloris chocolat</span>
+        </div>
+        <p class="intro">Cardigan zippé en mérinos extrafin, coupe ajustée. Sans logo à l'extérieur, numéroté au col.</p>
+        <div class="tailles-info">
+          <div class="tailles-tete"><span class="eyebrow">Tailles</span><button type="button" class="guide-lien" data-guide>Comment choisir ma taille ?</button></div>
+          <div class="chips" aria-label="Tailles disponibles"><span>S</span><span>M</span><span>L</span></div>
+        </div>
+        <div class="cta">
+          <a class="btn plein" href="index.html#liste">M'inscrire</a>
+          <small>Gratuit. Aucun paiement maintenant.</small>
+        </div>
+        <div class="fiche">
+          <details open>
+            <summary>Matière et façon</summary>
+            <dl>
+              <dt>Matière</dt><dd>100 % laine mérinos extrafine, 18,5 à 19,5 microns, douce, ne gratte pas</dd>
+              <dt>Maille</dt><dd>Jersey uni 12 jauges, 280 à 320 g/m², léger et respirant</dd>
+              <dt>Traitement</dt><dd>Anti-boulochage et anti-feutrage</dd>
+              <dt>Col</dt><dd>Montant, en côte doublée, 7 cm, légèrement conique</dd>
+              <dt>Fermeture</dt><dd>Zip métal à double curseur, tirettes lisses</dd>
+              <dt>Manches</dt><dd>Montées, entièrement diminuées, épaule naturelle</dd>
+              <dt>Poches</dt><dd>Aucune</dd>
+              <dt>Finitions</dt><dd>Poignets 7 cm et bas 6 cm en côte</dd>
+              <dt>Coupe</dt><dd>Ajustée, près du corps sans serrer</dd>
+            </dl>
+          </details>
+          <details>
+            <summary>Le numéro</summary>
+            <p class="texte">Aucun logo à l'extérieur. Une étiquette tissée beige à l'intérieur du col porte NOCELLI et le numéro de votre pièce, de N° 01 / 50 à N° 50 / 50. Coloris chocolat, teint en un seul bain pour les 50 pièces.</p>
+          </details>
+          <details>
+            <summary>Livraison</summary>
+            <p class="texte">Livraison en Suisse en une semaine après l'ouverture. Prix en CHF, TVA incluse.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="details">
+    <div class="wrap">
+      <div class="details-tete">
+        <div>
+          <span class="eyebrow">I Dettagli</span>
+          <h2>Ce qu'on ne voit qu'en s'approchant.</h2>
+        </div>
+      </div>
+      <div class="galerie">
+        <figure class="g1"><div class="cadre"><img src="img/dt-col.jpg" alt="Col montant en côte doublée"></div><figcaption><b>Le col</b><span>Montant, en côte doublée, 7 cm.</span></figcaption></figure>
+        <figure class="g2"><div class="cadre"><img src="img/dt-zip.jpg" alt="Zip métal à double curseur, tirettes lisses"></div><figcaption><b>Le zip</b><span>Métal, double curseur, tirettes lisses.</span></figcaption></figure>
+        <figure class="g3"><div class="cadre"><img src="img/dt-manche.jpg" alt="Épaule et manche montée"></div><figcaption><b>L'épaule</b><span>Naturelle, manche montée sans épaulette.</span></figcaption></figure>
+        <figure class="g4"><div class="cadre"><img src="img/dt-etiquette.jpg" alt="Étiquette tissée beige au col : NOCELLI, N° 01 / 50"></div><figcaption><b>Le numéro</b><span>Seule marque NOCELLI, à l'intérieur du col.</span></figcaption></figure>
+        <figure class="g5"><div class="cadre"><img src="img/dt-poignet.jpg" alt="Poignet en côte"></div><figcaption><b>Les finitions</b><span>Poignets et bas en côte, nets et plats.</span></figcaption></figure>
+        <figure class="g6"><div class="cadre"><img src="img/dt-maille.jpg" alt="Gros plan sur la maille jersey unie"></div><figcaption><b>La maille</b><span>Mérinos extrafin, jersey uni 12 jauges.</span></figcaption></figure>
+      </div>
+      <p class="defile">Faites glisser pour voir les détails</p>
+    </div>
+  </section>
+
+  <section class="porte" id="porte">
+    <div class="wrap">
+      <div class="porte-tete">
+        <span class="eyebrow">Porté</span>
+        <h2>Ajusté près du corps, <em>jamais serré.</em></h2>
+      </div>
+      <div class="porte-rangee">
+        <figure><img src="img/tp-fit-face.jpg" alt="Le cardigan porté, de face, sur un t-shirt blanc et un pantalon clair"><figcaption>De face</figcaption></figure>
+        <figure><img src="img/tp-fit-cote.jpg" alt="Le cardigan porté, de côté"><figcaption>De côté</figcaption></figure>
+        <figure><img src="img/tp-fit-dos.jpg" alt="Le cardigan porté, de dos"><figcaption>De dos</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="dos" id="numero">
+    <figure class="teaser">
+      <img src="img/d-etiquette.jpg" alt="Étiquette tissée au col : NOCELLI, N° 01 / 50">
+    </figure>
+    <div class="dos-texte">
+      <span class="eyebrow">Il Numero</span>
+      <blockquote>50 pièces, <em>chacune numérotée au col.</em></blockquote>
+      <p>Pas de logo à l'extérieur. Votre numéro, de 01 à 50, est sur l'étiquette tissée à l'intérieur du col.</p>
+      <div><a class="lien" href="index.html#liste">M'inscrire</a></div>
+    </div>
+  </section>
+
+  <section class="cent" id="cent">
+    <div class="wrap">
+      <span class="eyebrow">Edizione Limitata</span>
+      <div class="chiffre" aria-label="50 pièces">50<sup>pièces</sup></div>
+      <h2>Cinquante pièces. Chacune porte son numéro.</h2>
+      <p>Trois tailles, S, M et L. Les inscrits reçoivent le lien de commande en premier.</p>
+      <ol class="etapes">
+        <li><b>I.</b><strong>La liste privée</strong><span>Inscrivez-vous. C'est gratuit et sans engagement.</span></li>
+        <li><b>II.</b><strong>L'ouverture</strong><span>Mercredi 25 novembre à 19h00, heure suisse. Vous recevez le lien en premier.</span></li>
+        <li><b>III.</b><strong>Votre numéro</strong><span>Cinquante pièces au total, livrées en Suisse en une semaine.</span></li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<dialog class="guide" id="guide" aria-labelledby="guide-titre">
+  <div class="guide-in">
+    <div class="guide-tete"><h2 id="guide-titre">Comment choisir ma taille</h2><button type="button" class="fermer" data-fermer aria-label="Fermer">×</button></div>
+    <p class="guide-intro">Mesurez votre tour de poitrine sous les bras, ruban bien à plat. Le cardigan est ajusté, avec environ 8 cm d'aisance à la poitrine.</p>
+    <h3>Votre taille idéale</h3>
+    <table>
+      <thead><tr><th scope="col">Votre tour de poitrine</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr></thead>
+      <tbody><tr><th scope="row">Taille conseillée</th><td>91 à 95 cm</td><td>96 à 100 cm</td><td>101 à 105 cm</td></tr></tbody>
+    </table>
+    <p class="guide-note">Entre deux tailles : prenez la plus grande pour plus d'aisance, la plus petite pour une coupe près du corps.</p>
+    <h3>Mesures du vêtement (cm)</h3>
+    <table>
+      <thead><tr><th scope="col">Mesure</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Tour de poitrine</th><td>101</td><td>106</td><td>111</td></tr>
+        <tr><th scope="row">Tour de taille</th><td>93</td><td>98</td><td>103</td></tr>
+        <tr><th scope="row">Tour du bas</th><td>88</td><td>93</td><td>98</td></tr>
+        <tr><th scope="row">Longueur, du haut de l'épaule</th><td>62</td><td>64</td><td>66</td></tr>
+        <tr><th scope="row">Largeur d'épaules</th><td>42,5</td><td>44</td><td>45,5</td></tr>
+        <tr><th scope="row">Longueur de manche</th><td>63</td><td>64</td><td>65</td></tr>
+        <tr><th scope="row">Tour de biceps</th><td>33,4</td><td>35</td><td>36,6</td></tr>
+        <tr><th scope="row">Hauteur du col</th><td>7</td><td>7</td><td>7</td></tr>
+      </tbody>
+    </table>
+    <p class="guide-note">Mesures prises à plat, multipliées par deux pour les tours. Tolérance ±1 cm. Valeurs à confirmer sur les prototypes.</p>
+  </div>
+</dialog>
+
+<dialog class="loupe" id="loupe" aria-label="Photo agrandie">
+  <button type="button" class="fermer" id="loupe-fermer" aria-label="Fermer">×</button>
+  <img id="loupe-img" src="img/tp-face.jpg" alt="">
+</dialog>
+
+<footer>
+  <div class="wrap">
+    <div class="pied">
+      <div>
+        <span class="marque">NOCELLI</span>
+        <p>Maille d'esprit italien, pensée en Suisse. Peu de pièces, faites pour durer.</p>
+      </div>
+      <div>
+        <h4>La maison</h4>
+        <ul>
+          <li><a href="index.html#maison">Nocelli</a></li>
+          <li><a href="index.html#collection">La collection</a></li>
+          <li><a href="club.html">Nocelli Private Club</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Prima Edizione</h4>
+        <ul>
+          <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
+          <li><a href="index.html#liste">Liste privée</a></li>
+          <li>Livraison en Suisse</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bas"><span>© 2026 Nocelli · nocelli.ch</span><span>Prix en CHF, TVA incluse</span></div>
+  </div>
+</footer>
+
+<div class="barre" id="barre">
+  <div class="t"><b>Cardigan Noce</b><span data-barre>CHF 139 · 50 pièces</span></div>
+  <a class="btn plein" href="index.html#liste">M'inscrire</a>
+</div>
+
+<script src="js/v360.js"></script>
+<script src="club/vendor/qrcode.js"></script>
+<script src="club/cartes.js"></script>
+<script>
+(function(){
+  var body=document.body;
+  // Apparition douce des photos et des titres
+  if('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.documentElement.classList.add('js');
+    var cibles=document.querySelectorAll('.coll-carte,.porte-rangee figure,.galerie figure,.coll-tete,.porte-tete,.details-tete,#maison .wrap,.cent .wrap > *');
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vu');io.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
+    cibles.forEach(function(c){c.classList.add('apparait');io.observe(c);});
+  }
+  var burger=document.getElementById('burger');
+  var menu=document.getElementById('menu');
+  function setMenu(open){
+    menu.hidden=!open;
+    body.classList.toggle('menu-ouvert',open);
+    body.style.overflow=open?'hidden':'';
+    burger.setAttribute('aria-expanded',open?'true':'false');
+    burger.setAttribute('aria-label',open?'Fermer le menu':'Ouvrir le menu');
+  }
+  burger.addEventListener('click',function(){setMenu(menu.hidden);});
+  menu.addEventListener('click',function(e){if(e.target.closest('a'))setMenu(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!menu.hidden)setMenu(false);});
+
+  // La barre de réservation se cache sur l'écran d'accueil et sur la liste privée
+  // (sur la page produit : cachée tant que le bouton de la fiche est visible)
+  var barre=document.getElementById('barre');
+  var hero=document.querySelector('.hero')||document.querySelector('.piece .cta');
+  var liste=document.getElementById('liste');
+  var vis={hero:true,liste:false};
+  function maj(){barre.classList.toggle('cachee',vis.hero||vis.liste);}
+  if('IntersectionObserver' in window){
+    if(hero)new IntersectionObserver(function(es){es.forEach(function(e){vis.hero=e.isIntersecting||e.boundingClientRect.top>0;});maj();},{threshold:0.15}).observe(hero);
+    if(liste)new IntersectionObserver(function(es){es.forEach(function(e){vis.liste=e.isIntersecting;});maj();},{threshold:0.05}).observe(liste);
+  }
+  maj();
+
+  // Vues de la pièce et loupe
+  var vue=document.getElementById('vue');
+  var vues=document.querySelectorAll('.vues button');
+  var cadre=document.querySelector('.piece-photo');
+  if(cadre)vues.forEach(function(b){b.addEventListener('click',function(){
+    var m360=b.dataset.mode==='360';
+    cadre.classList.toggle('mode360',m360);
+    cadre.classList.toggle('sans-fond',!m360&&b.classList.contains('detoure'));
+    if(!m360){vue.src=b.dataset.src;vue.alt=b.dataset.alt;}
+    vues.forEach(function(x){x.classList.toggle('actif',x===b);});
+  });});
+  if(window.NocelliV360&&document.getElementById('v360'))NocelliV360(document.getElementById('v360'),'img/360/');
+  var loupe=document.getElementById('loupe'),loupeImg=document.getElementById('loupe-img');
+  if(loupe){
+    document.getElementById('zoom-ouvrir').addEventListener('click',function(){loupeImg.src=vue.src;loupeImg.alt=vue.alt;if(loupe.showModal)loupe.showModal();});
+    loupe.addEventListener('click',function(){loupe.close();});
+  }
+
+  // Guide des tailles
+  var guide=document.getElementById('guide');
+  document.querySelectorAll('[data-guide]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();if(guide.showModal)guide.showModal();else guide.setAttribute('open','');});});
+  guide.querySelector('[data-fermer]').addEventListener('click',function(){if(guide.close)guide.close();else guide.removeAttribute('open');});
+  guide.addEventListener('click',function(e){if(e.target===guide)guide.close();});
+
+  // Compte à rebours : 25 novembre 2026, 19h00 à Zurich (CET, UTC+1) = 18h00 UTC
+  var DROP=Date.UTC(2026,10,25,18,0,0);
+  var comptes=document.querySelectorAll('[data-compte]');
+  var barreTxt=document.querySelector('[data-barre]');
+  function deux(n){return (n<10?'0':'')+n;}
+  function tick(){
+    var r=Math.max(0,DROP-Date.now());
+    var j=Math.floor(r/864e5),h=Math.floor(r/36e5)%24,m=Math.floor(r/6e4)%60,sec=Math.floor(r/1e3)%60;
+    comptes.forEach(function(c){
+      if(r===0){c.querySelector('.compte-grille').hidden=true;c.querySelector('.compte-fin').hidden=false;return;}
+      c.querySelector('[data-u=j]').textContent=j;
+      c.querySelector('[data-u=h]').textContent=deux(h);
+      c.querySelector('[data-u=m]').textContent=deux(m);
+      c.querySelector('[data-u=s]').textContent=deux(sec);
+    });
+    var pre=barreTxt&&barreTxt.getAttribute('data-prefixe')||'CHF 139';
+    if(barreTxt)barreTxt.textContent=r===0?pre+' · Ouvert':pre+' · J-'+(j+(h||m||sec?1:0));
+    if(r===0)clearInterval(timer);
+  }
+  var timer=setInterval(tick,1000);tick();
+
+  var form=document.getElementById('form-liste');
+  if(form){
+  var merci=document.getElementById('merci');
+  var err=document.getElementById('erreur');
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=document.getElementById('email').value.trim();
+    var prenom=document.getElementById('prenom').value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+      err.textContent="Cette adresse e-mail ne semble pas complète. Vérifiez-la, par exemple nom@exemple.ch.";
+      document.getElementById('email').focus();
+      return;
+    }
+    err.textContent="";
+    var taille=(form.querySelector('input[name=taille]:checked')||{}).value||'';
+    try{localStorage.setItem('nocelli-liste',JSON.stringify({email:email,prenom:prenom,taille:taille}));}catch(_){}
+    if(prenom){document.getElementById('merci-titre').textContent=prenom+", vous êtes sur la liste.";}
+    form.hidden=true;
+    merci.hidden=false;
+  });
+  }
+
+  // Les trois cartes du Private Club (club/cartes.js)
+  if(window.NocelliCartes){
+    var zc=document.getElementById('club-cartes');
+    if(zc)['founders','signature'].forEach(function(c){zc.appendChild(NocelliCartes.creer({categorie:c,numero:1,retournable:false}));});
+  }
+})();
+</script>
+
+
+</body>
+</html>

@@ -12,7 +12,7 @@
   ].join('');
   var FS = [
     'precision highp float;',
-    'uniform sampler2D tF,tB,tS,tM;',
+    'uniform sampler2D tF,tB,tS,tM,tK,tA;uniform vec2 uK;',
     'uniform vec4 uF,uB,uB2,uS;',
     'varying vec3 vP;varying vec3 vN;',
     'void main(){',
@@ -24,8 +24,12 @@
     ' if(texture2D(tM,uvF).r<.5&&abs(n.z)>.55)discard;',
     ' vec2 h=normalize(n.xz+vec2(0.,1e-4));',
     ' float wf=pow(max(h.y,0.),3.),wb=pow(max(-h.y,0.),3.),ws=pow(abs(h.x),3.);',
-    ' vec3 c=texture2D(tF,uvF).rgb*wf+texture2D(tB,uvB).rgb*wb+texture2D(tS,uvS).rgb*ws;',
-    ' gl_FragColor=vec4(c/(wf+wb+ws+1e-4),1.);',
+    ' vec3 c=(texture2D(tF,uvF).rgb*wf+texture2D(tB,uvB).rgb*wb+texture2D(tS,uvS).rgb*ws)/(wf+wb+ws+1e-4);',
+    ' float kf=texture2D(tK,vP.xy*uK.x).r,ks=texture2D(tK,vec2(vP.z,vP.y)*uK.x).r;',
+    ' float k=mix(kf,ks,ws/(wf+wb+ws+1e-4));',
+    // pas de maille jersey sur le zip ni sur les bord-côtes, déjà visibles dans les photos
+    ' float a=(texture2D(tA,uvF).r*wf+texture2D(tA,uvB).g*wb+texture2D(tA,uvS).b*ws)/(wf+wb+ws+1e-4);',
+    ' gl_FragColor=vec4(c*(1.+uK.y*a*(k-.5)*2.),1.);',
     '}'
   ].join('');
 
@@ -53,15 +57,15 @@
     function sh(type, src) {
       var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s;
     }
-    function tex(img, unit, lum) {
+    function tex(img, unit, lum, rep) {
       var t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
       var f = lum ? gl.LUMINANCE : gl.RGB;
       gl.texImage2D(gl.TEXTURE_2D, 0, f, f, gl.UNSIGNED_BYTE, img);
       gl.generateMipmap(gl.TEXTURE_2D);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, rep ? gl.REPEAT : gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, rep ? gl.REPEAT : gl.CLAMP_TO_EDGE);
       var an = gl.getExtension('EXT_texture_filter_anisotropic');
       if (an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
     }
@@ -71,7 +75,9 @@
       for (var i = 0; i < N; i++) d[i] = raw.charCodeAt(i);
       var ox = new Int8Array(N), oy = new Int8Array(N), rx = atob(g.ox), ry = atob(g.oy);
       for (i = 0; i < N; i++) { ox[i] = rx.charCodeAt(i) << 24 >> 24; oy[i] = ry.charCodeAt(i) << 24 >> 24; }
-      var P = new Float32Array(N * 6), Nr = new Float32Array(N * 6), idx = [];
+      var K = 32, arms = g.arms || [], NA = 0;
+      arms.forEach(function (a) { NA += a.y.length * (K + 1); });
+      var P = new Float32Array(N * 6 + NA * 3), Nr = new Float32Array(N * 6 + NA * 3), idx = [];
       for (var j = 0; j < ny; j++) for (i = 0; i < nx; i++) {
         var k = j * nx + i, q = d[k], dd = q === 255 ? 0 : q / 254 * g.dmax;
         var X = g.gx0 + i * g.step + ox[k] - g.cx, Y = g.ymid - (g.gy0 + j * g.step + oy[k]), c = g.c[j];
@@ -91,7 +97,22 @@
         tri(a, c2, b); tri(b, c2, e);
         tri(N + a, N + b, N + c2); tri(N + b, N + e, N + c2);
       }
-      var big = 2 * N > 65535 && gl.getExtension('OES_element_index_uint');
+      // manches : tubes le long de la ligne du bras, rayon et position tirés des vues de face et de côté
+      var base = 2 * N;
+      arms.forEach(function (a) {
+        var n = a.y.length;
+        for (var r = 0; r < n; r++) for (var t = 0; t <= K; t++) {
+          var th = t / K * Math.PI * 2, co = Math.cos(th), si = Math.sin(th), v = base + r * (K + 1) + t;
+          P.set([a.xc[r] + a.r[r] * co, g.ymid - a.y[r], a.zc[r] + a.r[r] * si], v * 3);
+          Nr.set([co, 0, si], v * 3);
+        }
+        for (r = 0; r < n - 1; r++) for (t = 0; t < K; t++) {
+          var q0 = base + r * (K + 1) + t, q1 = q0 + 1, q2 = q0 + K + 1, q3 = q2 + 1;
+          idx.push(q0, q2, q1, q1, q2, q3);
+        }
+        base += n * (K + 1);
+      });
+      var big = base > 65535 && gl.getExtension('OES_element_index_uint');
       idxType = big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT;
       nIdx = idx.length;
       function buf(target, data) { var b = gl.createBuffer(); gl.bindBuffer(target, b); gl.bufferData(target, data, gl.STATIC_DRAW); return b; }
@@ -165,7 +186,7 @@
     function ndc(x, y) { var r = cv.getBoundingClientRect(); return [(x - r.left) / r.width * 2 - 1, 1 - (y - r.top) / r.height * 2]; }
     function clampPan(p, z) { var m = z - 1; return [Math.max(-m, Math.min(m, p[0])), Math.max(-m, Math.min(m, p[1]))]; }
     function zoomAt(z1, x, y, anim) {
-      z1 = Math.max(1, Math.min(3.2, z1));
+      z1 = Math.max(1, Math.min(4, z1));
       var p = ndc(x, y), z0 = anim ? zTarget : zoom, p0 = anim && panTarget ? panTarget : pan;
       var np = clampPan([p[0] - (p[0] - p0[0]) * z1 / z0, p[1] - (p[1] - p0[1]) * z1 / z0], z1);
       if (z1 === 1) np = [0, 0];
@@ -259,12 +280,14 @@
       gl.linkProgram(prog);
       if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
       gl.useProgram(prog);
-      ['uM', 'uZ', 'uF', 'uB', 'uB2', 'uS', 'tF', 'tB', 'tS', 'tM'].forEach(function (n) { u[n] = gl.getUniformLocation(prog, n); });
+      ['uM', 'uZ', 'uF', 'uB', 'uB2', 'uS', 'uK', 'tF', 'tB', 'tS', 'tM', 'tK', 'tA'].forEach(function (n) { u[n] = gl.getUniformLocation(prog, n); });
       Promise.all([fetch(base + 'geo.json').then(function (r) { return r.json(); }),
-        img('tex-face.jpg'), img('tex-dos.jpg'), img('tex-cote.jpg'), img('masque.png')]).then(function (a) {
+        img('tex-face.jpg'), img('tex-dos.jpg'), img('tex-cote.jpg'), img('masque.png'), img('maille.png'), img('maille-masque.png')]).then(function (a) {
         geo = a[0]; build(geo);
-        tex(a[1], 0); tex(a[2], 1); tex(a[3], 2); tex(a[4], 3, true);
-        gl.uniform1i(u.tF, 0); gl.uniform1i(u.tB, 1); gl.uniform1i(u.tS, 2); gl.uniform1i(u.tM, 3);
+        tex(a[1], 0); tex(a[2], 1); tex(a[3], 2); tex(a[4], 3, true); tex(a[5], 4, true, true); tex(a[6], 5);
+        gl.uniform1i(u.tF, 0); gl.uniform1i(u.tB, 1); gl.uniform1i(u.tS, 2); gl.uniform1i(u.tM, 3); gl.uniform1i(u.tK, 4); gl.uniform1i(u.tA, 5);
+        // maille 12 jauges : une côte ≈ 2,1 mm ; hauteur du vêtement = 64 cm
+        gl.uniform2f(u.uK, geo.kScale || 0, geo.kAmp || 0);
         var F = geo.F, B = geo.B, S = geo.S;
         gl.uniform4f(u.uF, geo.cx, geo.ymid, 1 / F.W, 1 / F.H);
         gl.uniform4f(u.uB, B.bcx, B.kx, 1 / B.W, 1 / B.H);
