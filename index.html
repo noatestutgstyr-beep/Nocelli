@@ -74,7 +74,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 
 /* Hero : la porte du coffre s'ouvre en fond, sur toute la largeur ; la marque et l'annonce par-dessus */
 .hero{position:relative;background:var(--noce-scuro);color:var(--avorio);overflow:hidden;min-height:min(calc(100svh - var(--head) - 38px),860px);display:flex;align-items:center}
-.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%;background:var(--noce-scuro)}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 25%;background:var(--noce-scuro)}
 .hero-voile{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,12,8,.86) 0%,rgba(20,12,8,.62) 30%,rgba(20,12,8,.12) 56%,rgba(20,12,8,0) 70%),linear-gradient(0deg,rgba(20,12,8,.5) 0%,rgba(20,12,8,0) 30%)}
 .hero-texte{position:relative;width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:22px;padding-block:72px}
 .hero-texte > *{max-width:560px}
@@ -337,10 +337,20 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .coll-une{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,90px);align-items:center;text-decoration:none}
 .coll-une > *{min-width:0}
 .coll-une .cadre{position:relative;aspect-ratio:4/5;max-height:70svh;width:100%}
-.coll-une img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:3% 6%;filter:drop-shadow(0 18px 24px rgba(58,37,25,.10));transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform 1.4s cubic-bezier(.2,.7,.2,1)}
-.coll-une .survol{opacity:0}
-.coll-une:hover .survol{opacity:1}
+.coll-une img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:3% 6%;filter:drop-shadow(0 18px 24px rgba(58,37,25,.10));transition:opacity .5s cubic-bezier(.45,0,.25,1),transform 1.4s cubic-bezier(.2,.7,.2,1)}
+/* Face par défaut. Le dos (classe .vue-dos, posée par le script après un court arrêt de la souris ou un glissement du doigt)
+   apparaît en fondu par-dessus la face, qui ne s'efface qu'une fois couverte : la pièce garde toute sa densité */
+.coll-une .survol{opacity:0;transition-duration:1.15s,1.4s;transition-delay:.2s,0s}
+.coll-une .cadre.vue-dos .survol{opacity:1;transition-delay:0s}
+.coll-une .cadre.vue-dos .face{opacity:0;transition-duration:.55s,1.4s;transition-delay:.75s,0s}
 .coll-une:hover img{transform:scale(1.02)}
+.coll-une .points{display:none}
+@media (hover:none){
+  .coll-une .cadre{touch-action:pan-y pinch-zoom}
+  .coll-une .points{display:flex;gap:8px;position:absolute;left:50%;bottom:-12px;transform:translateX(-50%)}
+  .coll-une .points i{width:5px;height:5px;border-radius:50%;background:rgba(58,37,25,.2);transition:background .6s ease}
+  .coll-une .cadre:not(.vue-dos) .points i:first-child,.coll-une .cadre.vue-dos .points i:last-child{background:var(--noce)}
+}
 .coll-une .texte{display:grid;gap:18px;justify-items:start;max-width:40ch}
 .coll-une .texte b{font-family:var(--display);font-weight:400;font-size:clamp(32px,3.4vw,50px);line-height:1.06}
 .coll-une .texte p{color:rgba(58,37,25,.8)}
@@ -381,7 +391,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   .nav nav.droite a:not(.cta){display:none}
   /* Téléphone : la vidéo en haut, le texte commence sur son bas fondu */
   .hero{--hv:min(118vw,620px);display:block;min-height:0}
-  .hero-video{bottom:auto;height:var(--hv);object-position:84% 50%}
+  .hero-video{bottom:auto;height:var(--hv);object-position:79% 50%}
   .hero-voile{bottom:auto;height:var(--hv);background:linear-gradient(180deg,rgba(20,12,8,0) 55%,rgba(30,18,12,.85) 85%,var(--noce-scuro) 100%)}
   .hero-texte{padding-top:calc(var(--hv) - 96px);padding-bottom:48px;gap:18px}
   .hero h1.hero-marque{font-size:clamp(36px,11.5vw,64px)}
@@ -517,7 +527,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         <div><span class="eyebrow">Prima Edizione</span><h2>La collection</h2></div>
       </div>
       <a class="coll-une" href="cardigan-noce.html">
-        <div class="cadre"><img src="img/cardigan-face.webp" alt="Le Cardigan Noce vu de face"><img class="survol" src="img/cardigan-dos.webp" alt="" aria-hidden="true"></div>
+        <div class="cadre"><img class="face" src="img/collection-face.webp" alt="Le Cardigan Noce vu de face" loading="lazy" decoding="async"><img class="survol" src="img/collection-dos.webp" alt="" aria-hidden="true" loading="lazy" decoding="async"><span class="points" aria-hidden="true"><i></i><i></i></span></div>
         <div class="texte">
           <span class="eyebrow">La Maglia · N° 001</span>
           <b>Le Cardigan Noce</b>
@@ -718,6 +728,26 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   }
   maj();
 
+  // Collection : la face reste affichée ; le dos apparaît après un court arrêt de la souris sur la photo
+  // (rien si elle repart avant) et la face revient quand la souris quitte la pièce. Au doigt : glisser d'une vue à l'autre.
+  var une=document.querySelector('.coll-une'),photo=une&&une.querySelector('.cadre');
+  if(photo){
+    var attente=0,glisse=0,x0=null,y0=0;
+    var montrer=function(v){photo.classList.toggle('vue-dos',v);};
+    photo.addEventListener('pointerenter',function(e){if(e.pointerType!=='mouse')return;clearTimeout(attente);attente=setTimeout(function(){montrer(true);},350);});
+    photo.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')clearTimeout(attente);});
+    une.addEventListener('pointerleave',function(e){if(e.pointerType!=='mouse')return;clearTimeout(attente);montrer(false);});
+    photo.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse')return;x0=e.clientX;y0=e.clientY;});
+    photo.addEventListener('pointermove',function(e){
+      if(x0===null)return;
+      var dx=e.clientX-x0,dy=e.clientY-y0;
+      if(Math.abs(dx)>28&&Math.abs(dx)>Math.abs(dy)*1.4){montrer(dx<0);glisse=Date.now();x0=null;}
+    });
+    ['pointerup','pointercancel'].forEach(function(t){photo.addEventListener(t,function(){x0=null;});});
+    // un glissement n'ouvre pas la fiche
+    une.addEventListener('click',function(e){if(Date.now()-glisse<600)e.preventDefault();},true);
+  }
+
   // Coffre : joue une fois puis reste ouvert sur la dernière image
   var coffre=document.getElementById('coffre');
   if(coffre){
@@ -727,7 +757,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       while(coffre.firstChild)coffre.removeChild(coffre.firstChild);
       coffre.removeAttribute('src');coffre.load();
     }
-    else{var pr=coffre.play();if(pr&&pr.catch)pr.catch(function(){});}
+    // lecture refusée (mode économie d'énergie du téléphone…) : on montre le coffre ouvert plutôt que la porte fermée
+    else{var pr=coffre.play();if(pr&&pr.catch)pr.catch(function(e){if(e&&e.name==='NotAllowedError'&&coffre.paused&&!coffre.currentTime)coffre.poster='img/coffre-fin.jpg';});}
   }
 
   // Vues de la pièce et loupe
