@@ -16,7 +16,7 @@
     ['Votes sur les futures collections', function (d) { return d.votes; }],
     ['Contenus réservés aux membres', function (d) { return d.contenus; }],
     ['Carte numérique et imprimée', function (d) { return d.membre; }],
-    ['Priorité sur les éditions limitées', function (d) { return d.categorie === 'founders'; }, true],
+    ['Priorité sur les éditions limitées', function (d) { return d.categorie === 'founders' || d.signature; }],
     ['Gratuit, à vie', function (d) { return d.categorie === 'founders'; }, true]
   ];
 
