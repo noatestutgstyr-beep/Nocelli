@@ -27,17 +27,16 @@
   var HEURES_ANTICIPEES = 48;
 
   /*
-   * Événements et voyages (décision de Noa, 31.10.2026) :
-   *  - Signature (CHF 350/an) inclut 2 événements privés par année d'adhésion
-   *    (par exemple une soirée cocktail et un dîner privé à Genève) ; au-delà,
-   *    le membre paie le prix de l'événement.
-   *  - Founders n'inclut ni événement ni voyage, mais les fondateurs peuvent venir
-   *    avec 30 % de remise (CHF 105 au lieu de 150), décision de Noa du 31.10.2026.
-   *  - Voyages : les membres peuvent partir avec la maison, chacun paie sa part ;
-   *    10 % de remise pour les fondateurs ; acompte non remboursable à la réservation.
+   * Formules (décision de Noa, 31.10.2026 au soir) :
+   *  - Signature : CHF 290/an, 50 membres au plus, collections 72 h avant le public
+   *    (48 h + 24 h), dîners, soirées et voyages réservés aux membres mais payants séparément ;
+   *  - Founders : gratuit à vie, collections 48 h avant, 10 % de remise sur les événements
+   *    et les voyages.
    */
-  var EVENEMENTS_INCLUS_SIGNATURE = 2;
-  var REMISE_EVENEMENT_FONDATEUR = 0.30;
+  var EVENEMENTS_INCLUS_SIGNATURE = 0;   // depuis le 31.10.2026 soir : tout est payant séparément
+  var REMISE_EVENEMENT_FONDATEUR = 0.10;
+  var MAX_SIGNATURE = 50;              // Signature limité à 50 membres
+  var HEURES_EN_PLUS_SIGNATURE = 24;   // Signature : 72 h avant le public au lieu de 48 h
   var REMISE_VOYAGE_FONDATEUR = 0.10;
 
   var CATEGORIES = {
@@ -49,7 +48,7 @@
       contenus: true, statutAVie: true, carte: true
     },
     signature: {
-      code: 'signature', nom: 'Signature Club', prix: 350, annuel: true, evenementsInclus: EVENEMENTS_INCLUS_SIGNATURE,
+      code: 'signature', nom: 'Signature Club', prix: 290, annuel: true, evenementsInclus: EVENEMENTS_INCLUS_SIGNATURE,
       accesAnticipe: true, evenements: true, experiences: true, votes: true,
       contenus: true, statutAVie: false, carte: true
     }
@@ -266,6 +265,12 @@
     if (cour && cour.statut !== 'en_attente') {
       throw Refus('deja_abonne', 'Vous êtes déjà membre Signature.');
     }
+    var vivants = 0;
+    for (var k in etat.abonnements) {
+      var x = etat.abonnements[k];
+      if (x.compteId !== compteId && (x.statut === 'actif' || x.statut === 'impaye')) vivants++;
+    }
+    if (vivants >= MAX_SIGNATURE) throw Refus('complet', 'Le Signature Club est complet : 50 membres.');
     if (cour && cour.statut === 'en_attente') {
       if (cour.plan === plan) return cour; // même paiement repris, pas de doublon
       cour.statut = 'abandonne';
@@ -380,6 +385,8 @@
     var l = etat.lancements[lancementId];
     if (!l || !l.publie) return { ok: false, raison: 'introuvable', message: "Cette collection n'est pas encore annoncée." };
     var phase = phaseLancement(l, now);
+    // Signature : la vente s'ouvre 24 h plus tôt pour eux (72 h avant le public).
+    if (phase === 'annonce' && compteId && now >= l.publicLe - (l.heuresAnticipees + HEURES_EN_PLUS_SIGNATURE) * HEURE && droits(etat, compteId, now).signature) phase = 'membres';
     if (phase === 'annonce') return { ok: false, raison: 'pas_ouvert', message: 'La vente n’est pas encore ouverte.' };
     if (phase === 'membres') {
       var d = compteId ? droits(etat, compteId, now) : { accesAnticipe: false };
@@ -454,7 +461,7 @@
   /*
    * Ce que ce compte paierait pour cet événement :
    *  - Signature avec un événement inclus encore libre cette année : 0 (inclus) ;
-   *  - sinon fondateur : tarif fondateur (30 % de remise) ;
+   *  - sinon fondateur : tarif fondateur (10 % de remise) ;
    *  - sinon : le prix de l'événement.
    * Un événement gratuit ne consomme pas d'événement inclus. null = pas membre.
    */
@@ -669,7 +676,7 @@
     annulerRenouvellement: annulerRenouvellement, reprendreRenouvellement: reprendreRenouvellement,
     droits: droits, phaseLancement: phaseLancement, stockTotal: stockTotal,
     peutAcheter: peutAcheter, reserverPiece: reserverPiece, libererCommandesExpirees: libererCommandesExpirees,
-    EVENEMENTS_INCLUS_SIGNATURE: EVENEMENTS_INCLUS_SIGNATURE, REMISE_EVENEMENT_FONDATEUR: REMISE_EVENEMENT_FONDATEUR,
+    EVENEMENTS_INCLUS_SIGNATURE: EVENEMENTS_INCLUS_SIGNATURE, MAX_SIGNATURE: MAX_SIGNATURE, HEURES_EN_PLUS_SIGNATURE: HEURES_EN_PLUS_SIGNATURE, REMISE_EVENEMENT_FONDATEUR: REMISE_EVENEMENT_FONDATEUR,
     REMISE_VOYAGE_FONDATEUR: REMISE_VOYAGE_FONDATEUR, prixFondateur: prixFondateur,
     tarifEvenement: tarifEvenement, prixVoyage: prixVoyage, evenementsInclusPris: evenementsInclusPris,
     placesRestantes: placesRestantes, inscriptionDe: inscriptionDe, inscrireEvenement: inscrireEvenement,

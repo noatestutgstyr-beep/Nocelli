@@ -1,7 +1,7 @@
 -- NOCELLI PRIVATE CLUB — mise à jour 2 (31.10.2026) : nouvelles formules.
 -- À coller dans Supabase > SQL Editor, puis Run. Sans danger : ne supprime rien, peut être relancée.
---   * Signature : CHF 350 par an, 2 événements privés inclus par année d'adhésion.
---   * Fondateurs : événements ouverts au tarif fondateur (30 % de remise : CHF 105 au lieu de 150).
+--   * Signature : CHF 290 par an, 50 membres au plus, collections 72 h avant le public ; événements payants.
+--   * Fondateurs : 10 % de remise sur les événements et les voyages.
 -- Le prix de Signature lui-même est chez Stripe (secret STRIPE_PRIX_SIGNATURE) : voir LISEZMOI.md.
 
 -- 1. Chaque inscription garde son prix.
@@ -53,10 +53,11 @@ begin
   if found then
     select count(*) into v_pris from public.inscriptions i
      where i.compte_id = p_compte and i.inclus and i.statut <> 'annule' and i.abonnement_id = ab.id and i.periode = ab.debut;
-    if v_pris < 2 then return query select 0::numeric, 'inclus', true, ab.id, ab.debut; return; end if;
+    -- plus d'événement inclus depuis le 31.10.2026 soir
+    if v_pris < 0 then return query select 0::numeric, 'inclus', true, ab.id, ab.debut; return; end if;
   end if;
   v_fondateur := exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme');
-  if v_fondateur then return query select round(v_prix * 0.7), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
+  if v_fondateur then return query select round(v_prix * 0.9), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
   return query select v_prix, 'normal', false, null::uuid, null::timestamptz;
 end $$;
 
@@ -99,3 +100,41 @@ end $$;
 revoke execute on function public.tarif_evenement(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.mes_tarifs_evenements() to authenticated;
 grant execute on function public.tarif_evenement(uuid, uuid), public.mes_tarifs_evenements() to service_role;
+
+-- 5. Signature limité à 50 membres, et 72 h d'avance sur les collections.
+create or replace function public.peut_souscrire(p_compte uuid, p_plan text)
+returns text language sql stable security definer set search_path = public as $$
+  select case
+    when p_plan <> 'signature' then 'formule_non_vendue'
+    when exists (select 1 from public.abonnements where compte_id = p_compte and statut in ('actif', 'impaye')) then 'deja_abonne'
+    when (select count(*) from public.abonnements where statut in ('actif', 'impaye')) >= 50 then 'complet'
+    else 'ok' end
+$$;
+
+create or replace function public.reserver_piece(p_lancement uuid, p_taille text)
+returns uuid    -- commande en attente de paiement
+language plpgsql security definer set search_path = public as $$
+declare l public.lancements; v_phase text; v_cmd uuid;
+begin
+  if auth.uid() is null then raise exception 'connexion_requise' using errcode = '42501'; end if;
+  select * into l from public.lancements where id = p_lancement and publie;
+  if not found then raise exception 'introuvable'; end if;
+  v_phase := public.phase_lancement(l);
+  -- Signature : 24 h de plus (72 h avant le public).
+  if v_phase = 'annonce' and now() >= l.public_le - make_interval(hours => l.heures_anticipees + 24)
+     and exists (select 1 from public.abonnements a where a.compte_id = auth.uid()
+                  and ((a.statut = 'actif' and a.fin > now()) or (a.statut = 'impaye' and a.fin + interval '7 days' > now()))) then
+    v_phase := 'membres';
+  end if;
+  if v_phase = 'annonce' then raise exception 'pas_ouvert'; end if;
+  if v_phase = 'membres' and not (select acces_anticipe from public.droits_de(auth.uid())) then
+    raise exception 'reserve_membres' using errcode = '42501';
+  end if;
+  -- Décrément atomique : jamais sous zéro, même avec des achats simultanés.
+  update public.stock_lancement set quantite = quantite - 1
+   where lancement_id = l.id and taille = p_taille and quantite > 0;
+  if not found then raise exception 'epuise'; end if;
+  insert into public.commandes (compte_id, produit, lancement_id, taille)
+  values (auth.uid(), l.produit, l.id, p_taille) returning id into v_cmd;
+  return v_cmd;
+end $$;

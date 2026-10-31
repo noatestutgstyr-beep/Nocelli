@@ -8,12 +8,11 @@
 
   // [avantage, a-t-il ce droit ?, réservé aux fondateurs (masqué pour les autres)]
   var AVANTAGES = [
-    ['Les nouvelles collections 48 h avant le public', function (d) { return d.accesAnticipe; }],
+    ['Les nouvelles collections avant le public (72 h avec Signature, 48 h pour Founders)', function (d) { return d.accesAnticipe; }],
     ['Notifications des lancements', function (d) { return d.membre; }],
-    ['Deux événements privés par an inclus', function (d) { return d.signature; }],
-    ['Événements privés : 30 % de remise', function (d) { return d.categorie === 'founders'; }, true],
-    ['Voyages avec la maison : une place vous est réservée, 10 % de remise sur le voyage', function (d) { return d.categorie === 'founders'; }, true],
-    ['Voyages avec la maison : une place vous est réservée', function (d) { return d.signature && d.categorie !== 'founders'; }, true],
+    ['Dîners privés, soirées à Genève et rencontres entre membres', function (d) { return d.signature; }],
+    ['Accès prioritaire aux voyages NOCELLI', function (d) { return d.signature; }],
+    ['10 % de réduction sur tous les événements et voyages NOCELLI', function (d) { return d.categorie === 'founders'; }, true],
     ['Votes sur les futures collections', function (d) { return d.votes; }],
     ['Contenus réservés aux membres', function (d) { return d.contenus; }],
     ['Carte numérique et imprimée', function (d) { return d.membre; }],
@@ -129,7 +128,7 @@
       '<div class="scene" id="scene-carte"><div class="outils"><button class="lien" type="button" id="carte-retourner">Retourner</button><button class="lien" type="button" id="carte-plein">Plein écran</button></div></div>' +
       '<div><span class="eyebrow">Ma carte</span><h2 style="margin:12px 0 28px;font-size:clamp(28px,3vw,40px)">' + NOMS[d.categorie] + '</h2>' +
       '<dl class="fiche">' + lignes + '</dl>' +
-      (ab ? blocGestion(s) : '<p style="margin-top:22px;font-size:14px"><a class="lien" href="club.html#rejoindre-signature">Ajouter Signature : deux événements inclus par an · CHF 350/an</a></p>') +
+      (ab ? blocGestion(s) : '<p style="margin-top:22px;font-size:14px"><a class="lien" href="club.html#rejoindre-signature">Ajouter Signature · CHF 290/an</a></p>') +
       '</div></div>';
   }
 
@@ -246,8 +245,8 @@
     if (der && der.statut === 'echoue') etat = '<p style="margin-top:14px"><span class="pastille refus">Dernier paiement refusé, rien n’a été activé</span></p>';
     if (s.compte.suspendu) etat = '<p style="margin-top:14px"><span class="pastille refus">Accès suspendu, contactez-nous</span></p>';
     return '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Vous n’êtes pas encore membre.</h3>' +
-      '<p>Signature : les collections 48 h avant le public et deux événements privés par an inclus, CHF 350 par an. Founders : offerte aux 50 premiers acheteurs du cardigan NC-01.</p>' + etat + '</div>' +
-      '<div style="display:grid;gap:10px"><a class="btn clair" href="club.html#rejoindre-signature">Rejoindre Signature · CHF 350</a></div></div>';
+      '<p>Signature : les collections 72 h avant le public, les dîners et soirées du club, CHF 290 par an, 50 membres. Founders : offerte aux 50 premiers acheteurs du cardigan NC-01.</p>' + etat + '</div>' +
+      '<div style="display:grid;gap:10px"><a class="btn clair" href="club.html#rejoindre-signature">Rejoindre Signature · CHF 290</a></div></div>';
   }
 
   function listeAvantages(d) {
@@ -320,11 +319,11 @@
   /* ---------------- Événements ---------------- */
   function blocEvenements(s) {
     var tete = '<div class="bloc-tete"><div><span class="eyebrow">Événements privés</span><h2>Événements privés</h2></div>' +
-      '<p>' + (s.droits.signature ? 'Deux événements inclus par année d’adhésion.' : 'Fondateurs : 30 % de remise sur chaque événement.') +
-      ' Voyages : une place vous est réservée, le voyage est à la charge de chaque membre. Complet : liste d’attente.</p></div>';
+      '<p>' + (s.droits.categorie === 'founders' ? 'Fondateurs : 10 % de réduction sur chaque événement et voyage.' : 'Repas, soirées et voyages payants séparément.') +
+      ' Complet : liste d’attente.</p></div>';
     if (!s.droits.evenements) {
       return tete + '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Les événements privés sont réservés aux membres.</h3>' +
-        '<p>Signature : deux événements inclus par an, CHF 350. Founders : tarif fondateur.</p></div>' +
+        '<p>Signature : CHF 290 par an. Founders : 10 % de réduction.</p></div>' +
         '<div><a class="btn clair" href="club.html">Private Club</a></div></div>';
     }
     if (!s.evenements.length) return tete + vide('Aucun événement annoncé pour le moment.', 'Les invitations arriveront ici et par e-mail.');

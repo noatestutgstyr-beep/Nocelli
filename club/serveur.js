@@ -41,6 +41,7 @@
     reserve_club: 'Les événements privés sont réservés aux membres du Private Club.',
     aucune_inscription: 'Aucune inscription à annuler.',
     deja_abonne: 'Vous êtes déjà membre Signature.',
+    complet: 'Le Signature Club est complet : 50 membres.',
     formule_non_vendue: 'Formule inconnue.',
     pas_abonne: 'Aucun abonnement Signature en cours.',
     commande_invalide: 'Cette commande n’est plus en attente de paiement. Choisissez à nouveau votre taille.',

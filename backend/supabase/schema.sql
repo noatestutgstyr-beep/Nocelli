@@ -116,7 +116,7 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- ---------------------------------------------------------------------------
--- Abonnement Signature (350 CHF/an, 2 événements privés inclus par année)
+-- Abonnement Signature (290 CHF/an, 50 membres au plus)
 -- Le prestataire de paiement (Stripe) est la référence pour la facturation ;
 -- cette table en est le miroir, mis à jour uniquement par le webhook.
 -- ---------------------------------------------------------------------------
@@ -395,6 +395,7 @@ returns text language sql stable security definer set search_path = public as $$
   select case
     when p_plan <> 'signature' then 'formule_non_vendue'
     when exists (select 1 from public.abonnements where compte_id = p_compte and statut in ('actif', 'impaye')) then 'deja_abonne'
+    when (select count(*) from public.abonnements where statut in ('actif', 'impaye')) >= 50 then 'complet'
     else 'ok' end
 $$;
 
@@ -418,6 +419,12 @@ begin
   select * into l from public.lancements where id = p_lancement and publie;
   if not found then raise exception 'introuvable'; end if;
   v_phase := public.phase_lancement(l);
+  -- Signature : 24 h de plus (72 h avant le public).
+  if v_phase = 'annonce' and now() >= l.public_le - make_interval(hours => l.heures_anticipees + 24)
+     and exists (select 1 from public.abonnements a where a.compte_id = auth.uid()
+                  and ((a.statut = 'actif' and a.fin > now()) or (a.statut = 'impaye' and a.fin + interval '7 days' > now()))) then
+    v_phase := 'membres';
+  end if;
   if v_phase = 'annonce' then raise exception 'pas_ouvert'; end if;
   if v_phase = 'membres' and not (select acces_anticipe from public.droits_de(auth.uid())) then
     raise exception 'reserve_membres' using errcode = '42501';
@@ -449,8 +456,8 @@ end $$;
 
 -- ===========================================================================
 -- ÉVÉNEMENTS : membres Signature et fondateurs. Prix (même règle que club/regles.js) :
---   Signature : 2 événements inclus par année d'adhésion, puis le prix normal ;
---   fondateur : 30 % de remise (CHF 105 au lieu de 150) ; un événement gratuit ne compte pas.
+--   Signature : prix normal (plus d'événement inclus depuis le 31.10.2026 soir) ;
+--   fondateur : 10 % de remise ; un événement gratuit ne compte pas.
 -- ===========================================================================
 create or replace function public.tarif_evenement(p_compte uuid, p_evenement uuid)
 returns table (montant numeric, tarif text, inclus boolean, abonnement_id uuid, periode timestamptz)
@@ -468,10 +475,11 @@ begin
   if found then
     select count(*) into v_pris from public.inscriptions i
      where i.compte_id = p_compte and i.inclus and i.statut <> 'annule' and i.abonnement_id = ab.id and i.periode = ab.debut;
-    if v_pris < 2 then return query select 0::numeric, 'inclus', true, ab.id, ab.debut; return; end if;
+    -- plus d'événement inclus depuis le 31.10.2026 soir
+    if v_pris < 0 then return query select 0::numeric, 'inclus', true, ab.id, ab.debut; return; end if;
   end if;
   v_fondateur := exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme');
-  if v_fondateur then return query select round(v_prix * 0.7), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
+  if v_fondateur then return query select round(v_prix * 0.9), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
   return query select v_prix, 'normal', false, null::uuid, null::timestamptz;
 end $$;
 

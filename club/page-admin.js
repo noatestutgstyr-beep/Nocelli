@@ -314,7 +314,7 @@
       '<div class="champ"><label for="e-date">Date et heure (heure suisse)</label><input id="e-date" type="datetime-local" value="' + (x.date ? versChamp(x.date) : '') + '"></div>' +
       '<div class="champ"><label for="e-lieu">Lieu</label><input id="e-lieu" value="' + e(x.lieu || '') + '"></div>' +
       '<div class="champ"><label for="e-cap">Capacité (places)</label><input id="e-cap" type="number" min="1" value="' + x.capacite + '"></div>' +
-      '<div class="champ"><label for="e-prix">Prix normal (CHF, 0 = gratuit)</label><input id="e-prix" type="number" min="0" step="1" value="' + (x.prix || 0) + '"><small style="color:var(--tabacco)">Signature : 2 événements inclus par an. Fondateurs : 30 % de remise (CHF 150 devient CHF 105).</small></div>' +
+      '<div class="champ"><label for="e-prix">Prix normal (CHF, 0 = gratuit)</label><input id="e-prix" type="number" min="0" step="1" value="' + (x.prix || 0) + '"><small style="color:var(--tabacco)">Signature : prix normal. Fondateurs : 10 % de réduction (CHF 150 devient CHF 135).</small></div>' +
       '<div class="champ plein"><label for="e-cond">Conditions d’accès</label><input id="e-cond" value="' + e(x.conditions || '') + '" placeholder="Une personne par carte, tenue de ville"></div>' +
       '<label class="case"><input type="checkbox" id="e-pub"' + (x.publie ? ' checked' : '') + '> <span>Publier pour Signature et Founders</span></label>' +
       (x.id ? '<label class="case"><input type="checkbox" id="e-ann"' + (x.annule ? ' checked' : '') + '> <span>Événement annulé</span></label>' : '') +

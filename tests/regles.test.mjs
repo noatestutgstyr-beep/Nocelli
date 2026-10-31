@@ -253,14 +253,16 @@ function lancement(e, heures = 48) {
   return l;
 }
 
-test('accès anticipé : 48 h avant pour Founders et Signature, jamais pour les non-membres', () => {
+test('accès anticipé : 72 h avant pour Signature, 48 h pour Founders, jamais pour les non-membres', () => {
   const e = R.etatVide();
   const l = lancement(e);
   const visiteur = client(e, 1), sig = client(e, 3), fond = client(e, 4);
   abonner(e, sig.id, 'signature');
   R.confirmerPaiementCommande(e, commande(e, fond.id).id, T0);
   const avant = l.publicLe - 49 * H, pendant = l.publicLe - 47 * H;
-  for (const c of [visiteur, sig, fond]) assert.equal(R.peutAcheter(e, c.id, l.id, 'M', avant).ok, false);
+  for (const c of [visiteur, fond]) assert.equal(R.peutAcheter(e, c.id, l.id, 'M', avant).ok, false);
+  assert.equal(R.peutAcheter(e, sig.id, l.id, 'M', avant).ok, true, 'Signature : 72 h avant');
+  assert.equal(R.peutAcheter(e, sig.id, l.id, 'M', l.publicLe - 73 * H).ok, false);
   assert.equal(R.peutAcheter(e, visiteur.id, l.id, 'M', pendant).raison, 'reserve_membres');
   assert.equal(R.peutAcheter(e, null, l.id, 'M', pendant).raison, 'reserve_membres');
   for (const c of [sig, fond]) assert.equal(R.peutAcheter(e, c.id, l.id, 'M', pendant).ok, true);
@@ -271,8 +273,8 @@ test('la durée d’accès anticipé est réglable par lancement', () => {
   const e = R.etatVide();
   const l = lancement(e, 24);
   const m = client(e, 1); abonner(e, m.id, 'signature');
-  assert.equal(R.peutAcheter(e, m.id, l.id, 'M', l.publicLe - 30 * H).ok, false);
-  assert.equal(R.peutAcheter(e, m.id, l.id, 'M', l.publicLe - 20 * H).ok, true);
+  assert.equal(R.peutAcheter(e, m.id, l.id, 'M', l.publicLe - 50 * H).ok, false);
+  assert.equal(R.peutAcheter(e, m.id, l.id, 'M', l.publicLe - 44 * H).ok, true, 'Signature : 24 h + 24 h');
 });
 
 test('le stock est limité et une commande impayée rend sa pièce', () => {
@@ -307,10 +309,12 @@ function evenementPrix(e, prix, capacite = 20, id = 'evt_a') {
   return ev;
 }
 
-test('Signature coûte CHF 350 par an et inclut 2 événements', () => {
-  assert.equal(R.CATEGORIES.signature.prix, 350);
-  assert.equal(R.CATEGORIES.signature.evenementsInclus, 2);
-  assert.equal(R.CATEGORIES.founders.prix, 0);
+test('Signature coûte CHF 290 par an, n’inclut aucun événement et est limité à 50 membres', () => {
+  assert.equal(R.CATEGORIES.signature.prix, 290);
+  assert.equal(R.EVENEMENTS_INCLUS_SIGNATURE, 0);
+  const e = R.etatVide();
+  for (let n = 1; n <= 50; n++) abonner(e, client(e, n).id, 'signature');
+  assert.throws(() => R.demarrerAbonnement(e, client(e, 51).id, 'signature', T0), /complet/);
 });
 
 test('événements : membres Signature et fondateurs s’inscrivent, les visiteurs non', () => {
@@ -327,40 +331,23 @@ test('événements : membres Signature et fondateurs s’inscrivent, les visiteu
   assert.equal(R.inscrireEvenement(e, fondSig.id, ev.id, T0).statut, 'confirme');
 });
 
-test('Signature : 2 événements inclus par année, le 3e au prix normal ; annuler rend l’événement inclus', () => {
+test('Signature : chaque événement au prix normal', () => {
   const e = R.etatVide();
   const a = client(e, 1);
-  const ab = abonner(e, a.id, 'signature');
-  const [x, y, z] = ['evt_1', 'evt_2', 'evt_3'].map(id => evenementPrix(e, 150, 20, id));
+  abonner(e, a.id, 'signature');
+  const x = evenementPrix(e, 150, 20, 'evt_1');
   const ix = R.inscrireEvenement(e, a.id, x.id, T0);
-  assert.deepEqual([ix.montant, ix.inclus, ix.tarif], [0, true, 'inclus']);
-  assert.equal(R.tarifEvenement(e, a.id, y.id, T0).inclusRestants, 1);
-  assert.equal(R.inscrireEvenement(e, a.id, y.id, T0).montant, 0);
-  const iz = R.inscrireEvenement(e, a.id, z.id, T0);
-  assert.deepEqual([iz.montant, iz.inclus, iz.tarif], [150, false, 'normal']);
-  R.annulerInscription(e, a.id, x.id, T0 + 1);
-  assert.equal(R.tarifEvenement(e, a.id, x.id, T0 + 2).montant, 0, 'l’événement inclus annulé se reprend');
-  // nouvelle année d'adhésion : de nouveau 2 événements inclus
-  R.confirmerPaiementAbonnement(e, ab.id, 'evt_renouv', ab.fin);
-  const ev4 = evenementPrix(e, 150, 20, 'evt_4'); ev4.date = ab.fin + 30 * J;
-  assert.equal(R.tarifEvenement(e, a.id, ev4.id, ab.fin + J).inclusRestants, 2);
+  assert.deepEqual([ix.montant, ix.inclus, ix.tarif], [150, false, 'normal']);
 });
 
-test('fondateur : 30 % de remise sur les événements (CHF 105 au lieu de 150), rien n’est inclus', () => {
+test('fondateur : 10 % de remise sur les événements (CHF 135 au lieu de 150)', () => {
   const e = R.etatVide();
-  const f = client(e, 1), fs = client(e, 2);
+  const f = client(e, 1);
   R.confirmerPaiementCommande(e, commande(e, f.id).id, T0);
-  R.confirmerPaiementCommande(e, commande(e, fs.id).id, T0);
-  abonner(e, fs.id, 'signature');
-  const evs = ['evt_1', 'evt_2', 'evt_3'].map(id => evenementPrix(e, 150, 20, id));
-  const i = R.inscrireEvenement(e, f.id, evs[0].id, T0);
-  assert.deepEqual([i.montant, i.inclus, i.tarif], [105, false, 'fondateur']);
-  assert.equal(R.prixFondateur(90), 63);
-  // fondateur avec Signature : 2 inclus, puis tarif fondateur
-  assert.equal(R.inscrireEvenement(e, fs.id, evs[0].id, T0).montant, 0);
-  assert.equal(R.inscrireEvenement(e, fs.id, evs[1].id, T0).montant, 0);
-  assert.equal(R.inscrireEvenement(e, fs.id, evs[2].id, T0).montant, 105);
-  // un événement gratuit reste gratuit et ne consomme rien
+  const ev = evenementPrix(e, 150, 20, 'evt_1');
+  const i = R.inscrireEvenement(e, f.id, ev.id, T0);
+  assert.deepEqual([i.montant, i.inclus, i.tarif], [135, false, 'fondateur']);
+  assert.equal(R.prixFondateur(90), 81);
   const libre = evenementPrix(e, 0, 20, 'evt_libre');
   assert.equal(R.tarifEvenement(e, f.id, libre.id, T0).montant, 0);
 });
@@ -401,8 +388,8 @@ test('statistiques : membres par catégorie et revenus', () => {
   const s = R.statistiques(e, T0 + J);
   assert.equal(s.signature, 2); assert.equal(s.founders, 2); assert.equal(s.fondateursSignature, 1);
   assert.equal(s.fondateursRestants, 48);
-  assert.equal(s.revenuAnnuel, 700);
-  assert.equal(s.encaisse, 700);
+  assert.equal(s.revenuAnnuel, 580);
+  assert.equal(s.encaisse, 580);
 });
 
 /* ---------- Carte physique envoyée par la poste ---------- */

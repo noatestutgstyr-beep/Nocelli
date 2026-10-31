@@ -163,13 +163,15 @@ reset role;
 update lancements set heures_anticipees = 6 where id = :'lan';
 set role authenticated;
 select set_config('request.jwt.claim.sub', :'luca', false);
+select ok(reserver_piece(:'lan', 'M') is not null, 'Signature : 24 h de plus (à 6 h, ouvert 10 h avant)');
+select set_config('request.jwt.claim.sub', :'a', false);
 do $$ begin
   begin perform reserver_piece((select id from lancements where nom = 'NC-02 test'), 'M'); raise exception 'vendu';
-  exception when raise_exception then perform ok(sqlerrm = 'pas_ouvert', 'durée réglable : à 6 h, pas encore ouvert 10 h avant');
+  exception when raise_exception then perform ok(sqlerrm = 'pas_ouvert', 'fondateur, durée réglable : à 6 h, pas encore ouvert 10 h avant');
   end;
 end $$;
 reset role;
-select ok((select quantite from stock_lancement where lancement_id = :'lan') = 3, 'stock décompté');
+select ok((select quantite from stock_lancement where lancement_id = :'lan') = 2, 'stock décompté');
 update commandes set cree_le = now() - interval '31 minutes' where lancement_id = :'lan';
 select liberer_commandes_expirees();
 select ok((select quantite from stock_lancement where lancement_id = :'lan') = 5, 'commande jamais payée : pièce rendue au stock');
@@ -211,10 +213,10 @@ select ok((select count(*) from mes_tarifs_evenements()) >= 3, 'un membre lit se
 select set_config('request.jwt.claim.sub', :'a', false);
 select inscrire_evenement(:'soiree');
 reset role;
-select ok((select montant = 0 and inclus from inscriptions where compte_id = :'s1' and evenement_id = :'soiree'), 'Signature : 1er événement inclus');
-select ok((select montant = 0 and inclus from inscriptions where compte_id = :'s1' and evenement_id = :'diner'), 'Signature : 2e événement inclus');
+select ok((select montant = 150 and not inclus from inscriptions where compte_id = :'s1' and evenement_id = :'soiree'), 'Signature : événement au prix normal');
+select ok((select montant = 150 from inscriptions where compte_id = :'s1' and evenement_id = :'diner'), 'Signature : 2e événement au prix normal');
 select ok((select montant = 150 and tarif = 'normal' from inscriptions where compte_id = :'s1' and evenement_id = :'troisieme'), 'Signature : 3e événement au prix normal');
-select ok((select montant = 105 and tarif = 'fondateur' from inscriptions where compte_id = :'a' and evenement_id = :'soiree'), 'fondateur : CHF 105 au lieu de 150 (30 %)');
+select ok((select montant = 135 and tarif = 'fondateur' from inscriptions where compte_id = :'a' and evenement_id = :'soiree'), 'fondateur : CHF 135 au lieu de 150 (10 %)');
 
 -- ---------------------------------------------------------------------------
 \echo '— Administration tracée'

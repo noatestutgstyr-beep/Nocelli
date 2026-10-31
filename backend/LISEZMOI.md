@@ -29,9 +29,8 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
   place (tracé). Si le client a une autre commande NC-01 payée, il garde sa place.
 - **Abonnements** : actifs seulement après confirmation de Stripe. Un seul abonnement vivant par
   compte (index unique en base). Renouvellement annuel ; échec de paiement : 7 jours de grâce puis
-  expiration. Une seule formule payante : Signature (CHF 350/an, deux événements privés inclus par
-  année d'adhésion). Le Founders Club est gratuit et n'inclut ni événement ni voyage ; les fondateurs
-  viennent au tarif fondateur (30 % de remise : CHF 105 au lieu de 150) et ont 10 % sur les voyages.
+  expiration. Une seule formule payante : Signature (CHF 290/an, 50 membres au plus, collections 72 h avant le public ; événements payants). Le Founders Club est gratuit et n'inclut ni événement ni voyage ; les fondateurs
+  viennent au tarif fondateur (10 % de remise) et ont 10 % sur les voyages.
   Un fondateur peut aussi prendre Signature en plus.
 - **Accès anticipé** : la vente passe par `reserver_piece`, qui refuse un non-membre avant la date
   publique. Durée réglable par lancement. Stock décompté de façon atomique, pièce rendue si le
@@ -56,7 +55,7 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
    `supabase/mise-a-jour-1.sql` collés dans SQL Editor. Connexion par e-mail, Site URL et
    Redirect URL `https://noatestutgstyr-beep.github.io/Nocelli/**`.
 2. **Stripe** : compte en **mode test**, un seul produit, Signature Club. Prix depuis le 31.10.2026 :
-   **350 CHF par an** (créer ce nouveau prix annuel dans Stripe, mettre son identifiant `price_…` dans
+   **290 CHF par an** (créer ce nouveau prix annuel dans Stripe, mettre son identifiant `price_…` dans
    le secret `STRIPE_PRIX_SIGNATURE`, puis archiver l'ancien prix de 59 CHF). Base : coller `supabase/mise-a-jour-2.sql`.
 3. **Secrets Supabase** (Edge Functions > Secrets) : `STRIPE_SECRET_KEY` (`sk_test_`),
    `STRIPE_PRIX_SIGNATURE`, `SITE_URL`, `STRIPE_WEBHOOK_SECRET`. La fonction refuse une clé réelle
