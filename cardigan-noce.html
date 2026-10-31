@@ -359,6 +359,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .fermer{background:none;border:0;font-size:28px;line-height:1;cursor:pointer;width:44px;height:44px;margin:-8px -10px 0 0;color:var(--noce)}
 .guide-intro{font-size:14px;margin-top:12px}
 .guide-note{color:var(--tabacco);font-size:12.5px;margin-top:10px}
+.guide-liste{margin:8px 0 14px;padding-left:18px;font-size:14px;display:grid;gap:6px}
+.guide-liste b{font-weight:400}
+.guide-schema{display:block;width:100%;max-width:300px;margin:6px auto 4px;color:var(--noce)}
 .guide table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums lining-nums}
 .guide th,.guide td{padding:9px 6px;border-bottom:1px solid var(--filo);text-align:center;font-weight:300}
 .guide thead th{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:400}
@@ -595,28 +598,58 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 <dialog class="guide" id="guide" aria-labelledby="guide-titre">
   <div class="guide-in">
     <div class="guide-tete"><h2 id="guide-titre">Comment choisir ma taille</h2><button type="button" class="fermer" data-fermer aria-label="Fermer">×</button></div>
-    <p class="guide-intro">Mesurez votre tour de poitrine sous les bras, ruban bien à plat. Le cardigan est ajusté, avec environ 8 cm d'aisance à la poitrine.</p>
-    <h3>Votre taille idéale</h3>
+    <p class="guide-intro">Le Cardigan Noce est ajusté, sans être serré : 6 à 10 cm d'aisance à la poitrine, épaule naturelle, longueur à la ceinture. Deux façons de trouver votre taille.</p>
+    <h3>1. Avec un mètre ruban</h3>
+    <ul class="guide-liste">
+      <li><b>Poitrine.</b> Sous les bras, à l'endroit le plus large, ruban à plat, sans serrer. En t-shirt ou chemise fine, bras le long du corps.</li>
+      <li><b>Épaules.</b> Dans le dos, d'une pointe d'épaule à l'autre (l'os au sommet du bras).</li>
+      <li><b>Bras.</b> De la pointe de l'épaule au poignet, bras légèrement plié.</li>
+    </ul>
     <table>
-      <thead><tr><th scope="col">Votre tour de poitrine</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr></thead>
-      <tbody><tr><th scope="row">Taille conseillée</th><td>91 à 95 cm</td><td>96 à 100 cm</td><td>101 à 105 cm</td></tr></tbody>
+      <thead><tr><th scope="col">Votre mesure</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Tour de poitrine</th><td>91 à 95</td><td>96 à 100</td><td>101 à 105</td></tr>
+        <tr><th scope="row">Largeur d'épaules</th><td>41 à 43</td><td>43 à 45</td><td>45 à 47</td></tr>
+        <tr><th scope="row">Longueur de bras</th><td>60 à 63</td><td>62 à 65</td><td>64 à 67</td></tr>
+        <tr><th scope="row">Votre taille (indicatif)</th><td>168 à 178</td><td>175 à 185</td><td>182 à 192</td></tr>
+      </tbody>
     </table>
-    <p class="guide-note">Entre deux tailles : prenez la plus grande pour plus d'aisance, la plus petite pour une coupe près du corps.</p>
+    <p class="guide-note">En cm. La poitrine décide ; les épaules et les bras confirment.</p>
+    <h3>2. Avec un pull que vous aimez</h3>
+    <p class="guide-intro">Posez à plat un pull ou un cardigan qui vous va bien. Mesurez d'une couture à l'autre juste sous les bras, multipliez par deux, puis comparez au tour de poitrine du vêtement ci-dessous. Faites de même pour la longueur, du haut de l'épaule au bas du dos.</p>
     <h3>Mesures du vêtement (cm)</h3>
+    <svg class="guide-schema" viewBox="0 0 240 150" role="img" aria-label="Où sont prises les mesures du vêtement">
+      <path d="M92 14 L108 10 Q120 16 132 10 L148 14 L176 26 L204 112 L188 118 L164 58 L164 136 L76 136 L76 58 L52 118 L36 112 L64 26 Z" fill="none" stroke="currentColor" stroke-width=".9"/>
+      <path d="M120 16 V136" stroke="currentColor" stroke-width=".6" stroke-dasharray="2 2"/>
+      <g stroke="#9A6B43" stroke-width="1" fill="#9A6B43" font-family="Jost,sans-serif" font-size="9">
+        <line x1="78" y1="62" x2="162" y2="62"/><text x="112" y="58" stroke="none">A</text>
+        <line x1="66" y1="22" x2="174" y2="22"/><text x="116" y="34" stroke="none">B</text>
+        <line x1="180" y1="30" x2="202" y2="104"/><text x="196" y="62" stroke="none">C</text>
+        <line x1="84" y1="16" x2="84" y2="134"/><text x="88" y="100" stroke="none">D</text>
+      </g>
+    </svg>
     <table>
       <thead><tr><th scope="col">Mesure</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Tour de poitrine</th><td>101</td><td>106</td><td>111</td></tr>
+        <tr><th scope="row">A · Tour de poitrine</th><td>101</td><td>106</td><td>111</td></tr>
         <tr><th scope="row">Tour de taille</th><td>93</td><td>98</td><td>103</td></tr>
         <tr><th scope="row">Tour du bas</th><td>88</td><td>93</td><td>98</td></tr>
-        <tr><th scope="row">Longueur, du haut de l'épaule</th><td>62</td><td>64</td><td>66</td></tr>
-        <tr><th scope="row">Largeur d'épaules</th><td>42,5</td><td>44</td><td>45,5</td></tr>
-        <tr><th scope="row">Longueur de manche</th><td>63</td><td>64</td><td>65</td></tr>
+        <tr><th scope="row">B · Largeur d'épaules</th><td>42,5</td><td>44</td><td>45,5</td></tr>
+        <tr><th scope="row">C · Longueur de manche</th><td>63</td><td>64</td><td>65</td></tr>
+        <tr><th scope="row">D · Longueur, du haut de l'épaule</th><td>62</td><td>64</td><td>66</td></tr>
         <tr><th scope="row">Tour de biceps</th><td>33,4</td><td>35</td><td>36,6</td></tr>
         <tr><th scope="row">Hauteur du col</th><td>7</td><td>7</td><td>7</td></tr>
       </tbody>
     </table>
     <p class="guide-note">Mesures prises à plat, multipliées par deux pour les tours. Tolérance ±1 cm. Valeurs à confirmer sur les prototypes.</p>
+    <h3>Entre deux tailles</h3>
+    <ul class="guide-liste">
+      <li>Pour une coupe nette, près du corps, sur un t-shirt : la plus petite.</li>
+      <li>Pour le porter sur une chemise ou un col roulé : la plus grande.</li>
+      <li>Épaules larges ou bras longs : la plus grande, l'épaule et la manche tomberont juste.</li>
+      <li>Silhouette fine et grande : la taille de votre poitrine ; la longueur suit.</li>
+    </ul>
+    <p class="guide-note">Le mérinos se détend légèrement en le portant, il ne rétrécit pas avec un lavage laine à 30 °C.</p>
   </div>
 </dialog>
 
