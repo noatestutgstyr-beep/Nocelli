@@ -66,11 +66,11 @@
 .tableau thead th{font-family:var(--display);font-size:20px;vertical-align:bottom}
 .tableau thead th small{display:block;font-family:var(--body);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--tabacco);margin-top:6px}
 .tableau th[scope=row]{text-align:left;font-size:15.5px}
-.tableau td{width:22%}
+.tableau table{max-width:880px;margin-inline:auto}.tableau th[scope=row]{width:44%;padding-left:4px}.tableau td{width:28%}.tableau thead th{padding-bottom:26px}.tableau tbody th,.tableau tbody td{padding-block:clamp(13px,1.6vw,22px)}
 .tableau .col-founders{background:rgba(48,35,29,.05)}
 .oui,.nonc{display:inline-block;width:9px;height:9px}
 .oui{transform:rotate(45deg);background:var(--noce)}
-.nonc{width:14px;height:1px;background:rgba(58,37,25,.35);vertical-align:middle}
+.nonc{width:10px;height:1px;background:rgba(58,37,25,.22);vertical-align:middle}
 .tableau .val{display:inline-block;font-size:14px;line-height:1.3}
 .tableau .note{margin-top:16px;font-size:13px;color:var(--tabacco)}
 
@@ -232,7 +232,7 @@
           <tbody id="lignes-comparer"></tbody>
         </table>
       </div>
-      <p class="tableau note">Dîners, soirées et voyages payants séparément. Signature : 50 membres au plus. Places limitées.</p>
+      <p class="tableau note" style="max-width:880px;margin-inline:auto">Dîners, soirées et voyages payants séparément. Signature : 50 membres au plus. Places limitées.</p>
     </div>
   </section>
 

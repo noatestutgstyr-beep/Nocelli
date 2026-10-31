@@ -20,8 +20,7 @@
     ['Voyages NOCELLI', '10&nbsp;% de réduction', 'Accès prioritaire'],
     ['Rencontres entre membres', 0, 1],
     ['Votes sur les futures collections', 1, 1],
-    ['Carte numérique et imprimée', 1, 1],
-    ['Gratuit, à vie', 1, 0]
+    ['La carte', 'Numérotée', 'Noire, personnalisée']
   ];
   document.getElementById('lignes-comparer').innerHTML = LIGNES.map(function (l) {
     function c(v, i) { return '<td' + (i === 0 ? ' class="col-founders"' : '') + '>' + (typeof v === 'string' ? '<span class="val">' + v + '</span>' : v ? '<span class="oui" aria-hidden="true"></span><span class="sr">Oui</span>' : '<span class="nonc" aria-hidden="true"></span><span class="sr">Non</span>') + '</td>'; }
