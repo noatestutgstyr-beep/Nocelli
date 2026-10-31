@@ -89,13 +89,6 @@
 .faq .rep{padding-bottom:24px;max-width:62ch;display:grid;gap:12px;color:rgba(58,37,25,.85)}
 
 
-.trio{grid-template-columns:repeat(3,1fr);max-width:none}
-.formule.prive .cta .btn{background:#14100d;border-color:#14100d;color:#c9a46a;cursor:default}
-.carte-prive{position:relative;aspect-ratio:85.6/54;border-radius:4.5%/7%;background:radial-gradient(120% 90% at 30% 20%,#2a211b 0%,#14100d 60%,#0b0907 100%);box-shadow:0 22px 40px -18px rgba(20,14,10,.55),inset 0 0 0 1px rgba(201,164,106,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;overflow:hidden}
-.carte-prive::before{content:"";position:absolute;inset:6%;border:1px solid rgba(201,164,106,.45);border-radius:3%/5%}
-.carte-prive .cp-n{font-family:var(--display);font-size:clamp(18px,2vw,26px);letter-spacing:.32em;color:#c9a46a;padding-left:.32em}
-.carte-prive .cp-p{font-size:10px;letter-spacing:.5em;text-transform:uppercase;color:rgba(201,164,106,.75);padding-left:.5em}
-.carte-prive .cp-num{position:absolute;bottom:11%;font-size:9px;letter-spacing:.3em;color:rgba(201,164,106,.5)}
 @media (min-width:961px){.formule .desc{min-height:5.2em}}
 @media (max-width:600px){
   .tableau table{min-width:0}
@@ -172,7 +165,7 @@
       <div class="formules-tete">
         <div>
           <span class="eyebrow">Les cartes</span>
-          <h2>Trois cartes.</h2>
+          <h2>Deux cartes.</h2>
         </div>
         <p>Touchez une carte pour la retourner.</p>
       </div>
@@ -180,7 +173,6 @@
       <div class="onglets" role="tablist" aria-label="Formules">
         <button type="button" role="tab" aria-selected="true" aria-controls="f-founders" data-cible="0">Founders</button>
         <button type="button" role="tab" aria-selected="false" aria-controls="f-signature" data-cible="1">Signature</button>
-        <button type="button" role="tab" aria-selected="false" aria-controls="f-prive" data-cible="2">Privé</button>
       </div>
 
       <div class="trio" id="trio">
@@ -220,22 +212,8 @@
             <small>Déjà fondateur ? Signature s'ajoute à votre carte Founders.</small>
           </div>
         </article>
-
-        <article class="formule prive" id="f-prive">
-          <div class="scene-carte"><div class="carte-prive" role="img" aria-label="Carte NOCELLI Privé"><span class="cp-n">NOCELLI</span><span class="cp-p">Privé</span><span class="cp-num">N° — / —</span></div></div>
-          <div class="titre"><h3>NOCELLI Privé</h3><span class="prix">Sur invitation</span></div>
-          <p class="desc">La troisième carte. Elle ne s'achète pas et ne se demande pas.</p>
-          <ul>
-            <li>Remise en main propre</li>
-            <li>Avantages connus de ses seuls membres</li>
-            <li>Nombre de membres non communiqué</li>
-          </ul>
-          <div class="cta">
-            <span class="btn" aria-disabled="true">By invitation only</span>
-            <small>Les membres sont choisis par la maison.</small>
-          </div>
-        </article>
       </div>
+      <div style="margin-top:56px;display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,22px)"><span style="flex:0 1 90px;min-width:24px;height:1px;background:#b08d57"></span><p style="margin:0;text-align:center;font-family:'Bodoni Moda',serif;font-size:clamp(14px,2.2vw,18px);letter-spacing:.32em;white-space:nowrap;text-transform:uppercase;color:#30231D">Nocelli Privé<span style="display:block;margin-top:8px;font-family:Jost,sans-serif;font-size:10.5px;letter-spacing:.42em;color:#b08d57">By invitation only</span><span style="display:block;margin-top:16px;font-family:'Bodoni Moda',serif;font-style:italic;font-size:15px;letter-spacing:0;text-transform:none;color:rgba(58,37,25,.75);white-space:normal">Il existe une autre carte. Elle ne se demande pas.</span></p><span style="flex:0 1 90px;min-width:24px;height:1px;background:#b08d57"></span></div>
     </div>
   </section>
 
