@@ -12,8 +12,8 @@
     ['Notifications des lancements', function (d) { return d.membre; }],
     ['Deux événements privés par an inclus', function (d) { return d.signature; }],
     ['Événements privés : 30 % de remise', function (d) { return d.categorie === 'founders'; }, true],
-    ['Voyages avec la maison, 10 % de remise sur votre part', function (d) { return d.categorie === 'founders'; }, true],
-    ['Voyages avec la maison, à vos frais', function (d) { return d.signature && d.categorie !== 'founders'; }, true],
+    ['Voyages avec la maison : une place vous est réservée, 10 % de remise sur le voyage', function (d) { return d.categorie === 'founders'; }, true],
+    ['Voyages avec la maison : une place vous est réservée', function (d) { return d.signature && d.categorie !== 'founders'; }, true],
     ['Votes sur les futures collections', function (d) { return d.votes; }],
     ['Contenus réservés aux membres', function (d) { return d.contenus; }],
     ['Carte numérique et imprimée', function (d) { return d.membre; }],
@@ -321,7 +321,7 @@
   function blocEvenements(s) {
     var tete = '<div class="bloc-tete"><div><span class="eyebrow">Private Events</span><h2>Événements privés</h2></div>' +
       '<p>' + (s.droits.signature ? 'Deux événements inclus par année d’adhésion.' : 'Fondateurs : 30 % de remise sur chaque événement.') +
-      ' Voyages : chacun paie sa part, acompte non remboursable. Complet : liste d’attente.</p></div>';
+      ' Voyages : une place vous est réservée, le voyage est à la charge de chaque membre. Complet : liste d’attente.</p></div>';
     if (!s.droits.evenements) {
       return tete + '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Les événements privés sont réservés aux membres.</h3>' +
         '<p>Signature : deux événements inclus par an, CHF 350. Founders : tarif fondateur.</p></div>' +

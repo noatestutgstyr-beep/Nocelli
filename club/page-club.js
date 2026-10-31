@@ -16,8 +16,8 @@
   var LIGNES = [
     ['Collections 48 h avant le public', 1, 1],
     ['Priorité sur les éditions limitées', 1, 0],
-    ['Événements privés', '30 % de remise', '2 par an inclus'],
-    ['Voyages avec la maison', '10 % de remise', 'Votre part'],
+    ['Événements privés', '30&nbsp;% de remise', '2 par an inclus'],
+    ['Voyages avec la maison', 'Place réservée,<br>10&nbsp;% de remise', 'Place réservée'],
     ['Votes sur les futures collections', 1, 1],
     ['Carte numérique et imprimée', 1, 1],
     ['Gratuit, à vie', 1, 0]
