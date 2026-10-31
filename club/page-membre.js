@@ -11,7 +11,7 @@
     ['Les nouvelles collections 48 h avant le public', function (d) { return d.accesAnticipe; }],
     ['Notifications des lancements', function (d) { return d.membre; }],
     ['Deux événements privés par an inclus', function (d) { return d.signature; }],
-    ['Événements privés au tarif fondateur : CHF 100 au lieu de 150', function (d) { return d.categorie === 'founders'; }, true],
+    ['Événements privés : 30 % de remise', function (d) { return d.categorie === 'founders'; }, true],
     ['Voyages avec la maison, 10 % de remise sur votre part', function (d) { return d.categorie === 'founders'; }, true],
     ['Voyages avec la maison, à vos frais', function (d) { return d.signature && d.categorie !== 'founders'; }, true],
     ['Votes sur les futures collections', function (d) { return d.votes; }],
@@ -320,7 +320,7 @@
   /* ---------------- Événements ---------------- */
   function blocEvenements(s) {
     var tete = '<div class="bloc-tete"><div><span class="eyebrow">Private Events</span><h2>Événements privés</h2></div>' +
-      '<p>' + (s.droits.signature ? 'Deux événements inclus par année d’adhésion.' : 'Tarif fondateur : un tiers de moins que le prix normal.') +
+      '<p>' + (s.droits.signature ? 'Deux événements inclus par année d’adhésion.' : 'Fondateurs : 30 % de remise sur chaque événement.') +
       ' Voyages : chacun paie sa part, acompte non remboursable. Complet : liste d’attente.</p></div>';
     if (!s.droits.evenements) {
       return tete + '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Les événements privés sont réservés aux membres.</h3>' +

@@ -1,7 +1,7 @@
 -- NOCELLI PRIVATE CLUB — mise à jour 2 (31.10.2026) : nouvelles formules.
 -- À coller dans Supabase > SQL Editor, puis Run. Sans danger : ne supprime rien, peut être relancée.
 --   * Signature : CHF 350 par an, 2 événements privés inclus par année d'adhésion.
---   * Fondateurs : événements ouverts au tarif fondateur (un tiers de moins : CHF 100 au lieu de 150).
+--   * Fondateurs : événements ouverts au tarif fondateur (30 % de remise : CHF 105 au lieu de 150).
 -- Le prix de Signature lui-même est chez Stripe (secret STRIPE_PRIX_SIGNATURE) : voir LISEZMOI.md.
 
 -- 1. Chaque inscription garde son prix.
@@ -56,7 +56,7 @@ begin
     if v_pris < 2 then return query select 0::numeric, 'inclus', true, ab.id, ab.debut; return; end if;
   end if;
   v_fondateur := exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme');
-  if v_fondateur then return query select round(v_prix * 2 / 3), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
+  if v_fondateur then return query select round(v_prix * 0.7), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
   return query select v_prix, 'normal', false, null::uuid, null::timestamptz;
 end $$;
 

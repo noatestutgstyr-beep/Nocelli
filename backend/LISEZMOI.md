@@ -31,7 +31,7 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
   compte (index unique en base). Renouvellement annuel ; échec de paiement : 7 jours de grâce puis
   expiration. Une seule formule payante : Signature (CHF 350/an, deux événements privés inclus par
   année d'adhésion). Le Founders Club est gratuit et n'inclut ni événement ni voyage ; les fondateurs
-  viennent au tarif fondateur (un tiers de moins : CHF 100 au lieu de 150) et ont 10 % sur les voyages.
+  viennent au tarif fondateur (30 % de remise : CHF 105 au lieu de 150) et ont 10 % sur les voyages.
   Un fondateur peut aussi prendre Signature en plus.
 - **Accès anticipé** : la vente passe par `reserver_piece`, qui refuse un non-membre avant la date
   publique. Durée réglable par lancement. Stock décompté de façon atomique, pièce rendue si le

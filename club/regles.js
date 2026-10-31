@@ -32,12 +32,12 @@
    *    (par exemple une soirée cocktail et un dîner privé à Genève) ; au-delà,
    *    le membre paie le prix de l'événement.
    *  - Founders n'inclut ni événement ni voyage, mais les fondateurs peuvent venir
-   *    au tarif fondateur : un tiers de moins (CHF 100 au lieu de 150).
+   *    avec 30 % de remise (CHF 105 au lieu de 150), décision de Noa du 31.10.2026.
    *  - Voyages : les membres peuvent partir avec la maison, chacun paie sa part ;
    *    10 % de remise pour les fondateurs ; acompte non remboursable à la réservation.
    */
   var EVENEMENTS_INCLUS_SIGNATURE = 2;
-  var REMISE_EVENEMENT_FONDATEUR = 1 / 3;
+  var REMISE_EVENEMENT_FONDATEUR = 0.30;
   var REMISE_VOYAGE_FONDATEUR = 0.10;
 
   var CATEGORIES = {
@@ -448,13 +448,13 @@
   }
 
   function prixFondateur(prix) {
-    return Math.round(prix * (1 - REMISE_EVENEMENT_FONDATEUR));
+    return Math.round(prix * Math.round(100 - REMISE_EVENEMENT_FONDATEUR * 100) / 100);
   }
 
   /*
    * Ce que ce compte paierait pour cet événement :
    *  - Signature avec un événement inclus encore libre cette année : 0 (inclus) ;
-   *  - sinon fondateur : tarif fondateur (un tiers de moins) ;
+   *  - sinon fondateur : tarif fondateur (30 % de remise) ;
    *  - sinon : le prix de l'événement.
    * Un événement gratuit ne consomme pas d'événement inclus. null = pas membre.
    */

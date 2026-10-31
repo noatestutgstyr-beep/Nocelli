@@ -104,6 +104,9 @@
       var r = el.classList.toggle('retournee');
       el.setAttribute('aria-pressed', r ? 'true' : 'false');
     }
+    // Un clic ou un toucher ne donne pas le focus à la carte : le focus faisait défiler la page
+    // (jusqu'en haut dans l'aperçu claude.ai). Le clavier (Tab, Entrée, Espace) marche toujours.
+    el.addEventListener('mousedown', function (e) { e.preventDefault(); });
     el.addEventListener('click', basculer);
     el.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); basculer(); }
@@ -169,7 +172,7 @@
     actions.querySelector('[data-f]').addEventListener('click', fermer);
     voile.addEventListener('click', function (e) { if (e.target === voile) fermer(); });
     if (voile.requestFullscreen) voile.requestFullscreen().catch(function () {});
-    c.focus();
+    c.focus({ preventScroll: true });
     return voile;
   }
 

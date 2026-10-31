@@ -450,7 +450,7 @@ end $$;
 -- ===========================================================================
 -- ÉVÉNEMENTS : membres Signature et fondateurs. Prix (même règle que club/regles.js) :
 --   Signature : 2 événements inclus par année d'adhésion, puis le prix normal ;
---   fondateur : un tiers de moins (CHF 100 au lieu de 150) ; un événement gratuit ne compte pas.
+--   fondateur : 30 % de remise (CHF 105 au lieu de 150) ; un événement gratuit ne compte pas.
 -- ===========================================================================
 create or replace function public.tarif_evenement(p_compte uuid, p_evenement uuid)
 returns table (montant numeric, tarif text, inclus boolean, abonnement_id uuid, periode timestamptz)
@@ -471,7 +471,7 @@ begin
     if v_pris < 2 then return query select 0::numeric, 'inclus', true, ab.id, ab.debut; return; end if;
   end if;
   v_fondateur := exists (select 1 from public.places_fondateurs where compte_id = p_compte and statut = 'confirme');
-  if v_fondateur then return query select round(v_prix * 2 / 3), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
+  if v_fondateur then return query select round(v_prix * 0.7), 'fondateur', false, null::uuid, null::timestamptz; return; end if;
   return query select v_prix, 'normal', false, null::uuid, null::timestamptz;
 end $$;
 

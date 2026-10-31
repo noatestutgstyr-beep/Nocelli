@@ -214,7 +214,7 @@ reset role;
 select ok((select montant = 0 and inclus from inscriptions where compte_id = :'s1' and evenement_id = :'soiree'), 'Signature : 1er événement inclus');
 select ok((select montant = 0 and inclus from inscriptions where compte_id = :'s1' and evenement_id = :'diner'), 'Signature : 2e événement inclus');
 select ok((select montant = 150 and tarif = 'normal' from inscriptions where compte_id = :'s1' and evenement_id = :'troisieme'), 'Signature : 3e événement au prix normal');
-select ok((select montant = 100 and tarif = 'fondateur' from inscriptions where compte_id = :'a' and evenement_id = :'soiree'), 'fondateur : CHF 100 au lieu de 150');
+select ok((select montant = 105 and tarif = 'fondateur' from inscriptions where compte_id = :'a' and evenement_id = :'soiree'), 'fondateur : CHF 105 au lieu de 150 (30 %)');
 
 -- ---------------------------------------------------------------------------
 \echo '— Administration tracée'

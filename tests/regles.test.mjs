@@ -346,7 +346,7 @@ test('Signature : 2 événements inclus par année, le 3e au prix normal ; annul
   assert.equal(R.tarifEvenement(e, a.id, ev4.id, ab.fin + J).inclusRestants, 2);
 });
 
-test('fondateur : un tiers de moins sur les événements (CHF 100 au lieu de 150), rien n’est inclus', () => {
+test('fondateur : 30 % de remise sur les événements (CHF 105 au lieu de 150), rien n’est inclus', () => {
   const e = R.etatVide();
   const f = client(e, 1), fs = client(e, 2);
   R.confirmerPaiementCommande(e, commande(e, f.id).id, T0);
@@ -354,12 +354,12 @@ test('fondateur : un tiers de moins sur les événements (CHF 100 au lieu de 150
   abonner(e, fs.id, 'signature');
   const evs = ['evt_1', 'evt_2', 'evt_3'].map(id => evenementPrix(e, 150, 20, id));
   const i = R.inscrireEvenement(e, f.id, evs[0].id, T0);
-  assert.deepEqual([i.montant, i.inclus, i.tarif], [100, false, 'fondateur']);
-  assert.equal(R.prixFondateur(90), 60);
+  assert.deepEqual([i.montant, i.inclus, i.tarif], [105, false, 'fondateur']);
+  assert.equal(R.prixFondateur(90), 63);
   // fondateur avec Signature : 2 inclus, puis tarif fondateur
   assert.equal(R.inscrireEvenement(e, fs.id, evs[0].id, T0).montant, 0);
   assert.equal(R.inscrireEvenement(e, fs.id, evs[1].id, T0).montant, 0);
-  assert.equal(R.inscrireEvenement(e, fs.id, evs[2].id, T0).montant, 100);
+  assert.equal(R.inscrireEvenement(e, fs.id, evs[2].id, T0).montant, 105);
   // un événement gratuit reste gratuit et ne consomme rien
   const libre = evenementPrix(e, 0, 20, 'evt_libre');
   assert.equal(R.tarifEvenement(e, f.id, libre.id, T0).montant, 0);
