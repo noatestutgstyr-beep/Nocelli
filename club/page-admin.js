@@ -239,7 +239,7 @@
               '<td>' + (p.statut === 'confirme' ? '<span class="pastille ok">Confirmé</span>' : '<span class="pastille refus">Retiré</span><br><small>' + e(p.motif || '') + ', ' + NC.date(p.retireLe) + '</small>') + '</td>' +
               '<td class="n">' + NC.date(p.attribueLe) + '</td>' +
               '<td>' + (p.statut === 'retire' ? (r.candidats.length ? '<button class="btn petit" type="button" data-redonner="' + p.numero + '">Redonner</button>' : '<small>Aucun acheteur payé sans place</small>') : '') + '</td></tr>';
-          }).join('') + '</tbody></table></div>' : '<p style="margin-top:22px"><span class="pastille neutre">Aucun fondateur pour l’instant : la vente NC-01 ouvre le 25 novembre à 19h</span></p>'));
+          }).join('') + '</tbody></table></div>' : '<p style="margin-top:22px"><span class="pastille neutre">Aucun fondateur pour l’instant : la vente NC-01 ouvre le 1er décembre à 19h</span></p>'));
       document.querySelectorAll('[data-redonner]').forEach(function (b) {
         b.addEventListener('click', function () {
           var n = +b.dataset.redonner;

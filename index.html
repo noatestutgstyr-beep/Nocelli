@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nocelli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Nocelli, pièces en séries numérotées. La collection d'automne sort le mercredi 25 novembre à 19h00, heure suisse. Inscription par e-mail pour commander.">
+<meta name="description" content="Nocelli, pièces en séries numérotées. La collection d'automne sort le mardi 1er décembre à 19h00, heure suisse. Inscription par e-mail pour commander.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="club/cartes.css">
@@ -440,7 +440,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 <body>
 
 
-<div class="annonce">Prima Edizione &nbsp;·&nbsp; 50 pièces numérotées &nbsp;·&nbsp; Ouverture le 25 novembre à 19h</div>
+<div class="annonce">Prima Edizione &nbsp;·&nbsp; 50 pièces numérotées &nbsp;·&nbsp; Ouverture le 1er décembre à 19h</div>
 
 <header>
   <div class="wrap nav">
@@ -468,7 +468,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     <li><a href="club.html">Private Club</a></li>
     <li><a href="membre.html">Mon compte</a></li>
   </ul>
-  <p>Prima Edizione · Ouverture le 25 novembre</p>
+  <p>Prima Edizione · Ouverture le 1er décembre</p>
 </div>
 
 <main id="haut">
@@ -488,7 +488,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         <a class="lien" href="#collection">Découvrir la collection</a>
       </div>
       <div class="compte" data-compte>
-        <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mercredi 25 novembre · 19h00, heure suisse</span></div>
+        <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mardi 1er décembre · 19h00, heure suisse</span></div>
         <div class="compte-grille" role="timer" aria-live="off">
           <div><b data-u="j">--</b><span>Jours</span></div>
           <div><b data-u="h">--</b><span>Heures</span></div>
@@ -532,9 +532,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     <div class="wrap liste-in">
       <span class="eyebrow">Lista Privata</span>
       <h2>Inscrivez-vous.</h2>
-      <p class="sous">Ouverture le mercredi 25 novembre à 19h00, heure suisse. Les inscrits reçoivent le lien de commande en premier.</p>
+      <p class="sous">Ouverture le mardi 1er décembre à 19h00, heure suisse. Les inscrits reçoivent le lien de commande en premier.</p>
       <div class="compte compte-liste" data-compte>
-          <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mercredi 25 novembre · 19h00, heure suisse</span></div>
+          <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mardi 1er décembre · 19h00, heure suisse</span></div>
           <div class="compte-grille" role="timer" aria-live="off">
             <div><b data-u="j">--</b><span>Jours</span></div>
             <div><b data-u="h">--</b><span>Heures</span></div>
@@ -569,7 +569,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <div class="merci" id="merci" hidden>
         <span class="eyebrow">Grazie</span>
         <h3 id="merci-titre">Vous êtes sur la liste.</h3>
-        <p>Vous recevrez le lien de commande le 25 novembre à 19h00.</p>
+        <p>Vous recevrez le lien de commande le 1er décembre à 19h00.</p>
       </div>
 
       <p class="mention">Aucun paiement maintenant. Désinscription possible à tout moment.</p>
@@ -753,8 +753,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   guide.querySelector('[data-fermer]').addEventListener('click',function(){if(guide.close)guide.close();else guide.removeAttribute('open');});
   guide.addEventListener('click',function(e){if(e.target===guide)guide.close();});
 
-  // Compte à rebours : 25 novembre 2026, 19h00 à Zurich (CET, UTC+1) = 18h00 UTC
-  var DROP=Date.UTC(2026,10,25,18,0,0);
+  // Compte à rebours : 1er décembre 2026, 19h00 à Zurich (CET, UTC+1) = 18h00 UTC
+  var DROP=Date.UTC(2026,11,1,18,0,0);
   var comptes=document.querySelectorAll('[data-compte]');
   var barreTxt=document.querySelector('[data-barre]');
   function deux(n){return (n<10?'0':'')+n;}
