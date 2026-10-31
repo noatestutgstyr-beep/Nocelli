@@ -23,7 +23,7 @@
     ' vec3 n=normalize(vN);',
     ' if(texture2D(tM,uvF).r<.5&&abs(n.z)>.55)discard;',
     ' vec2 h=normalize(n.xz+vec2(0.,1e-4));',
-    ' float wf=pow(max(h.y,0.),3.),wb=pow(max(-h.y,0.),3.),ws=pow(abs(h.x),3.);',
+    ' float wf=pow(max(h.y,0.),6.),wb=pow(max(-h.y,0.),6.),ws=pow(abs(h.x),6.);',
     ' vec3 c=(texture2D(tF,uvF).rgb*wf+texture2D(tB,uvB).rgb*wb+texture2D(tS,uvS).rgb*ws)/(wf+wb+ws+1e-4);',
     ' float kf=texture2D(tK,vP.xy*uK.x).r,ks=texture2D(tK,vec2(vP.z,vP.y)*uK.x).r;',
     ' float k=mix(kf,ks,ws/(wf+wb+ws+1e-4));',
