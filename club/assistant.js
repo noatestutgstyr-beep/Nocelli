@@ -73,26 +73,30 @@
     '<div class="as-boite">' +
       '<div class="as-tete"><span class="as-titre">Une question ?</span><span class="as-sous">La maison vous répond</span></div>' +
       '<div class="as-fil" aria-live="polite"><p class="as-m as-n">Bonjour. Posez-moi votre question sur NOCELLI, le Cardigan Noce, les tailles, la livraison ou le club.</p></div>' +
-      '<div class="as-sugg"></div>' +
       '<form class="as-f" autocomplete="off"><label class="sr" for="as-q">Votre question</label><input id="as-q" type="text" placeholder="Écrivez votre question…" maxlength="200"><button type="submit" aria-label="Envoyer">→</button></form>' +
+      '<div class="as-sugg"></div>' +
     '</div>';
   var st = document.createElement('style');
   st.textContent =
-    '#assistant{max-width:420px}' +
-    '#assistant .as-boite{border:1px solid var(--filo,#d8cbb8);background:#FBF8F3;display:grid}' +
-    '#assistant .as-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:16px 20px;background:#30231D;color:#F7F3EC}' +
-    '#assistant .as-titre{font-family:"Bodoni Moda",serif;font-size:19px}' +
-    '#assistant .as-sous{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:#c9a46a}' +
-    '#assistant .as-fil{display:flex;flex-direction:column;gap:10px;padding:18px 20px;max-height:300px;overflow-y:auto;scroll-behavior:smooth}' +
-    '#assistant .as-m{margin:0;padding:10px 14px;font-size:14.5px;line-height:1.55;max-width:88%}' +
-    '#assistant .as-n{align-self:flex-start;background:#EFE6D8;color:#3A2519;font-family:"Bodoni Moda",serif;font-size:15.5px}' +
-    '#assistant .as-u{align-self:flex-end;background:#30231D;color:#F7F3EC}' +
-    '#assistant .as-sugg{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 14px}' +
-    '#assistant .as-sugg button{border:1px solid rgba(58,37,25,.25);background:none;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;color:#3A2519;cursor:pointer}' +
-    '#assistant .as-sugg button:hover{border-color:#3A2519}' +
-    '#assistant .as-f{display:flex;border-top:1px solid var(--filo,#d8cbb8)}' +
-    '#assistant input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:15px;padding:14px 20px;color:#3A2519;outline:none}' +
-    '#assistant .as-f button{border:0;background:#30231D;color:#F7F3EC;width:52px;font-size:18px;cursor:pointer}' +
+    '#assistant{max-width:430px}' +
+    '#assistant .as-boite{position:relative;border:1px solid rgba(176,141,87,.45);background:#FBF8F3;padding:34px 30px 26px;display:grid;gap:22px}' +
+    '#assistant .as-boite::before{content:"";position:absolute;inset:5px;border:1px solid rgba(176,141,87,.18);pointer-events:none}' +
+    '#assistant .as-tete{display:grid;justify-items:center;gap:10px;text-align:center}' +
+    '#assistant .as-tete::before{content:"";width:7px;height:7px;transform:rotate(45deg);border:1px solid #b08d57}' +
+    '#assistant .as-titre{font-family:"Bodoni Moda",serif;font-size:25px;letter-spacing:.01em;color:#30231D}' +
+    '#assistant .as-sous{font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;color:#b08d57}' +
+    '#assistant .as-fil{display:flex;flex-direction:column;gap:18px;max-height:320px;overflow-y:auto;scroll-behavior:smooth;padding-top:20px;border-top:1px solid rgba(176,141,87,.35);scrollbar-width:thin}' +
+    '#assistant .as-m{margin:0;line-height:1.6}' +
+    '#assistant .as-n{font-family:"Bodoni Moda",serif;font-style:italic;font-size:16.5px;color:#3A2519;padding-left:16px;border-left:1px solid #b08d57}' +
+    '#assistant .as-u{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(58,37,25,.6);text-align:right}' +
+    '#assistant .as-sugg{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px}' +
+    '#assistant .as-sugg button{border:0;border-bottom:1px solid rgba(176,141,87,.5);background:none;padding:2px 0;font:inherit;font-size:12.5px;color:rgba(58,37,25,.8);cursor:pointer;transition:color .3s,border-color .3s}' +
+    '#assistant .as-sugg button:hover{color:#30231D;border-color:#30231D}' +
+    '#assistant .as-f{display:flex;align-items:center;border-bottom:1px solid #30231D}' +
+    '#assistant input{flex:1;min-width:0;border:0;background:none;font-family:"Bodoni Moda",serif;font-style:italic;font-size:16px;padding:12px 0;color:#3A2519;outline:none}' +
+    '#assistant input::placeholder{color:rgba(58,37,25,.45)}' +
+    '#assistant .as-f button{border:0;background:none;color:#b08d57;font-size:20px;padding:0 2px 0 12px;cursor:pointer;transition:transform .3s}' +
+    '#assistant .as-f button:hover{transform:translateX(3px)}' +
     '#assistant .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}';
   document.head.appendChild(st);
   var fil = hote.querySelector('.as-fil'), champ = hote.querySelector('input'), sugg = hote.querySelector('.as-sugg');
