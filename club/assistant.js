@@ -1,7 +1,34 @@
 // Case à questions NOCELLI : répond à partir des informations publiques de la marque (aucun service externe).
 (function () {
   var hote = document.getElementById('assistant');
-  if (!hote) return;
+  if (!hote) {
+    // Pages sans section questions (accueil) : petit bouton flottant qui ouvre la même case.
+    var lanceur = document.createElement('button');
+    lanceur.type = 'button'; lanceur.className = 'as-lanceur'; lanceur.setAttribute('aria-expanded', 'false');
+    lanceur.innerHTML = '<span class="as-l-d"></span><span class="as-l-t">Une question ?</span><span class="as-l-q">?</span>'; lanceur.setAttribute('aria-label', 'Une question ?');
+    var volet = document.createElement('div');
+    volet.className = 'as-volet'; volet.hidden = true;
+    volet.innerHTML = '<button type="button" class="as-fermer" aria-label="Fermer">×</button><div id="assistant"></div>';
+    document.body.appendChild(volet); document.body.appendChild(lanceur);
+    hote = volet.querySelector('#assistant');
+    var s2 = document.createElement('style');
+    s2.textContent =
+      '.as-lanceur{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:60;display:inline-flex;align-items:center;gap:10px;padding:12px 18px;background:#30231D;color:#F7F3EC;border:1px solid rgba(201,164,106,.6);font-family:Jost,sans-serif;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 30px -14px rgba(20,14,10,.6);transition:transform .3s}' +
+      '.as-lanceur:hover{transform:translateY(-2px)}' +
+      '.as-l-q{display:none;font-family:"Bodoni Moda",serif;font-size:20px;letter-spacing:0}' +
+      '@media (max-width:600px){.as-lanceur{width:46px;height:46px;padding:0;justify-content:center;border-radius:50%}.as-l-t,.as-l-d{display:none}.as-l-q{display:block}}' +
+      '.as-l-d{width:6px;height:6px;transform:rotate(45deg);border:1px solid #c9a46a}' +
+      '.as-volet{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(max(18px,env(safe-area-inset-bottom)) + 56px);z-index:61;width:min(430px,calc(100vw - 32px));max-height:calc(100vh - 110px);overflow:auto;box-shadow:0 30px 60px -24px rgba(20,14,10,.45)}' +
+      '.as-volet #assistant{max-width:none}' +
+      '.as-fermer{position:absolute;top:10px;right:14px;z-index:2;border:0;background:none;font-size:22px;color:#b08d57;cursor:pointer}';
+    document.head.appendChild(s2);
+    lanceur.addEventListener('click', function () {
+      volet.hidden = !volet.hidden; lanceur.setAttribute('aria-expanded', String(!volet.hidden));
+      if (!volet.hidden) setTimeout(function () { var c = volet.querySelector('input'); if (c) c.focus({ preventScroll: true }); }, 50);
+    });
+    volet.querySelector('.as-fermer').addEventListener('click', function () { volet.hidden = true; lanceur.setAttribute('aria-expanded', 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { volet.hidden = true; lanceur.setAttribute('aria-expanded', 'false'); } });
+  }
   // [mots-clés, réponse]. Les mots sont comparés sans accents, avec tolérance aux fautes.
   var R = [
     [['nocelli', 'marque', 'maison', 'qui etes', 'histoire', 'origine', 'nom', 'signifie', 'veut dire', 'concept', 'fondateur de la marque', 'createur'], "NOCELLI est une maison suisse de vêtements en petites séries. Le nom vient de « noce », le noyer en italien : une couleur, un bois, une idée de durée. Chaque pièce est éditée en quantité limitée et numérotée."],
