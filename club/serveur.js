@@ -37,7 +37,8 @@
     epuise: 'Cette taille est épuisée.',
     introuvable: 'Introuvable ou plus disponible.',
     passe: 'Cet événement est passé.',
-    reserve_signature: 'Les événements privés sont réservés aux membres Signature Club.',
+    reserve_signature: 'Les événements privés sont réservés aux membres du Private Club.',
+    reserve_club: 'Les événements privés sont réservés aux membres du Private Club.',
     aucune_inscription: 'Aucune inscription à annuler.',
     deja_abonne: 'Vous êtes déjà membre Signature.',
     formule_non_vendue: 'Formule inconnue.',
@@ -198,7 +199,9 @@
         db.from('commandes').select('*').eq('compte_id', id).then(ok),
         db.from('paiements').select('*').eq('compte_id', id).then(ok),
         db.from('envois_cartes').select('*').eq('compte_id', id).neq('statut', 'annulee').order('cree_le').then(ok),
-        db.from('adresses').select('*').eq('compte_id', id).maybeSingle().then(ok)
+        db.from('adresses').select('*').eq('compte_id', id).maybeSingle().then(ok),
+        // Prix de chaque événement pour ce membre (mise-a-jour-2.sql) ; sans elle, on n'affiche que le prix normal.
+        rpc('mes_tarifs_evenements', {}).catch(function () { return []; })
       ]).then(function (r) {
         var p = r[0], ligne = (r[1] || [])[0], place = r[2], abs = r[3];
         var compte = { id: p.id, email: p.email, nom: p.nom, role: p.role, suspendu: p.suspendu, numeroMembre: p.numero_membre, carteJeton: p.carte_jeton, creeLe: ms(p.cree_le), adresse: adresseDe(r[12]) };
@@ -209,11 +212,14 @@
         var d = droitsDe(ligne, fondateur, ab, compte);
         var places = {}; r[7].forEach(function (x) { places[x.id] = x; });
         var mesInscr = {}; r[8].forEach(function (i) { mesInscr[i.evenement_id] = i; });
+        var tarifs = {}; (r[13] || []).forEach(function (t) { tarifs[t.evenement_id] = t; });
         var evenements = d.membre ? r[6].map(function (e) {
           var v = evenementDe(e);
           v.restantes = places[e.id] ? places[e.id].restantes : e.capacite;
           var i = mesInscr[e.id];
           v.monInscription = i ? i.statut : null;
+          var t = (i && i.tarif) ? i : tarifs[e.id];
+          v.monTarif = t ? { montant: Number(t.montant) || 0, tarif: t.tarif } : null;
           if (i && i.statut === 'attente') v.rangAttente = (places[e.id] ? places[e.id].en_attente : 1);
           return v;
         }) : [];
@@ -365,7 +371,7 @@
           v.restantes = places[e.id] ? places[e.id].restantes : e.capacite;
           v.inscrits = r[2].filter(function (i) { return i.evenement_id === e.id; }).sort(function (a, b) { return ms(a.cree_le) - ms(b.cree_le); }).map(function (i) {
             var c = parId[i.compte_id] || {};
-            return { email: c.email, nom: c.nom, statut: i.statut, creeLe: ms(i.cree_le) };
+            return { email: c.email, nom: c.nom, statut: i.statut, creeLe: ms(i.cree_le), montant: Number(i.montant) || 0, tarif: i.tarif || 'gratuit' };
           });
           return v;
         });

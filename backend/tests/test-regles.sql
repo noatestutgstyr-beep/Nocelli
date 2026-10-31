@@ -65,7 +65,7 @@ select ok(confirmer_paiement_commande(:'ca2', 'pay_a2') is null, 'deuxième card
 select ok(confirmer_paiement_commande(:'cb', 'pay_b') = 2, 'client suivant : numéro 002');
 select ok(confirmer_paiement_commande(:'cc', 'pay_c') is null, 'autre produit : pas de place');
 select ok((select categorie from droits_de(:'a')) = 'founders', 'le fondateur a la catégorie Founders');
-select ok((select votes and acces_anticipe and not evenements from droits_de(:'a')), 'le fondateur : avant-premières et votes, sans événements privés');
+select ok((select votes and acces_anticipe and evenements from droits_de(:'a')), 'le fondateur : avant-premières, votes, événements à tarif fondateur');
 
 select ok(fermer_commande(:'ca1', 'remboursee', 'ref_a1') = 'transferee', 'remboursement d''un des deux cardigans : place gardée');
 select ok((select numero from places_fondateurs where compte_id = :'a' and statut = 'confirme') = 1, 'même numéro 001');
@@ -121,7 +121,7 @@ do $$ begin
   exception when check_violation then perform ok(true, 'la base refuse toute autre formule que Signature'); end;
 end $$;
 select ok(peut_souscrire(:'a', 'signature') = 'ok', 'un fondateur peut prendre Signature');
-select ok(not (select evenements from droits_de(:'a')), 'fondateur seul : pas d''événements privés');
+select ok((select evenements from droits_de(:'a')), 'fondateur seul : événements ouverts (payants)');
 select ok((select acces_anticipe and votes and contenus from droits_de(:'a')), 'fondateur : avant-premières, votes, contenus');
 select ok(test_abonner(:'luca', 'signature') = 'ok', 'Signature activé par le webhook');
 select ok(peut_souscrire(:'luca', 'signature') = 'deja_abonne', 'pas de deuxième abonnement');
@@ -145,7 +145,7 @@ end $$;
 
 -- ---------------------------------------------------------------------------
 \echo '— Accès anticipé'
-select test_compte('visiteur@exemple.ch') as vis \gset
+select test_compte('passant@exemple.ch') as vis \gset
 insert into lancements (nom, produit, prix, public_le, heures_anticipees, publie)
 values ('NC-02 test', 'NC-02', 159, now() + interval '10 hours', 48, true) returning id as lan \gset
 insert into stock_lancement values (:'lan', 'M', 5);
@@ -180,10 +180,10 @@ select test_compte('s1@exemple.ch') as s1, test_compte('s2@exemple.ch') as s2 \g
 select test_abonner(:'s1', 'signature'), test_abonner(:'s2', 'signature');
 insert into evenements (titre, date, lieu, capacite, publie) values ('Présentation', now() + interval '20 days', 'Lugano', 1, true) returning id as ev \gset
 set role authenticated;
-select set_config('request.jwt.claim.sub', :'a', false);
+select set_config('request.jwt.claim.sub', :'vis', false);
 do $$ begin
   begin perform inscrire_evenement((select id from evenements where titre = 'Présentation')); raise exception 'inscrit';
-  exception when insufficient_privilege then perform ok(true, 'fondateur sans Signature : inscription aux événements refusée'); end;
+  exception when insufficient_privilege then perform ok(true, 'non-membre : inscription aux événements refusée'); end;
 end $$;
 select set_config('request.jwt.claim.sub', :'s1', false);
 select ok(inscrire_evenement(:'ev') = 'confirme', 'Signature : inscription confirmée');
@@ -195,6 +195,26 @@ select set_config('request.jwt.claim.sub', :'s1', false);
 select annuler_inscription(:'ev');
 reset role;
 select ok((select statut from inscriptions where evenement_id = :'ev' and compte_id = :'s2') = 'confirme', 'place libérée : la liste d''attente passe');
+
+\echo '— Prix des événements'
+insert into evenements (titre, date, lieu, capacite, prix, publie) values
+  ('Soirée', now() + interval '21 days', 'Genève', 20, 150, true),
+  ('Dîner', now() + interval '22 days', 'Genève', 20, 150, true),
+  ('Troisième', now() + interval '23 days', 'Genève', 20, 150, true);
+select id as soiree from evenements where titre = 'Soirée' \gset
+select id as diner from evenements where titre = 'Dîner' \gset
+select id as troisieme from evenements where titre = 'Troisième' \gset
+set role authenticated;
+select set_config('request.jwt.claim.sub', :'s1', false);
+select inscrire_evenement(:'soiree'), inscrire_evenement(:'diner'), inscrire_evenement(:'troisieme');
+select ok((select count(*) from mes_tarifs_evenements()) >= 3, 'un membre lit ses propres tarifs');
+select set_config('request.jwt.claim.sub', :'a', false);
+select inscrire_evenement(:'soiree');
+reset role;
+select ok((select montant = 0 and inclus from inscriptions where compte_id = :'s1' and evenement_id = :'soiree'), 'Signature : 1er événement inclus');
+select ok((select montant = 0 and inclus from inscriptions where compte_id = :'s1' and evenement_id = :'diner'), 'Signature : 2e événement inclus');
+select ok((select montant = 150 and tarif = 'normal' from inscriptions where compte_id = :'s1' and evenement_id = :'troisieme'), 'Signature : 3e événement au prix normal');
+select ok((select montant = 100 and tarif = 'fondateur' from inscriptions where compte_id = :'a' and evenement_id = :'soiree'), 'fondateur : CHF 100 au lieu de 150');
 
 -- ---------------------------------------------------------------------------
 \echo '— Administration tracée'

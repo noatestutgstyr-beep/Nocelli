@@ -10,7 +10,10 @@
   var AVANTAGES = [
     ['Les nouvelles collections 48 h avant le public', function (d) { return d.accesAnticipe; }],
     ['Notifications des lancements', function (d) { return d.membre; }],
-    ['Événements privés et présentations', function (d) { return d.evenements; }],
+    ['Deux événements privés par an inclus', function (d) { return d.signature; }],
+    ['Événements privés au tarif fondateur : CHF 100 au lieu de 150', function (d) { return d.categorie === 'founders'; }, true],
+    ['Voyages avec la maison, 10 % de remise sur votre part', function (d) { return d.categorie === 'founders'; }, true],
+    ['Voyages avec la maison, à vos frais', function (d) { return d.signature && d.categorie !== 'founders'; }, true],
     ['Votes sur les futures collections', function (d) { return d.votes; }],
     ['Contenus réservés aux membres', function (d) { return d.contenus; }],
     ['Carte numérique et imprimée', function (d) { return d.membre; }],
@@ -126,7 +129,7 @@
       '<div class="scene" id="scene-carte"><div class="outils"><button class="lien" type="button" id="carte-retourner">Retourner</button><button class="lien" type="button" id="carte-plein">Plein écran</button></div></div>' +
       '<div><span class="eyebrow">La mia tessera</span><h2 style="margin:12px 0 28px;font-size:clamp(28px,3vw,40px)">' + NOMS[d.categorie] + '</h2>' +
       '<dl class="fiche">' + lignes + '</dl>' +
-      (ab ? blocGestion(s) : '<p style="margin-top:22px;font-size:14px"><a class="lien" href="club.html#rejoindre-signature">Ajouter Signature pour les événements privés · CHF 59/an</a></p>') +
+      (ab ? blocGestion(s) : '<p style="margin-top:22px;font-size:14px"><a class="lien" href="club.html#rejoindre-signature">Ajouter Signature : deux événements inclus par an · CHF 350/an</a></p>') +
       '</div></div>';
   }
 
@@ -243,8 +246,8 @@
     if (der && der.statut === 'echoue') etat = '<p style="margin-top:14px"><span class="pastille refus">Dernier paiement refusé, rien n’a été activé</span></p>';
     if (s.compte.suspendu) etat = '<p style="margin-top:14px"><span class="pastille refus">Accès suspendu, contactez-nous</span></p>';
     return '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Vous n’êtes pas encore membre.</h3>' +
-      '<p>Signature : les collections 48 h avant le public et les événements privés, CHF 59 par an. Founders : offerte aux 50 premiers acheteurs du cardigan NC-01.</p>' + etat + '</div>' +
-      '<div style="display:grid;gap:10px"><a class="btn clair" href="club.html#rejoindre-signature">Rejoindre Signature · CHF 59</a></div></div>';
+      '<p>Signature : les collections 48 h avant le public et deux événements privés par an inclus, CHF 350 par an. Founders : offerte aux 50 premiers acheteurs du cardigan NC-01.</p>' + etat + '</div>' +
+      '<div style="display:grid;gap:10px"><a class="btn clair" href="club.html#rejoindre-signature">Rejoindre Signature · CHF 350</a></div></div>';
   }
 
   function listeAvantages(d) {
@@ -317,11 +320,12 @@
   /* ---------------- Événements ---------------- */
   function blocEvenements(s) {
     var tete = '<div class="bloc-tete"><div><span class="eyebrow">Private Events</span><h2>Événements privés</h2></div>' +
-      '<p>Chaque événement indique s’il est payant. Complet : liste d’attente.</p></div>';
+      '<p>' + (s.droits.signature ? 'Deux événements inclus par année d’adhésion.' : 'Tarif fondateur : un tiers de moins que le prix normal.') +
+      ' Voyages : chacun paie sa part, acompte non remboursable. Complet : liste d’attente.</p></div>';
     if (!s.droits.evenements) {
-      return tete + '<div class="verrou"><div><span class="eyebrow">Signature</span><h3>Les événements privés sont réservés à Signature.</h3>' +
-        '<p>Ajoutez Signature à votre carte Founders pour CHF 59 par an. Vous gardez votre numéro.</p></div>' +
-        '<div><a class="btn clair" href="club.html#rejoindre-signature">Ajouter Signature</a></div></div>';
+      return tete + '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Les événements privés sont réservés aux membres.</h3>' +
+        '<p>Signature : deux événements inclus par an, CHF 350. Founders : tarif fondateur.</p></div>' +
+        '<div><a class="btn clair" href="club.html">Private Club</a></div></div>';
     }
     if (!s.evenements.length) return tete + vide('Aucun événement annoncé pour le moment.', 'Les invitations arriveront ici et par e-mail.');
     return tete + '<div class="liste-items">' + s.evenements.map(function (v) {
@@ -331,11 +335,21 @@
       else if (v.restantes > 0) { etat = '<span class="pastille neutre">' + v.restantes + ' place' + (v.restantes > 1 ? 's' : '') + ' sur ' + v.capacite + '</span>'; bouton = '<button class="btn plein petit" type="button" data-inscrire="' + v.id + '">Réserver ma place</button>'; }
       else { etat = '<span class="pastille refus">Complet</span>'; bouton = '<button class="btn petit" type="button" data-inscrire="' + v.id + '">Rejoindre la liste d’attente</button>'; }
       return '<article class="item"><div><h3>' + e(v.titre) + '</h3>' +
-        '<div class="meta"><span>' + NC.date(v.date, true) + '</span><span>' + e(v.lieu) + '</span><span>' + (v.prix > 0 ? 'Participation ' + NC.chf(v.prix) : 'Entrée incluse') + '</span></div>' +
+        '<div class="meta"><span>' + NC.date(v.date, true) + '</span><span>' + e(v.lieu) + '</span><span>' + prixEvenement(v) + '</span></div>' +
         (v.description ? '<p class="texte">' + e(v.description) + '</p>' : '') +
         (v.conditions ? '<p class="texte" style="font-size:14px;color:var(--tabacco)">Conditions : ' + e(v.conditions) + '</p>' : '') + '</div>' +
         '<div class="droite">' + etat + bouton + '</div></article>';
     }).join('') + '</div>';
+  }
+
+  // Ce que ce membre paie : inclus dans Signature, tarif fondateur ou prix normal.
+  function prixEvenement(v) {
+    var t = v.monTarif || { montant: v.prix, tarif: v.prix > 0 ? 'normal' : 'gratuit' };
+    if (t.tarif === 'gratuit' || !(v.prix > 0)) return 'Entrée libre';
+    if (t.tarif === 'inclus') return 'Inclus dans Signature';
+    var reste = v.monInscription ? ', à régler avant l’événement' : '';
+    if (t.tarif === 'fondateur') return 'Tarif fondateur ' + NC.chf(t.montant) + ' au lieu de ' + NC.chf(v.prix) + reste;
+    return 'Participation ' + NC.chf(t.montant) + reste;
   }
 
   function brancherEvenements() {

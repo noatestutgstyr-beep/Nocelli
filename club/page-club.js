@@ -12,16 +12,18 @@
   });
 
   // Tableau comparatif
+  // 1 = oui, 0 = non, texte = ce qui s'applique
   var LIGNES = [
     ['Collections 48 h avant le public', 1, 1],
     ['Priorité sur les éditions limitées', 1, 0],
-    ['Événements privés et présentations', 0, 1],
+    ['Événements privés', 'CHF 100 l’événement', '2 par an inclus'],
+    ['Voyages avec la maison', '10 % de remise', 'Votre part'],
     ['Votes sur les futures collections', 1, 1],
     ['Carte numérique et imprimée', 1, 1],
     ['Gratuit, à vie', 1, 0]
   ];
   document.getElementById('lignes-comparer').innerHTML = LIGNES.map(function (l) {
-    function c(v, i) { return '<td' + (i === 0 ? ' class="col-founders"' : '') + '>' + (v ? '<span class="oui" aria-hidden="true"></span><span class="sr">Oui</span>' : '<span class="nonc" aria-hidden="true"></span><span class="sr">Non</span>') + '</td>'; }
+    function c(v, i) { return '<td' + (i === 0 ? ' class="col-founders"' : '') + '>' + (typeof v === 'string' ? '<span class="val">' + v + '</span>' : v ? '<span class="oui" aria-hidden="true"></span><span class="sr">Oui</span>' : '<span class="nonc" aria-hidden="true"></span><span class="sr">Non</span>') + '</td>'; }
     return '<tr><th scope="row">' + l[0] + '</th>' + c(l[1], 0) + c(l[2], 1) + '</tr>';
   }).join('');
 

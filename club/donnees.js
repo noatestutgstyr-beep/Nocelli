@@ -91,11 +91,14 @@
     return v;
   }
 
-  function vueEvenement(etat, e, compteId) {
+  function vueEvenement(etat, e, compteId, now) {
     var v = copie(e);
     v.restantes = R.placesRestantes(etat, e.id);
     var i = compteId && R.inscriptionDe(etat, e.id, compteId);
     v.monInscription = i ? i.statut : null;
+    // Mon prix : celui fixé à l'inscription, sinon celui que je paierais maintenant.
+    var t = i ? i : (compteId ? R.tarifEvenement(etat, compteId, e.id, now) : null);
+    v.monTarif = t ? { montant: t.montant || 0, tarif: t.tarif || 'gratuit' } : null;
     if (i && i.statut === 'attente') {
       var avant = 0;
       for (var k in etat.inscriptions) {
@@ -159,7 +162,7 @@
         lancements.sort(function (a, b) { return a.publicLe - b.publicLe; });
         if (d.membre) for (var e in etat.evenements) {
           var ev = etat.evenements[e];
-          if (ev.publie && !ev.annule && ev.date > now) evenements.push(vueEvenement(etat, ev, c.id));
+          if (ev.publie && !ev.annule && ev.date > now) evenements.push(vueEvenement(etat, ev, c.id, now));
         }
         evenements.sort(function (a, b) { return a.date - b.date; });
         for (var k in etat.commandes) if (etat.commandes[k].compteId === c.id) commandes.push(copie(etat.commandes[k]));
@@ -343,13 +346,13 @@
         exigerAdmin(etat, m);
         var l = [];
         for (var id in etat.evenements) {
-          var v = vueEvenement(etat, etat.evenements[id], null);
+          var v = vueEvenement(etat, etat.evenements[id], null, now);
           v.inscrits = [];
           for (var k in etat.inscriptions) {
             var i = etat.inscriptions[k];
             if (i.evenementId !== id) continue;
             var c = etat.comptes[i.compteId];
-            v.inscrits.push({ email: c.email, nom: c.nom, statut: i.statut, creeLe: i.creeLe, categorie: i.categorie });
+            v.inscrits.push({ email: c.email, nom: c.nom, statut: i.statut, creeLe: i.creeLe, categorie: i.categorie, montant: i.montant || 0, tarif: i.tarif || 'gratuit' });
           }
           v.inscrits.sort(function (a, b) { return a.creeLe - b.creeLe; });
           l.push(v);

@@ -5,7 +5,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 export const STRIPE_SECRET = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
 export const PRIX: Record<string, string> = {
-  signature: Deno.env.get('STRIPE_PRIX_SIGNATURE') ?? '',  // 59 CHF / an
+  signature: Deno.env.get('STRIPE_PRIX_SIGNATURE') ?? '',  // 350 CHF / an (prix Stripe à créer, voir LISEZMOI.md)
 };
 // Adresse du site sans « / » final (SITE_URL peut en avoir un).
 export const SITE = (Deno.env.get('SITE_URL') ?? 'https://nocelli.ch').replace(/\/+$/, '');

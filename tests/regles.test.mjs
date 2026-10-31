@@ -131,15 +131,16 @@ test('le Founders Club ne s’achète jamais, et Early Access n’existe plus', 
   assert.deepEqual(Object.keys(R.CATEGORIES), ['founders', 'signature']);
 });
 
-test('fondateur : avant-premières, votes et contenus à vie, mais pas les événements privés', () => {
+test('fondateur : avant-premières, votes et contenus à vie ; événements et voyages à tarif fondateur', () => {
   const e = R.etatVide();
   const a = client(e, 1);
   R.confirmerPaiementCommande(e, commande(e, a.id).id, T0);
   const d = R.droits(e, a.id, T0 + 3650 * J);
   assert.equal(d.categorie, 'founders');
   assert.ok(d.accesAnticipe && d.votes && d.contenus);
-  assert.equal(d.evenements, false);
-  assert.equal(d.experiences, false);
+  assert.equal(d.signature, false);
+  assert.equal(d.evenements, true, 'peut venir, en payant');
+  assert.equal(d.experiences, true, 'peut partir en voyage, en payant');
 });
 
 test('un fondateur peut prendre Signature pour les événements, et garde son statut', () => {
@@ -154,7 +155,7 @@ test('un fondateur peut prendre Signature pour les événements, et garde son st
   R.annulerRenouvellement(e, a.id, T0 + 2 * J);
   const apres = R.droits(e, a.id, ab.fin + J);
   assert.equal(apres.categorie, 'founders', 'Signature échue : toujours fondateur');
-  assert.equal(apres.evenements, false);
+  assert.equal(apres.signature, false);
 });
 
 /* ---------- Abonnements ---------- */
@@ -298,12 +299,21 @@ test('un membre suspendu par l’administration perd ses droits', () => {
 /* ---------- Événements ---------- */
 
 function evenement(e, capacite = 2) {
-  const ev = { id: 'evt_a', titre: 'Présentation', date: T0 + 30 * J, lieu: 'Lugano', capacite, prix: 0, publie: true, annule: false };
+  return evenementPrix(e, 0, capacite);
+}
+function evenementPrix(e, prix, capacite = 20, id = 'evt_a') {
+  const ev = { id, titre: 'Présentation', date: T0 + 30 * J, lieu: 'Genève', capacite, prix, publie: true, annule: false };
   e.evenements[ev.id] = ev;
   return ev;
 }
 
-test('événements : seuls les membres Signature s’inscrivent, fondateurs compris s’ils ont Signature', () => {
+test('Signature coûte CHF 350 par an et inclut 2 événements', () => {
+  assert.equal(R.CATEGORIES.signature.prix, 350);
+  assert.equal(R.CATEGORIES.signature.evenementsInclus, 2);
+  assert.equal(R.CATEGORIES.founders.prix, 0);
+});
+
+test('événements : membres Signature et fondateurs s’inscrivent, les visiteurs non', () => {
   const e = R.etatVide();
   const ev = evenement(e, 10);
   const sig = client(e, 1), fond = client(e, 2), fondSig = client(e, 3), vis = client(e, 4);
@@ -311,10 +321,58 @@ test('événements : seuls les membres Signature s’inscrivent, fondateurs comp
   R.confirmerPaiementCommande(e, commande(e, fond.id).id, T0);
   R.confirmerPaiementCommande(e, commande(e, fondSig.id).id, T0);
   abonner(e, fondSig.id, 'signature');
-  assert.throws(() => R.inscrireEvenement(e, fond.id, ev.id, T0), /réservés aux membres Signature/);
-  assert.throws(() => R.inscrireEvenement(e, vis.id, ev.id, T0), /réservés aux membres Signature/);
+  assert.throws(() => R.inscrireEvenement(e, vis.id, ev.id, T0), /réservés aux membres du Private Club/);
   assert.equal(R.inscrireEvenement(e, sig.id, ev.id, T0).statut, 'confirme');
+  assert.equal(R.inscrireEvenement(e, fond.id, ev.id, T0).statut, 'confirme');
   assert.equal(R.inscrireEvenement(e, fondSig.id, ev.id, T0).statut, 'confirme');
+});
+
+test('Signature : 2 événements inclus par année, le 3e au prix normal ; annuler rend l’événement inclus', () => {
+  const e = R.etatVide();
+  const a = client(e, 1);
+  const ab = abonner(e, a.id, 'signature');
+  const [x, y, z] = ['evt_1', 'evt_2', 'evt_3'].map(id => evenementPrix(e, 150, 20, id));
+  const ix = R.inscrireEvenement(e, a.id, x.id, T0);
+  assert.deepEqual([ix.montant, ix.inclus, ix.tarif], [0, true, 'inclus']);
+  assert.equal(R.tarifEvenement(e, a.id, y.id, T0).inclusRestants, 1);
+  assert.equal(R.inscrireEvenement(e, a.id, y.id, T0).montant, 0);
+  const iz = R.inscrireEvenement(e, a.id, z.id, T0);
+  assert.deepEqual([iz.montant, iz.inclus, iz.tarif], [150, false, 'normal']);
+  R.annulerInscription(e, a.id, x.id, T0 + 1);
+  assert.equal(R.tarifEvenement(e, a.id, x.id, T0 + 2).montant, 0, 'l’événement inclus annulé se reprend');
+  // nouvelle année d'adhésion : de nouveau 2 événements inclus
+  R.confirmerPaiementAbonnement(e, ab.id, 'evt_renouv', ab.fin);
+  const ev4 = evenementPrix(e, 150, 20, 'evt_4'); ev4.date = ab.fin + 30 * J;
+  assert.equal(R.tarifEvenement(e, a.id, ev4.id, ab.fin + J).inclusRestants, 2);
+});
+
+test('fondateur : un tiers de moins sur les événements (CHF 100 au lieu de 150), rien n’est inclus', () => {
+  const e = R.etatVide();
+  const f = client(e, 1), fs = client(e, 2);
+  R.confirmerPaiementCommande(e, commande(e, f.id).id, T0);
+  R.confirmerPaiementCommande(e, commande(e, fs.id).id, T0);
+  abonner(e, fs.id, 'signature');
+  const evs = ['evt_1', 'evt_2', 'evt_3'].map(id => evenementPrix(e, 150, 20, id));
+  const i = R.inscrireEvenement(e, f.id, evs[0].id, T0);
+  assert.deepEqual([i.montant, i.inclus, i.tarif], [100, false, 'fondateur']);
+  assert.equal(R.prixFondateur(90), 60);
+  // fondateur avec Signature : 2 inclus, puis tarif fondateur
+  assert.equal(R.inscrireEvenement(e, fs.id, evs[0].id, T0).montant, 0);
+  assert.equal(R.inscrireEvenement(e, fs.id, evs[1].id, T0).montant, 0);
+  assert.equal(R.inscrireEvenement(e, fs.id, evs[2].id, T0).montant, 100);
+  // un événement gratuit reste gratuit et ne consomme rien
+  const libre = evenementPrix(e, 0, 20, 'evt_libre');
+  assert.equal(R.tarifEvenement(e, f.id, libre.id, T0).montant, 0);
+});
+
+test('voyages : chacun paie sa part, 10 % de remise pour les fondateurs, rien pour les visiteurs', () => {
+  const e = R.etatVide();
+  const sig = client(e, 1), f = client(e, 2), vis = client(e, 3);
+  abonner(e, sig.id, 'signature');
+  R.confirmerPaiementCommande(e, commande(e, f.id).id, T0);
+  assert.equal(R.prixVoyage(e, sig.id, 2400, T0), 2400);
+  assert.equal(R.prixVoyage(e, f.id, 2400, T0), 2160);
+  assert.equal(R.prixVoyage(e, vis.id, 2400, T0), null);
 });
 
 test('événement complet : liste d’attente, puis promotion quand une place se libère', () => {
@@ -343,8 +401,8 @@ test('statistiques : membres par catégorie et revenus', () => {
   const s = R.statistiques(e, T0 + J);
   assert.equal(s.signature, 2); assert.equal(s.founders, 2); assert.equal(s.fondateursSignature, 1);
   assert.equal(s.fondateursRestants, 48);
-  assert.equal(s.revenuAnnuel, 118);
-  assert.equal(s.encaisse, 118);
+  assert.equal(s.revenuAnnuel, 700);
+  assert.equal(s.encaisse, 700);
 });
 
 /* ---------- Carte physique envoyée par la poste ---------- */

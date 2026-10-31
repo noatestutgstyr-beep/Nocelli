@@ -307,14 +307,14 @@
 
   /* ---------- Événements ---------- */
   function formEvenement(x) {
-    x = x || { capacite: 20, prix: 0, publie: false };
+    x = x || { capacite: 20, prix: 150, publie: false };
     return '<form class="formulaire" id="f-evt" novalidate>' +
       '<div class="champ plein"><label for="e-titre">Nom de l’événement</label><input id="e-titre" value="' + e(x.titre || '') + '"></div>' +
       '<div class="champ plein"><label for="e-desc">Description</label><textarea id="e-desc">' + e(x.description || '') + '</textarea></div>' +
       '<div class="champ"><label for="e-date">Date et heure (heure suisse)</label><input id="e-date" type="datetime-local" value="' + (x.date ? versChamp(x.date) : '') + '"></div>' +
       '<div class="champ"><label for="e-lieu">Lieu</label><input id="e-lieu" value="' + e(x.lieu || '') + '"></div>' +
       '<div class="champ"><label for="e-cap">Capacité (places)</label><input id="e-cap" type="number" min="1" value="' + x.capacite + '"></div>' +
-      '<div class="champ"><label for="e-prix">Participation (CHF, 0 = incluse)</label><input id="e-prix" type="number" min="0" step="1" value="' + (x.prix || 0) + '"></div>' +
+      '<div class="champ"><label for="e-prix">Prix normal (CHF, 0 = gratuit)</label><input id="e-prix" type="number" min="0" step="1" value="' + (x.prix || 0) + '"><small style="color:var(--tabacco)">Signature : 2 événements inclus par an. Fondateurs : un tiers de moins (CHF 150 devient CHF 100).</small></div>' +
       '<div class="champ plein"><label for="e-cond">Conditions d’accès</label><input id="e-cond" value="' + e(x.conditions || '') + '" placeholder="Une personne par carte, tenue de ville"></div>' +
       '<label class="case"><input type="checkbox" id="e-pub"' + (x.publie ? ' checked' : '') + '> <span>Publier pour Signature et Founders</span></label>' +
       (x.id ? '<label class="case"><input type="checkbox" id="e-ann"' + (x.annule ? ' checked' : '') + '> <span>Événement annulé</span></label>' : '') +
@@ -332,9 +332,9 @@
           var att = x.inscrits.filter(function (i) { return i.statut === 'attente'; }).length;
           return '<div style="margin-top:26px;border-top:1px solid var(--filo);padding-top:18px"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;align-items:baseline">' +
             '<h3 style="font-size:22px">' + e(x.titre) + '</h3><span>' + (x.annule ? '<span class="pastille refus">Annulé</span>' : x.publie ? '<span class="pastille ok">Publié</span>' : '<span class="pastille neutre">Brouillon</span>') + ' <button class="btn petit" type="button" data-editer-e="' + x.id + '">Modifier</button></span></div>' +
-            '<p style="font-size:14px;color:var(--tabacco);margin-top:6px">' + NC.date(x.date, true) + ' · ' + e(x.lieu) + ' · ' + conf + ' / ' + x.capacite + ' confirmés · ' + att + ' en attente · ' + (x.prix ? NC.chf(x.prix) : 'entrée incluse') + '</p>' +
-            (x.inscrits.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Ordre</th><th>Membre</th><th>Carte</th><th>Statut</th><th>Demande</th></tr></thead><tbody>' +
-              x.inscrits.map(function (i, k) { return '<tr><td class="n">' + (k + 1) + '</td><td>' + e(i.nom || '–') + '<br><small>' + e(i.email) + '</small></td><td>' + NOMS[i.categorie] + '</td><td>' + { confirme: '<span class="pastille ok">Confirmé</span>', attente: '<span class="pastille alerte">Liste d’attente</span>', annule: '<span class="pastille neutre">Annulé</span>' }[i.statut] + '</td><td class="n">' + NC.date(i.creeLe, true) + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<p style="margin-top:10px"><small>Aucune inscription</small></p>') + '</div>';
+            '<p style="font-size:14px;color:var(--tabacco);margin-top:6px">' + NC.date(x.date, true) + ' · ' + e(x.lieu) + ' · ' + conf + ' / ' + x.capacite + ' confirmés · ' + att + ' en attente · ' + (x.prix ? NC.chf(x.prix) + ', fondateurs ' + NC.chf(window.NocelliRegles.prixFondateur(x.prix)) : 'entrée libre') + '</p>' +
+            (x.inscrits.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Ordre</th><th>Membre</th><th>Carte</th><th>Statut</th><th>Prix</th><th>Demande</th></tr></thead><tbody>' +
+              x.inscrits.map(function (i, k) { return '<tr><td class="n">' + (k + 1) + '</td><td>' + e(i.nom || '–') + '<br><small>' + e(i.email) + '</small></td><td>' + NOMS[i.categorie] + '</td><td>' + { confirme: '<span class="pastille ok">Confirmé</span>', attente: '<span class="pastille alerte">Liste d’attente</span>', annule: '<span class="pastille neutre">Annulé</span>' }[i.statut] + '</td><td class="n">' + ({ inclus: 'Inclus', gratuit: '–' }[i.tarif] || NC.chf(i.montant) + (i.tarif === 'fondateur' ? '<br><small>fondateur</small>' : '')) + '</td><td class="n">' + NC.date(i.creeLe, true) + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<p style="margin-top:10px"><small>Aucune inscription</small></p>') + '</div>';
         }).join('') : '<p style="margin-top:14px"><span class="pastille neutre">Aucun événement</span></p>') + '</div>');
       document.querySelectorAll('[data-editer-e]').forEach(function (b) { b.addEventListener('click', function () { evenements(b.dataset.editerE); window.scrollTo(0, 0); }); });
       var nv = document.getElementById('e-nouveau');

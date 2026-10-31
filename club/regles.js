@@ -26,16 +26,30 @@
   var GRACE_IMPAYE = 7 * JOUR;              // délai après un échec de renouvellement
   var HEURES_ANTICIPEES = 48;
 
+  /*
+   * Événements et voyages (décision de Noa, 31.10.2026) :
+   *  - Signature (CHF 350/an) inclut 2 événements privés par année d'adhésion
+   *    (par exemple une soirée cocktail et un dîner privé à Genève) ; au-delà,
+   *    le membre paie le prix de l'événement.
+   *  - Founders n'inclut ni événement ni voyage, mais les fondateurs peuvent venir
+   *    au tarif fondateur : un tiers de moins (CHF 100 au lieu de 150).
+   *  - Voyages : les membres peuvent partir avec la maison, chacun paie sa part ;
+   *    10 % de remise pour les fondateurs ; acompte non remboursable à la réservation.
+   */
+  var EVENEMENTS_INCLUS_SIGNATURE = 2;
+  var REMISE_EVENEMENT_FONDATEUR = 1 / 3;
+  var REMISE_VOYAGE_FONDATEUR = 0.10;
+
   var CATEGORIES = {
-    // Les événements privés ne font pas partie du Founders Club : un fondateur
-    // qui les veut prend Signature en plus et garde son statut et son numéro.
+    // Événements et voyages : jamais inclus pour Founders, seulement à tarif fondateur.
+    // Un fondateur peut aussi prendre Signature en plus et garde son statut et son numéro.
     founders: {
       code: 'founders', nom: 'Founders Club', prix: 0, annuel: false,
       accesAnticipe: true, evenements: false, experiences: false, votes: true,
       contenus: true, statutAVie: true, carte: true
     },
     signature: {
-      code: 'signature', nom: 'Signature Club', prix: 59, annuel: true,
+      code: 'signature', nom: 'Signature Club', prix: 350, annuel: true, evenementsInclus: EVENEMENTS_INCLUS_SIGNATURE,
       accesAnticipe: true, evenements: true, experiences: true, votes: true,
       contenus: true, statutAVie: false, carte: true
     }
@@ -326,9 +340,9 @@
   /*
    * La seule source de vérité sur ce qu'un compte peut faire.
    * La catégorie affichée est Founders si le compte a une place, sinon Signature
-   * si l'abonnement est actif (ou impayé dans le délai de grâce). Les événements
-   * privés viennent seulement de Signature : un fondateur abonné à Signature y a
-   * accès, un fondateur seul non. Un compte suspendu n'a aucun droit.
+   * si l'abonnement est actif (ou impayé dans le délai de grâce). Événements et
+   * voyages : ouverts aux membres Signature et aux fondateurs ; ce qui change est
+   * le prix (voir tarifEvenement et prixVoyage). Un compte suspendu n'a aucun droit.
    */
   function droits(etat, compteId, now) {
     var aucun = { membre: false, categorie: null, signature: false, accesAnticipe: false, evenements: false, experiences: false, votes: false, contenus: false };
@@ -341,7 +355,7 @@
     var d = CATEGORIES[f ? 'founders' : 'signature'];
     return {
       membre: true, categorie: d.code, fondateur: f, abonnement: sig ? ab : null, signature: sig,
-      accesAnticipe: true, evenements: sig, experiences: sig,
+      accesAnticipe: true, evenements: true, experiences: true,
       votes: d.votes, contenus: d.contenus
     };
   }
@@ -423,18 +437,64 @@
     return null;
   }
 
-  // Seuls les membres Signature s'inscrivent (fondateurs compris s'ils ont Signature). Complet : liste d'attente.
+  // Événements inclus déjà pris pendant l'année d'adhésion Signature en cours (annulés non comptés).
+  function evenementsInclusPris(etat, compteId, ab) {
+    var k = 0;
+    for (var id in etat.inscriptions) {
+      var i = etat.inscriptions[id];
+      if (i.compteId === compteId && i.inclus && i.statut !== 'annule' && i.abonnementId === ab.id && i.periode === ab.debut) k++;
+    }
+    return k;
+  }
+
+  function prixFondateur(prix) {
+    return Math.round(prix * (1 - REMISE_EVENEMENT_FONDATEUR));
+  }
+
+  /*
+   * Ce que ce compte paierait pour cet événement :
+   *  - Signature avec un événement inclus encore libre cette année : 0 (inclus) ;
+   *  - sinon fondateur : tarif fondateur (un tiers de moins) ;
+   *  - sinon : le prix de l'événement.
+   * Un événement gratuit ne consomme pas d'événement inclus. null = pas membre.
+   */
+  function tarifEvenement(etat, compteId, evenementId, now) {
+    var e = etat.evenements[evenementId];
+    var d = droits(etat, compteId, now);
+    if (!e || !d.evenements) return null;
+    var prix = Math.max(0, Number(e.prix) || 0);
+    if (prix === 0) return { montant: 0, inclus: false, tarif: 'gratuit', prix: 0 };
+    if (d.signature) {
+      var pris = evenementsInclusPris(etat, compteId, d.abonnement);
+      if (pris < EVENEMENTS_INCLUS_SIGNATURE) return { montant: 0, inclus: true, tarif: 'inclus', prix: prix, inclusRestants: EVENEMENTS_INCLUS_SIGNATURE - pris };
+    }
+    if (d.fondateur) return { montant: prixFondateur(prix), inclus: false, tarif: 'fondateur', prix: prix };
+    return { montant: prix, inclus: false, tarif: 'normal', prix: prix };
+  }
+
+  // Prix d'un voyage pour ce compte : sa part complète, moins 10 % pour un fondateur. null = pas membre.
+  function prixVoyage(etat, compteId, prixPlein, now) {
+    var d = droits(etat, compteId, now);
+    if (!d.experiences) return null;
+    var p = Math.max(0, Number(prixPlein) || 0);
+    return d.fondateur ? Math.round(p * (1 - REMISE_VOYAGE_FONDATEUR)) : p;
+  }
+
+  // Membres Signature et fondateurs s'inscrivent ; le prix est fixé à l'inscription. Complet : liste d'attente.
   function inscrireEvenement(etat, compteId, evenementId, now) {
     var e = etat.evenements[evenementId];
     if (!e || !e.publie || e.annule) throw Refus('introuvable', 'Événement introuvable.');
     if (e.date <= now) throw Refus('passe', 'Cet événement est passé.');
     var d = droits(etat, compteId, now);
     if (!d.evenements) {
-      throw Refus('reserve', 'Les événements privés sont réservés aux membres Signature Club.');
+      throw Refus('reserve', 'Les événements privés sont réservés aux membres du Private Club.');
     }
     var deja = inscriptionDe(etat, evenementId, compteId);
     if (deja) return deja;
-    var i = { id: nouvelId(etat, 'ins'), evenementId: evenementId, compteId: compteId, statut: placesRestantes(etat, evenementId) > 0 ? 'confirme' : 'attente', creeLe: now, categorie: d.categorie };
+    var t = tarifEvenement(etat, compteId, evenementId, now);
+    var i = { id: nouvelId(etat, 'ins'), evenementId: evenementId, compteId: compteId, statut: placesRestantes(etat, evenementId) > 0 ? 'confirme' : 'attente', creeLe: now, categorie: d.categorie,
+      montant: t.montant, inclus: t.inclus, tarif: t.tarif };
+    if (t.inclus) { i.abonnementId = d.abonnement.id; i.periode = d.abonnement.debut; }
     etat.inscriptions[i.id] = i;
     return i;
   }
@@ -609,6 +669,9 @@
     annulerRenouvellement: annulerRenouvellement, reprendreRenouvellement: reprendreRenouvellement,
     droits: droits, phaseLancement: phaseLancement, stockTotal: stockTotal,
     peutAcheter: peutAcheter, reserverPiece: reserverPiece, libererCommandesExpirees: libererCommandesExpirees,
+    EVENEMENTS_INCLUS_SIGNATURE: EVENEMENTS_INCLUS_SIGNATURE, REMISE_EVENEMENT_FONDATEUR: REMISE_EVENEMENT_FONDATEUR,
+    REMISE_VOYAGE_FONDATEUR: REMISE_VOYAGE_FONDATEUR, prixFondateur: prixFondateur,
+    tarifEvenement: tarifEvenement, prixVoyage: prixVoyage, evenementsInclusPris: evenementsInclusPris,
     placesRestantes: placesRestantes, inscriptionDe: inscriptionDe, inscrireEvenement: inscrireEvenement,
     annulerInscription: annulerInscription, promouvoirListeAttente: promouvoirListeAttente,
     statistiques: statistiques,

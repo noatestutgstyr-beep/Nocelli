@@ -71,6 +71,7 @@
 .oui,.nonc{display:inline-block;width:9px;height:9px}
 .oui{transform:rotate(45deg);background:var(--noce)}
 .nonc{width:14px;height:1px;background:rgba(58,37,25,.35);vertical-align:middle}
+.tableau .val{display:inline-block;font-size:14px;line-height:1.3}
 .tableau .note{margin-top:16px;font-size:13px;color:var(--tabacco)}
 
 .faq{padding-block:clamp(84px,10vw,140px)}
@@ -95,6 +96,7 @@
   .tableau thead th small{display:none}
   .tableau th,.tableau td{padding:14px 6px}
   .tableau th[scope=row]{font-size:14px;padding-left:0}
+  .tableau .val{font-size:12.5px}
 }
 @media (max-width:960px){
   .ouverture-grid{grid-template-columns:1fr;padding-block:56px 70px}
@@ -148,7 +150,7 @@
       <div>
         <span class="eyebrow apparait">Private Club</span>
         <h1 class="apparait d1">NOCELLI <span>Private Club</span></h1>
-        <p class="intro apparait d2">Deux cartes. Founders est offerte aux 50 premiers acheteurs du cardigan NC-01. Signature coûte CHF 59 par an.</p>
+        <p class="intro apparait d2">Deux cartes. Founders est offerte aux 50 premiers acheteurs du cardigan NC-01. Signature coûte CHF 350 par an, avec deux événements privés inclus.</p>
         <div class="actions apparait d3">
           <button class="btn clair" type="button" data-rejoindre="signature">Rejoindre Signature</button>
           <a class="lien" href="#comparer">Comparer</a>
@@ -184,7 +186,8 @@
             <li>Votes sur les futures collections</li>
             <li>Contenus réservés aux membres</li>
             <li>Carte numérotée, livrée avec le cardigan</li>
-            <li class="non">Événements privés : avec Signature</li>
+            <li>Événements privés au tarif fondateur : CHF 100 au lieu de 150</li>
+            <li>Voyages avec la maison : 10 % de remise sur votre part</li>
           </ul>
           <div class="cta">
             <a class="btn" href="cardigan-noce.html" aria-describedby="places-f">Avec l'achat du NC-01</a>
@@ -194,17 +197,18 @@
 
         <article class="formule signature" id="f-signature">
           <div class="scene-carte" data-carte="signature"></div>
-          <div class="titre"><h3>Signature Club</h3><span class="prix">CHF 59<small>par an</small></span></div>
-          <p class="desc">Les collections en avance et les événements privés.</p>
+          <div class="titre"><h3>Signature Club</h3><span class="prix">CHF 350<small>par an</small></span></div>
+          <p class="desc">Les collections en avance et deux événements privés par an, à Genève.</p>
           <ul>
             <li>Les nouvelles collections 48 h avant le public</li>
-            <li>Événements privés et présentations des collections</li>
+            <li>Deux événements privés par an inclus : une soirée cocktail et un dîner privé à Genève</li>
+            <li>Voyages avec la maison : vous venez, vous payez votre part</li>
             <li>Votes sur les futures collections</li>
             <li>Contenus réservés aux membres</li>
             <li>Carte imprimée, envoyée par la poste</li>
           </ul>
           <div class="cta">
-            <button class="btn plein" type="button" data-rejoindre="signature">Rejoindre pour CHF 59/an</button>
+            <button class="btn plein" type="button" data-rejoindre="signature">Rejoindre pour CHF 350/an</button>
             <small>Un an dès le paiement. Renouvellement automatique, annulable à tout moment.</small>
             <small>Déjà fondateur ? Signature s'ajoute à votre carte Founders.</small>
           </div>
@@ -223,12 +227,12 @@
           <thead>
             <tr><th scope="col"><span class="sr">Avantage</span></th>
               <th scope="col" class="col-founders">Founders<small>Gratuit, à vie</small></th>
-              <th scope="col">Signature<small>CHF 59 par an</small></th></tr>
+              <th scope="col">Signature<small>CHF 350 par an</small></th></tr>
           </thead>
           <tbody id="lignes-comparer"></tbody>
         </table>
       </div>
-      <p class="tableau note">Chaque événement indique s'il est payant. Places limitées.</p>
+      <p class="tableau note">Événement supplémentaire : CHF 150, ou CHF 100 pour les fondateurs. Voyages : acompte non remboursable à la réservation. Places limitées.</p>
     </div>
   </section>
 
@@ -249,7 +253,19 @@
         <details>
           <summary>Les fondateurs ont-ils accès aux événements ?</summary>
           <div class="rep">
-            <p>Non, les événements privés sont réservés à Signature. Un fondateur peut prendre Signature pour CHF 59 par an et garde son numéro.</p>
+            <p>Oui, au tarif fondateur : CHF 100 la soirée au lieu de CHF 150. Les événements ne sont pas inclus dans la carte Founders. Un fondateur peut aussi prendre Signature pour CHF 350 par an : deux événements sont alors inclus, et il garde son numéro.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Quels événements sont inclus dans Signature ?</summary>
+          <div class="rep">
+            <p>Deux par année d'adhésion, par exemple une soirée cocktail et un dîner privé à Genève. Au-delà, chaque événement coûte CHF 150. Une place annulée vous rend votre événement inclus.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Comment se passent les voyages ?</summary>
+          <div class="rep">
+            <p>Les membres Signature et les fondateurs peuvent partir avec nous. Chacun paie sa part du voyage ; les fondateurs ont 10 % de remise. La place se réserve avec un acompte non remboursable.</p>
           </div>
         </details>
         <details>

@@ -29,13 +29,17 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
   place (tracé). Si le client a une autre commande NC-01 payée, il garde sa place.
 - **Abonnements** : actifs seulement après confirmation de Stripe. Un seul abonnement vivant par
   compte (index unique en base). Renouvellement annuel ; échec de paiement : 7 jours de grâce puis
-  expiration. Une seule formule payante : Signature (CHF 59/an). Le Founders Club est gratuit et ne
-  comprend pas les événements privés ; un fondateur peut prendre Signature en plus.
+  expiration. Une seule formule payante : Signature (CHF 350/an, deux événements privés inclus par
+  année d'adhésion). Le Founders Club est gratuit et n'inclut ni événement ni voyage ; les fondateurs
+  viennent au tarif fondateur (un tiers de moins : CHF 100 au lieu de 150) et ont 10 % sur les voyages.
+  Un fondateur peut aussi prendre Signature en plus.
 - **Accès anticipé** : la vente passe par `reserver_piece`, qui refuse un non-membre avant la date
   publique. Durée réglable par lancement. Stock décompté de façon atomique, pièce rendue si le
   paiement n'arrive pas en 30 minutes.
-- **Événements** : inscription des membres Signature uniquement (fondateurs compris s'ils ont Signature), verrou sur la dernière place,
-  liste d'attente qui avance automatiquement.
+- **Événements** : inscription des membres Signature et des fondateurs, verrou sur la dernière place,
+  liste d'attente qui avance automatiquement. Le prix est fixé à l'inscription (`tarif_evenement`) :
+  inclus (2 par an pour Signature), tarif fondateur, ou prix normal. Le paiement en ligne des
+  événements payants n'est pas encore branché : le montant est noté sur l'inscription.
 - **Carte imprimée** : une carte par catégorie et par compte, envoyée une fois (un renouvellement
   n'envoie rien ; un fondateur reçoit la carte Founders, même s'il a Signature). Fondateurs : dans le colis du
   cardigan. Une carte pas encore partie est annulée si le compte n'est plus membre. Jamais deux
@@ -51,7 +55,9 @@ Lancer les tests : `npm test` (règles, Node) et `npm run test:sql` (base, Postg
 1. **Supabase** : projet `ejpzgvizznylfgzxngut` (offre gratuite). `supabase/schema.sql` puis
    `supabase/mise-a-jour-1.sql` collés dans SQL Editor. Connexion par e-mail, Site URL et
    Redirect URL `https://noatestutgstyr-beep.github.io/Nocelli/**`.
-2. **Stripe** : compte en **mode test**, un seul produit, Signature Club 59 CHF par an.
+2. **Stripe** : compte en **mode test**, un seul produit, Signature Club. Prix depuis le 31.10.2026 :
+   **350 CHF par an** (créer ce nouveau prix annuel dans Stripe, mettre son identifiant `price_…` dans
+   le secret `STRIPE_PRIX_SIGNATURE`, puis archiver l'ancien prix de 59 CHF). Base : coller `supabase/mise-a-jour-2.sql`.
 3. **Secrets Supabase** (Edge Functions > Secrets) : `STRIPE_SECRET_KEY` (`sk_test_`),
    `STRIPE_PRIX_SIGNATURE`, `SITE_URL`, `STRIPE_WEBHOOK_SECRET`. La fonction refuse une clé réelle
    tant que `PAIEMENTS_REELS=oui` n'est pas posé.
