@@ -29,7 +29,8 @@
     ' float k=mix(kf,ks,ws/(wf+wb+ws+1e-4));',
     // pas de maille jersey sur le zip ni sur les bord-côtes, déjà visibles dans les photos
     ' float a=(texture2D(tA,uvF).r*wf+texture2D(tA,uvB).g*wb+texture2D(tA,uvS).b*ws)/(wf+wb+ws+1e-4);',
-    ' gl_FragColor=vec4(c*(1.+uK.y*a*(k-.5)*2.),1.);',
+    ' float l=.80+.30*max(dot(n,normalize(vec3(-.35,.45,.85))),0.)+.06*max(dot(n,normalize(vec3(.6,.2,-.6))),0.);',
+    ' gl_FragColor=vec4(c*l*(1.+uK.y*a*(k-.5)*2.),1.);',
     '}'
   ].join('');
 
