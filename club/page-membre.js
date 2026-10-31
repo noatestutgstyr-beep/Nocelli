@@ -34,7 +34,7 @@
     var carte = params.get('carte');
     app.innerHTML =
       '<section class="connexion"><div class="wrap connexion-grid"><div>' +
-      '<span class="eyebrow apparait">Il Mio Conto</span>' +
+      '<span class="eyebrow apparait">Mon compte</span>' +
       '<h1 class="apparait d1">Mon compte Nocelli</h1>' +
       (carte ? '<p class="apparait d2" style="margin-top:18px;max-width:46ch">Vous avez scanné une carte du Private Club. Pour ouvrir l’espace membre, connectez-vous avec l’adresse de votre compte. La carte seule ne donne accès à rien.</p>' :
         '<p class="apparait d2" style="margin-top:18px;max-width:46ch">Votre carte, vos avant-premières, vos invitations et vos commandes.</p>') +
@@ -64,18 +64,18 @@
     var prenom = (c.nom || '').split(' ')[0];
     var html =
       '<section class="titre-page"><div class="wrap">' +
-      '<span class="eyebrow">My Membership</span>' +
+      '<span class="eyebrow">Mon adhésion</span>' +
       '<h1>' + (prenom ? 'Bonjour, ' + e(prenom) + '.' : 'Bonjour.') + '</h1>' +
       '<nav class="sous-nav" aria-label="Espace membre"><a href="#adhesion">Ma carte</a><a href="#collections">Collections</a>' +
-      (d.membre ? '<a href="#evenements">Private Events</a>' : '') + '<a href="#commandes">Mes commandes</a><button type="button" id="deco">Se déconnecter</button></nav>' +
+      (d.membre ? '<a href="#evenements">Événements privés</a>' : '') + '<a href="#commandes">Mes commandes</a><button type="button" id="deco">Se déconnecter</button></nav>' +
       '</div></section>';
 
     html += '<section class="bloc" id="adhesion"><div class="wrap">' + (d.membre ? blocAdhesion(s) : blocNonMembre(s)) + '</div></section>';
     if (d.membre) html += '<section class="bloc" id="envoi"><div class="wrap">' + blocEnvoi(s) + '</div></section>';
-    if (d.membre) html += '<section class="bloc"><div class="wrap"><div class="bloc-tete"><div><span class="eyebrow">I Privilegi</span><h2>Vos avantages actifs</h2></div></div>' + listeAvantages(d) + '</div></section>';
+    if (d.membre) html += '<section class="bloc"><div class="wrap"><div class="bloc-tete"><div><span class="eyebrow">Les privilèges</span><h2>Vos avantages actifs</h2></div></div>' + listeAvantages(d) + '</div></section>';
     html += '<section class="bloc" id="collections"><div class="wrap">' + blocCollections(s) + '</div></section>';
     if (d.membre) html += '<section class="bloc" id="evenements"><div class="wrap">' + blocEvenements(s) + '</div></section>';
-    if (d.votes) html += '<section class="bloc"><div class="wrap"><div class="bloc-tete"><div><span class="eyebrow">Dietro le quinte</span><h2>Votes et coulisses</h2></div></div>' +
+    if (d.votes) html += '<section class="bloc"><div class="wrap"><div class="bloc-tete"><div><span class="eyebrow">Coulisses</span><h2>Votes et coulisses</h2></div></div>' +
       vide('Aucun vote ouvert pour le moment.', 'Vous serez prévenu par e-mail.') + '</div></section>';
     html += '<section class="bloc" id="commandes"><div class="wrap">' + blocCommandes(s) + '</div></section>';
     app.innerHTML = html;
@@ -108,7 +108,7 @@
 
   function blocAdhesion(s) {
     var d = s.droits, c = s.compte, ab = s.abonnement, f = s.fondateur;
-    var numero = d.categorie === 'founders' ? 'Founding Member ' + ('00' + f.numero).slice(-3) + ' / 050' : 'Member ' + ('000' + c.numeroMembre).slice(-4);
+    var numero = d.categorie === 'founders' ? 'Founding Member ' + ('0' + f.numero).slice(-2) + ' / 50' : 'Member ' + ('000' + c.numeroMembre).slice(-4);
     var lignes =
       '<div><dt>Membre</dt><dd>' + e(c.nom || c.email) + ' <button class="lien" type="button" id="modifier-nom" style="margin-left:10px;font-size:9.5px">Modifier</button></dd></div>' +
       '<div><dt>Catégorie</dt><dd><b>' + NOMS[d.categorie] + '</b></dd></div>' +
@@ -127,7 +127,7 @@
 
     return '<div class="adhesion">' +
       '<div class="scene" id="scene-carte"><div class="outils"><button class="lien" type="button" id="carte-retourner">Retourner</button><button class="lien" type="button" id="carte-plein">Plein écran</button></div></div>' +
-      '<div><span class="eyebrow">La mia tessera</span><h2 style="margin:12px 0 28px;font-size:clamp(28px,3vw,40px)">' + NOMS[d.categorie] + '</h2>' +
+      '<div><span class="eyebrow">Ma carte</span><h2 style="margin:12px 0 28px;font-size:clamp(28px,3vw,40px)">' + NOMS[d.categorie] + '</h2>' +
       '<dl class="fiche">' + lignes + '</dl>' +
       (ab ? blocGestion(s) : '<p style="margin-top:22px;font-size:14px"><a class="lien" href="club.html#rejoindre-signature">Ajouter Signature : deux événements inclus par an · CHF 350/an</a></p>') +
       '</div></div>';
@@ -162,7 +162,7 @@
     var env = envoiActuel(s), a = s.compte.adresse;
     var adresse = a ? '<address style="font-style:normal;line-height:1.7">' + e(a.nom) + '<br>' + e(a.rue) + (a.complement ? '<br>' + e(a.complement) : '') + '<br>' + e(a.npa) + ' ' + e(a.localite) + '<br>' + PAYS[a.pays] + '</address>' : '';
     var modifiable = !env || env.statut !== 'envoyee';
-    return '<div class="bloc-tete"><div><span class="eyebrow">Per posta</span><h2>Votre carte imprimée</h2></div>' +
+    return '<div class="bloc-tete"><div><span class="eyebrow">Par la poste</span><h2>Votre carte imprimée</h2></div>' +
       '<p>' + texteEnvoi(env || { statut: 'adresse_manquante' }) + '</p></div>' +
       '<div class="adhesion" style="align-items:start"><div>' +
       (env ? '<dl class="fiche"><div><dt>Carte</dt><dd><b>' + NOMS[env.categorie] + '</b></dd></div><div><dt>Envoi</dt><dd>' + pastilleEnvoi(env) + '</dd></div>' +
@@ -263,7 +263,7 @@
 
   /* ---------------- Collections ---------------- */
   function blocCollections(s) {
-    var tete = '<div class="bloc-tete"><div><span class="eyebrow">In anteprima</span><h2>Collections en avant-première</h2></div>' +
+    var tete = '<div class="bloc-tete"><div><span class="eyebrow">En avant-première</span><h2>Collections en avant-première</h2></div>' +
       '<p>' + (s.droits.accesAnticipe ? 'Achat possible 48 h avant le public. Quantités limitées.' : 'Les membres achètent 48 h avant le public.') + '</p></div>';
     if (!s.lancements.length) return tete + vide('Aucune collection annoncée pour le moment.', 'Vous serez prévenu par e-mail.');
     return tete + '<div class="liste-items">' + s.lancements.map(function (l) {
@@ -299,7 +299,7 @@
             Club.paiementTestCommande(cmd.id, true).then(function (r) {
               var f = r.fondateur;
               w.remplacer('<span class="eyebrow">Grazie</span><h3>Commande confirmée.</h3>' +
-                (f && f.attribue ? '<p class="conditions">Vous êtes le membre fondateur N° ' + ('00' + f.place.numero).slice(-3) + ' / 050.</p>' : '<p class="conditions">Vous recevrez la confirmation par e-mail.</p>') +
+                (f && f.attribue ? '<p class="conditions">Vous êtes le membre fondateur N° ' + ('0' + f.place.numero).slice(-2) + ' / 50.</p>' : '<p class="conditions">Vous recevrez la confirmation par e-mail.</p>') +
                 '<div style="display:grid;margin-top:18px"><button class="btn plein" type="button" data-fermer>Fermer</button></div>');
               w.corps.querySelector('[data-fermer]').addEventListener('click', w.fermer);
             });
@@ -319,7 +319,7 @@
 
   /* ---------------- Événements ---------------- */
   function blocEvenements(s) {
-    var tete = '<div class="bloc-tete"><div><span class="eyebrow">Private Events</span><h2>Événements privés</h2></div>' +
+    var tete = '<div class="bloc-tete"><div><span class="eyebrow">Événements privés</span><h2>Événements privés</h2></div>' +
       '<p>' + (s.droits.signature ? 'Deux événements inclus par année d’adhésion.' : 'Fondateurs : 30 % de remise sur chaque événement.') +
       ' Voyages : une place vous est réservée, le voyage est à la charge de chaque membre. Complet : liste d’attente.</p></div>';
     if (!s.droits.evenements) {
@@ -365,7 +365,7 @@
 
   /* ---------------- Commandes ---------------- */
   function blocCommandes(s) {
-    var tete = '<div class="bloc-tete"><div><span class="eyebrow">I miei ordini</span><h2>Mes commandes</h2></div></div>';
+    var tete = '<div class="bloc-tete"><div><span class="eyebrow">Mes commandes</span><h2>Mes commandes</h2></div></div>';
     var cmds = s.commandes.filter(function (c) { return c.statut !== 'expiree'; }).sort(function (a, b) { return b.creeLe - a.creeLe; });
     if (!cmds.length) return tete + vide('Aucune commande.', 'Vos commandes apparaîtront ici. Les 50 premières commandes payées du Cardigan Noce NC-01 ouvrent le Founders Club.');
     var STATUTS = { en_attente: 'Paiement en attente', payee: 'Payée', annulee: 'Annulée', remboursee: 'Remboursée' };

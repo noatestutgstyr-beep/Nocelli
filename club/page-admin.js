@@ -122,7 +122,7 @@
         '<p class="erreur" id="m-err" role="alert"></p>' +
         (vus.length ? '<div class="defile-x"><table class="reg"><thead><tr><th>Membre</th><th>Catégorie</th><th>N°</th><th>Statut</th><th>Échéance</th><th>Carte</th><th>Accès</th></tr></thead><tbody>' +
           vus.map(function (m) {
-            var num = m.numero ? (m.categorie === 'founders' ? ('00' + m.numero).slice(-3) + ' / 050' : ('000' + m.numero).slice(-4)) : '';
+            var num = m.numero ? (m.categorie === 'founders' ? ('0' + m.numero).slice(-2) + ' / 50' : ('000' + m.numero).slice(-4)) : '';
             return '<tr><td>' + e(m.nom || '–') + '<br><small>' + e(m.email) + '</small></td>' +
               '<td class="cat">' + (m.categorie ? NOMS[m.categorie] : '<small>Aucune</small>') + '</td><td class="n">' + num + '</td>' +
               '<td>' + statutAb(m) + '</td><td class="n">' + (m.abonnement && m.abonnement.fin && m.categorie !== 'founders' ? NC.date(m.abonnement.fin) : '') + '</td>' +
@@ -154,7 +154,7 @@
       envoyee: '<span class="pastille ok">Envoyée</span>', annulee: '<span class="pastille refus">Annulée</span>' })[st] || '';
   }
   function libelleCarte(x) {
-    return NOMS[x.categorie] + ' · ' + (x.categorie === 'founders' ? ('00' + x.numero).slice(-3) + ' / 050' : ('000' + x.numero).slice(-4));
+    return NOMS[x.categorie] + ' · ' + (x.categorie === 'founders' ? ('0' + x.numero).slice(-2) + ' / 50' : ('000' + x.numero).slice(-4));
   }
   function lignesAdresse(a, pays) {
     return a ? [a.nom, a.rue, a.complement, a.npa + ' ' + a.localite, a.pays === 'CH' ? '' : pays[a.pays]].filter(Boolean) : [];
@@ -170,7 +170,7 @@
       var enCours = function (x) { return x.statut === 'a_preparer' || x.statut === 'adresse_manquante'; };
       var vus = l.filter(function (x) { return filtreEnvoi === 'toutes' || x.statut === filtreEnvoi; });
       var poste = Math.round((k.carte + k.numero + k.enveloppe + k.timbre) * 100) / 100, colis = Math.round((k.carte + k.numero) * 100) / 100;
-      panneau('<span class="eyebrow">Per posta</span><h1>Cartes à envoyer</h1>' +
+      panneau('<span class="eyebrow">Par la poste</span><h1>Cartes à envoyer</h1>' +
         '<p class="chapo">Chaque membre reçoit sa carte imprimée une seule fois : un renouvellement n’envoie rien. Les fondateurs reçoivent la carte Founders dans le colis de leur cardigan, même s’ils ont Signature. Une carte pas encore partie est annulée si la personne n’est plus membre.</p>' +
         '<div class="chiffres">' +
         '<div><span>À préparer</span><b>' + compte(aPrep) + '</b><small>' + compte(function (x) { return aPrep(x) && x.mode === 'poste'; }) + ' par la poste, ' + compte(function (x) { return aPrep(x) && x.mode === 'colis'; }) + ' dans un colis NC-01</small></div>' +
@@ -324,7 +324,7 @@
   function evenements(edition) {
     A.evenements().then(function (liste) {
       var enCours = edition && liste.filter(function (x) { return x.id === edition; })[0];
-      panneau('<span class="eyebrow">Private Events</span><h1>Événements</h1>' +
+      panneau('<span class="eyebrow">Événements privés</span><h1>Événements</h1>' +
         '<p class="chapo">Seuls les membres Signature (fondateurs compris s’ils ont Signature) voient et réservent les événements publiés. Complet : liste d’attente, qui avance automatiquement quand une place se libère ou que vous augmentez la capacité.</p>' +
         '<div class="section"><h2>' + (enCours ? 'Modifier « ' + e(enCours.titre) + ' »' : 'Nouvel événement') + '</h2>' + formEvenement(enCours) + '</div>' +
         '<div class="section"><h2>Événements et inscriptions</h2>' + (liste.length ? liste.map(function (x) {
@@ -365,7 +365,7 @@
         var out = document.getElementById('res-carte');
         if (!r) { out.innerHTML = '<span class="pastille refus">Carte inconnue</span>'; return; }
         if (r.suspendu || !r.categorie) { out.innerHTML = '<p class="cat">' + e(r.nom) + '</p><span class="pastille refus">' + (r.suspendu ? 'Accès suspendu' : 'Adhésion inactive') + '</span>'; return; }
-        out.innerHTML = '<p class="cat" style="font-size:24px">' + e(r.nom) + '</p><p style="margin:8px 0 12px">' + NOMS[r.categorie] + ' · ' + (r.categorie === 'founders' ? ('00' + r.numero).slice(-3) + ' / 050' : ('000' + r.numero).slice(-4)) + '</p><span class="pastille ok">Accès valide</span>';
+        out.innerHTML = '<p class="cat" style="font-size:24px">' + e(r.nom) + '</p><p style="margin:8px 0 12px">' + NOMS[r.categorie] + ' · ' + (r.categorie === 'founders' ? ('0' + r.numero).slice(-2) + ' / 50' : ('000' + r.numero).slice(-4)) + '</p><span class="pastille ok">Accès valide</span>';
       });
     });
   }
@@ -401,7 +401,7 @@
       document.getElementById('t-achat').addEventListener('submit', function (ev) {
         ev.preventDefault();
         A.simulerAchatNC01(document.getElementById('t-email').value, document.getElementById('t-nom').value.trim()).then(function (f) {
-          dire(f.attribue ? 'Paiement confirmé : place fondateur N° ' + ('00' + f.place.numero).slice(-3) + ' / 050.' : f.raison === 'deja_fondateur' ? 'Paiement confirmé. Ce client est déjà fondateur : pas de deuxième place.' : 'Paiement confirmé. Les 50 places sont déjà attribuées.');
+          dire(f.attribue ? 'Paiement confirmé : place fondateur N° ' + ('0' + f.place.numero).slice(-2) + ' / 50.' : f.raison === 'deja_fondateur' ? 'Paiement confirmé. Ce client est déjà fondateur : pas de deuxième place.' : 'Paiement confirmé. Les 50 places sont déjà attribuées.');
         }, err);
       });
       document.getElementById('t-remb').addEventListener('submit', function (ev) {

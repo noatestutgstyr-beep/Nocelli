@@ -37,7 +37,7 @@
   function pad(n, l) { n = String(n == null ? 0 : n); while (n.length < l) n = '0' + n; return n; }
 
   function libelleNumero(categorie, numero) {
-    if (categorie === 'founders') return 'Member <b>' + pad(numero || 1, 3) + '</b> / 050';
+    if (categorie === 'founders') return 'Member <b>' + pad(numero || 1, 2) + '</b> / 50';
     return 'Member <b>' + pad(numero || 1, 4) + '</b>';
   }
 

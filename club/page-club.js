@@ -149,7 +149,7 @@
 
   function bienvenue(w, plan) {
     Club.monEspace().then(function (esp) {
-      w.remplacer('<span class="eyebrow">Benvenuto</span><h3>Bienvenue au ' + NOMS[plan] + '.</h3>' +
+      w.remplacer('<span class="eyebrow">Bienvenue</span><h3>Bienvenue au ' + NOMS[plan] + '.</h3>' +
         '<div data-ici style="margin-top:24px"></div>' +
         '<p class="conditions">Indiquez votre adresse pour recevoir la carte imprimée.</p>' +
         '<div style="display:grid;margin-top:20px"><a class="btn plein" href="membre.html#envoi">Donner mon adresse</a></div>');
