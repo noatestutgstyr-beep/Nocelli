@@ -184,6 +184,7 @@
         function () { return { restantes: R.MAX_FONDATEURS, total: R.MAX_FONDATEURS }; });
     },
 
+    verifierPaiement: function (session) { return fonction('paiement', { action: 'verifier', session: session }); },
     monEspace: function () {
       if (!profil) return Promise.reject(Refus('connexion', MESSAGES.connexion));
       var id = profil.id, now = Date.now();

@@ -4,6 +4,7 @@
 //            | { action: 'acheter', commande_id }   (commande créée par reserver_piece)
 // Rien n'est activé ici : seule la confirmation de Stripe (webhook) active un droit.
 import { baseService, baseUtilisateur, CORS, PRIX, reponse, SITE, stripe } from '../_commun/stripe.ts';
+import { synchroniser } from '../_commun/abonnement.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
@@ -25,11 +26,20 @@ Deno.serve(async (req) => {
         subscription_data: { metadata: { compte_id: user.id, plan: corps.plan } },
         metadata: { compte_id: user.id, plan: corps.plan },
         // Twint et cartes, selon ce qui est activé dans Stripe.
-        success_url: `${SITE}/membre.html?paiement=ok`,
+        success_url: `${SITE}/membre.html?paiement=ok&session={CHECKOUT_SESSION_ID}`,
         cancel_url: `${SITE}/club.html?paiement=annule`,
         locale: 'fr',
       }, `souscrire-${user.id}-${corps.plan}-${new Date().toISOString().slice(0, 13)}`);
       return reponse({ url: session.url });
+    }
+
+    if (corps.action === 'verifier') {
+      // Retour de Stripe : on active tout de suite, sans attendre le webhook (qui reste la garantie).
+      const session = await stripe('GET', `checkout/sessions/${encodeURIComponent(String(corps.session || ''))}`);
+      if (session.client_reference_id !== user.id || session.mode !== 'subscription' || !session.subscription) return reponse({ erreur: 'session_invalide' }, 409);
+      if (session.status !== 'complete') return reponse({ actif: false });
+      await synchroniser(service, `retour-${session.id}`, await stripe('GET', `subscriptions/${session.subscription}`));
+      return reponse({ actif: true });
     }
 
     if (corps.action === 'acheter') {

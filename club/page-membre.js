@@ -398,10 +398,44 @@
     if (!ok && !annule) return;
     history.replaceState(null, '', location.pathname + location.hash);
     if (annule) { NC.fenetre('<span class="eyebrow">Paiement annulé</span><h3>Rien n’a été débité.</h3><p class="conditions">La pièce reste réservée 30 minutes, puis elle est remise en vente.</p>'); return; }
-    NC.fenetre('<span class="eyebrow">Grazie</span><h3>Paiement reçu.</h3><p class="conditions">' +
-      (params.get('paiement') === 'ok' ? 'Votre adhésion Signature s’active dans un instant.' : 'Votre commande est confirmée. Elle apparaît dans « Mes commandes ».') + '</p>');
+    if (params.get('paiement') === 'ok') return accueilSignature();
+    NC.fenetre('<span class="eyebrow">Grazie</span><h3>Paiement reçu.</h3><p class="conditions">Votre commande est confirmée. Elle apparaît dans « Mes commandes ».</p>');
     setTimeout(rendre, 4000);
-    setTimeout(rendre, 12000);
+  }
+
+  // Après le paiement Signature : on attend la confirmation de Stripe (quelques secondes), puis on accueille le membre.
+  function accueilSignature() {
+    var essais = 0, session = params.get('session');
+    // Active l'adhésion tout de suite (le webhook Stripe reste la garantie).
+    var verif = function () { return (session && Club.verifierPaiement) ? Club.verifierPaiement(session).catch(function () {}) : Promise.resolve(); };
+    var attente = NC.fenetre('<div class="accueil"><span class="eyebrow">Signature Club</span><h3>Un instant.</h3><p class="conditions">Nous préparons votre carte.</p></div>');
+    (function verifier() {
+      verif().then(function () { return Club.monEspace(); }).then(function (s) {
+        if (s.droits && s.droits.signature) {
+          document.querySelectorAll('.voile').forEach(function (v) { v.remove(); });
+          document.body.style.overflow = '';
+          rendre();
+          var c = s.compte || {}, prenom = (c.nom || '').split(' ')[0];
+          var num = c.numeroMembre ? 'Member ' + ('000' + c.numeroMembre).slice(-4) : '';
+          NC.fenetre('<div class="accueil">' +
+            '<span class="eyebrow">Benvenuto · Signature Club</span>' +
+            '<h3>' + (prenom ? 'Bienvenue, ' + e(prenom) + '.' : 'Bienvenue.') + '</h3>' +
+            '<div class="accueil-carte" id="accueil-carte"></div>' +
+            '<p class="conditions">Vous faites désormais partie des cinquante. Votre carte est active dès maintenant' + (num ? ', sous le numéro ' + num : '') + '.</p>' +
+            '<p class="conditions">Les nouvelles collections vous seront ouvertes 72 heures avant tout le monde, et vos premières invitations suivront.</p>' +
+            '<p class="accueil-sign">NOCELLI</p>' +
+            '<button type="button" class="btn plein" id="accueil-ok">Découvrir mon espace</button></div>', { titre: 'Bienvenue au Signature Club' });
+          if (s.carte) { var z = document.getElementById('accueil-carte'); if (z) z.appendChild(C.creer(Object.assign({}, s.carte, { retournable: false }))); }
+          var b = document.getElementById('accueil-ok');
+          if (b) b.addEventListener('click', function () { var f = document.querySelector('.voile .fermer'); if (f) f.click(); });
+          return;
+        }
+        if (++essais < 20) return setTimeout(verifier, 2000);
+        document.querySelectorAll('.voile').forEach(function (v) { v.remove(); });
+        document.body.style.overflow = '';
+        NC.fenetre('<span class="eyebrow">Grazie</span><h3>Paiement reçu.</h3><p class="conditions">Votre carte Signature s’active dans quelques minutes. Rechargez cette page si elle n’apparaît pas.</p>');
+      }, function () { if (++essais < 20) setTimeout(verifier, 2000); });
+    })();
   }
 
   (Club.pret || Promise.resolve()).then(function () { rendre(); retourPaiement(); });
