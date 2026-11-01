@@ -141,6 +141,9 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .piece .cta{display:grid;gap:12px;margin-top:30px}
 .piece .cta .btn{width:100%}
 .piece .cta small{font-size:12.5px;color:var(--tabacco);text-align:center}
+.tailles-info .chips button{min-width:52px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--filo);background:none;color:inherit;font:inherit;font-size:12px;letter-spacing:.18em;cursor:pointer;transition:background .3s,color .3s,border-color .3s}
+.tailles-info .chips button:hover{border-color:var(--noce)}
+.tailles-info .chips button[aria-pressed="true"]{background:var(--noce);border-color:var(--noce);color:var(--avorio)}
 .fiche{margin-top:40px;border-top:1px solid var(--filo)}
 .fiche details{border-bottom:1px solid var(--filo)}
 .fiche summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:56px;font-size:11px;font-weight:400;letter-spacing:.26em;text-transform:uppercase}
@@ -501,11 +504,11 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         <p class="intro">Cardigan zippé en mérinos extrafin, coupe ajustée. Sans logo à l'extérieur, numéroté au col.</p>
         <div class="tailles-info">
           <div class="tailles-tete"><span class="eyebrow">Tailles</span><button type="button" class="guide-lien" data-guide>Comment choisir ma taille ?</button></div>
-          <div class="chips" aria-label="Tailles disponibles"><span>S</span><span>M</span><span>L</span></div>
+          <div class="chips" role="group" aria-label="Choisir la taille"><button type="button" aria-pressed="false">S</button><button type="button" aria-pressed="false">M</button><button type="button" aria-pressed="false">L</button></div>
         </div>
         <div class="cta">
-          <a class="btn plein" href="index.html#liste">M'inscrire</a>
-          <small>Gratuit. Aucun paiement maintenant.</small>
+          <a class="btn plein" href="index.html#liste" data-precommande>M'inscrire</a>
+          <small data-precommande-note>Gratuit. Aucun paiement maintenant.</small>
         </div>
         <div class="fiche">
           <details open>
@@ -679,9 +682,37 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 
 <div class="barre" id="barre">
   <div class="t"><b>Cardigan Noce</b><span data-barre>CHF 139 · 50 pièces</span></div>
-  <a class="btn plein" href="index.html#liste">M'inscrire</a>
+  <a class="btn plein" href="index.html#liste" data-precommande>M'inscrire</a>
 </div>
 
+<script>
+/* Précommande payante (CHF 139). Coller ici les 3 liens de paiement Stripe (un par taille, chacun limité
+   à son nombre de pièces). Tant qu'un lien est vide, le bouton reste « M'inscrire » vers la liste privée. */
+var PRECOMMANDE={S:'',M:'',L:''};
+(function(){
+  var ouvert=PRECOMMANDE.S||PRECOMMANDE.M||PRECOMMANDE.L, taille='';
+  var boutons=[].slice.call(document.querySelectorAll('[data-precommande]'));
+  var note=document.querySelector('[data-precommande-note]');
+  var chips=[].slice.call(document.querySelectorAll('.tailles-info .chips button'));
+  if(!ouvert){chips.forEach(function(c){c.disabled=true;c.style.cursor='default';});return;}
+  if(note)note.textContent='Carte ou TWINT. Livraison en Suisse 4 à 6 semaines après l\'ouverture.';
+  function maj(){
+    boutons.forEach(function(b){
+      if(taille&&PRECOMMANDE[taille]){b.href=PRECOMMANDE[taille];b.textContent='Précommander · '+taille+' · CHF 139';}
+      else{b.href='#choisir-taille';b.textContent='Précommander · CHF 139';}
+    });
+  }
+  chips.forEach(function(c){
+    var t=c.textContent.trim();
+    if(!PRECOMMANDE[t]){c.disabled=true;c.style.opacity='.35';c.title='Épuisé';return;}
+    c.addEventListener('click',function(){taille=t;chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});maj();});
+  });
+  boutons.forEach(function(b){b.addEventListener('click',function(e){
+    if(!taille){e.preventDefault();var z=document.querySelector('.tailles-info');z.scrollIntoView({behavior:'smooth',block:'center'});z.animate&&z.animate([{opacity:.4},{opacity:1}],{duration:700});}
+  });});
+  maj();
+})();
+</script>
 <script src="js/v360.js"></script>
 <script src="club/vendor/qrcode.js"></script>
 <script src="club/cartes.js"></script>
