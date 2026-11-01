@@ -128,3 +128,4 @@ footer.pied-club{background:var(--avorio);padding-block:60px 36px;border-top:1px
   .marque{font-size:18px;letter-spacing:.36em;margin-right:-.36em}
   .nav nav.droite .cta{font-size:10px;letter-spacing:.18em}
 }
+.accueil .accueil-texte{font-family:var(--display);font-style:italic;font-size:clamp(17px,1.6vw,20px);line-height:1.55;max-width:38ch}

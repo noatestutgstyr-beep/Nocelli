@@ -421,8 +421,10 @@
             '<span class="eyebrow">Benvenuto · Signature Club</span>' +
             '<h3>' + (prenom ? 'Bienvenue, ' + e(prenom) + '.' : 'Bienvenue.') + '</h3>' +
             '<div class="accueil-carte" id="accueil-carte"></div>' +
-            '<p class="conditions">Vous faites désormais partie des cinquante. Votre carte est active dès maintenant' + (num ? ', sous le numéro ' + num : '') + '.</p>' +
-            '<p class="conditions">Les nouvelles collections vous seront ouvertes 72 heures avant tout le monde, et vos premières invitations suivront.</p>' +
+            '<p class="accueil-texte">Il est des maisons où l’on n’entre pas par hasard. Vous venez d’en franchir le seuil.</p>' +
+            '<p class="accueil-texte">Désormais, vous êtes l’un des cinquante. Les collections s’ouvriront à vous avant le monde, et nos tables, nos soirées, nos voyages vous attendront.</p>' +
+            '<p class="accueil-texte">Prenez votre temps. Ici, rien ne se presse.</p>' +
+            (num ? '<p class="conditions">Votre carte est active · ' + num + '</p>' : '') +
             '<p class="accueil-sign">NOCELLI</p>' +
             '<button type="button" class="btn plein" id="accueil-ok">Découvrir mon espace</button></div>', { titre: 'Bienvenue au Signature Club' });
           if (s.carte) { var z = document.getElementById('accueil-carte'); if (z) z.appendChild(C.creer(Object.assign({}, s.carte, { retournable: false }))); }
