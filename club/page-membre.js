@@ -422,7 +422,7 @@
             '<h3>' + (prenom ? 'Bienvenue, ' + e(prenom) + '.' : 'Bienvenue.') + '</h3>' +
             '<div class="accueil-carte" id="accueil-carte"></div>' +
             '<p class="accueil-texte">Il est des maisons où l’on n’entre pas par hasard. Vous venez d’en franchir le seuil.</p>' +
-            '<p class="accueil-texte">Désormais, vous êtes l’un des cinquante. Les collections s’ouvriront à vous avant le monde, et nos tables, nos soirées, nos voyages vous attendront.</p>' +
+            '<p class="accueil-texte">Désormais, vous faites partie des cinquante. Les collections s’ouvriront à vous avant le monde, et nos tables, nos soirées, nos voyages vous attendront.</p>' +
             '<p class="accueil-texte">Prenez votre temps. Ici, rien ne se presse.</p>' +
             (num ? '<p class="conditions">Votre carte est active · ' + num + '</p>' : '') +
             '<p class="accueil-sign">NOCELLI</p>' +
