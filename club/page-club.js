@@ -107,15 +107,29 @@
       '<p>Vous pouvez arrêter le renouvellement à tout moment dans votre espace membre. L’accès reste jusqu’à la fin de l’année payée.</p>' +
       '<p>Paiement sécurisé chez notre prestataire. Nocelli ne conserve aucune donnée bancaire.</p>' +
       '</div>' +
+      '<div class="infos-carte" style="display:grid;gap:18px;margin:22px 0 6px">' +
+      '<span class="eyebrow">Pour votre carte</span>' +
+      '<div class="champ"><label for="ad-nom">Nom gravé sur la carte</label><input id="ad-nom" autocomplete="name" maxlength="80" required></div>' +
+      '<div class="champ"><label for="ad-rue">Rue et numéro</label><input id="ad-rue" autocomplete="address-line1" maxlength="120" required></div>' +
+      '<div style="display:grid;grid-template-columns:110px 1fr;gap:18px"><div class="champ"><label for="ad-npa">NPA</label><input id="ad-npa" autocomplete="postal-code" inputmode="numeric" maxlength="4" required></div>' +
+      '<div class="champ"><label for="ad-loc">Localité</label><input id="ad-loc" autocomplete="address-level2" maxlength="60" required></div></div>' +
+      '<p style="font-size:13px;color:var(--tabacco)">Votre carte noire vous est envoyée à cette adresse, en Suisse.</p></div>' +
       '<label class="case"><input type="checkbox" id="accepte"> <span>J’ai lu les conditions de facturation et de renouvellement.</span></label>' +
       '<p class="erreur" id="r-err" role="alert"></p>' +
       '<div style="display:grid;gap:10px;margin-top:6px"><button class="btn plein" type="button" id="payer">Payer ' + NC.chf(cat.prix) + '</button></div>');
+    var q = function (id) { return w.corps.querySelector('#' + id); };
+    Club.monEspace().then(function (sp) {
+      var a = (sp.compte && sp.compte.adresse) || {};
+      q('ad-nom').value = a.nom || (sp.compte && sp.compte.nom) || ''; q('ad-rue').value = a.rue || ''; q('ad-npa').value = a.npa || ''; q('ad-loc').value = a.localite || '';
+    }).catch(function () {});
     w.corps.querySelector('#payer').addEventListener('click', function () {
       var err = w.corps.querySelector('#r-err');
+      var adr = { nom: q('ad-nom').value.trim(), rue: q('ad-rue').value.trim(), npa: q('ad-npa').value.trim(), localite: q('ad-loc').value.trim(), pays: 'CH' };
+      if (!adr.nom || !adr.rue || !/^[0-9]{4}$/.test(adr.npa) || !adr.localite) { err.textContent = 'Indiquez le nom pour la carte et votre adresse complète (NPA à 4 chiffres).'; return; }
       if (!w.corps.querySelector('#accepte').checked) { err.textContent = 'Cochez la case pour confirmer que vous avez lu les conditions.'; return; }
       var bouton = w.corps.querySelector('#payer');
       bouton.disabled = true;
-      Club.demarrerAbonnement(plan).then(function (ab) {
+      Club.enregistrerAdresse(adr).then(function () { return Club.demarrerAbonnement(plan); }).then(function (ab) {
         // Vrai serveur : la page de paiement sécurisée s'ouvre.
         if (ab && ab.redirection) return w.remplacer('<span class="eyebrow">Paiement</span><h3>Ouverture du paiement sécurisé…</h3>');
         paiementTest(w, plan, ab);
