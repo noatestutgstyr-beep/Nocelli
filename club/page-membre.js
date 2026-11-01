@@ -438,5 +438,14 @@
     })();
   }
 
-  (Club.pret || Promise.resolve()).then(function () { rendre(); retourPaiement(); });
+  // Un paiement Signature déjà passé mais pas encore enregistré : on le retrouve chez Stripe et on accueille le membre.
+  function rattrapage() {
+    if (params.get('paiement') || !Club.rattraperPaiement || !Club.session()) return;
+    Club.monEspace().then(function (s) {
+      if (s.droits && s.droits.membre) return;
+      return Club.rattraperPaiement().then(function (r) { if (r && r.actif) accueilSignature(); });
+    }).catch(function () {});
+  }
+
+  (Club.pret || Promise.resolve()).then(function () { rendre(); retourPaiement(); rattrapage(); });
 })();

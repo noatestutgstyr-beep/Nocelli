@@ -42,6 +42,15 @@ Deno.serve(async (req) => {
       return reponse({ actif: true });
     }
 
+    if (corps.action === 'rattraper') {
+      // Retrouve dans Stripe un abonnement déjà payé par ce compte mais pas encore inscrit dans la base.
+      const liste = await stripe('GET', `subscriptions/search?query=${encodeURIComponent(`metadata['compte_id']:'${user.id}' AND status:'active'`)}`);
+      const sub = liste.data?.[0];
+      if (!sub) return reponse({ actif: false });
+      await synchroniser(service, `rattrapage-${sub.id}`, sub);
+      return reponse({ actif: true });
+    }
+
     if (corps.action === 'acheter') {
       // La commande appartient à la personne (RLS) et réserve déjà la pièce.
       const { data: cmd } = await moi.from('commandes').select('*').eq('id', corps.commande_id).single();
