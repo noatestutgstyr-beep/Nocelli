@@ -153,20 +153,21 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rg
 .fiche .texte{padding-bottom:22px;font-size:15px;max-width:46ch}
 
 /* Details */
-.details{background:var(--noce-scuro);color:var(--avorio);padding-block:clamp(84px,10vw,140px)}
+.details{background:var(--sabbia,#ECE3D5);color:var(--noce,#3A2519);padding-block:clamp(84px,10vw,140px)}
 .details-tete{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:20px 40px;margin-bottom:48px}
-.details-tete .eyebrow{color:var(--crema)}
+.details-tete .eyebrow{color:var(--tabacco)}
 .details h2{margin-top:14px}
-.details-tete p{max-width:38ch;color:rgba(247,243,236,.7)}
-.galerie{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.details-tete p{max-width:38ch;color:rgba(58,37,25,.7)}
+.galerie{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,28px)}
+.galerie .g2 .cadre{background:#1d140f}.galerie .g2 img{object-fit:contain}
 .galerie figure{margin:0;min-width:0}
 .galerie .cadre{overflow:hidden}
-.galerie img{width:100%;object-fit:cover;aspect-ratio:16/10;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.galerie img{width:100%;object-fit:cover;aspect-ratio:4/5;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
 .galerie figure:hover img{transform:scale(1.04)}
 .galerie figcaption{margin-top:16px;display:grid;gap:2px}
 .galerie figcaption b{font-family:var(--display);font-weight:400;font-size:19px}
-.galerie figcaption span{font-size:14px;color:rgba(247,243,236,.62)}
-.g1,.g2,.g3,.g4,.g5,.g6{grid-column:span 2}
+.galerie figcaption span{font-size:13.5px;color:rgba(58,37,25,.7)}
+.g1,.g2,.g3,.g4{grid-column:auto}
 .defile{display:none;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--crema);margin-top:22px}
 
 /* Citation */
@@ -543,12 +544,10 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         </div>
       </div>
       <div class="galerie">
-        <figure class="g1"><div class="cadre"><img src="img/dt-col.jpg" alt="Col montant en côte doublée"></div><figcaption><b>Le col</b><span>Montant, en côte doublée, 7 cm.</span></figcaption></figure>
-        <figure class="g2"><div class="cadre"><img src="img/dt-zip.jpg" alt="Zip métal à double curseur, tirettes lisses"></div><figcaption><b>Le zip</b><span>Métal, double curseur, tirettes lisses.</span></figcaption></figure>
-        <figure class="g3"><div class="cadre"><img src="img/dt-manche.jpg" alt="Épaule et manche montée"></div><figcaption><b>L'épaule</b><span>Naturelle, manche montée sans épaulette.</span></figcaption></figure>
-        <figure class="g4"><div class="cadre"><img src="img/dt-etiquette.jpg" alt="Étiquette tissée beige au col : NOCELLI, N° 01 / 50"></div><figcaption><b>Le numéro</b><span>Seule marque NOCELLI, à l'intérieur du col.</span></figcaption></figure>
-        <figure class="g5"><div class="cadre"><img src="img/dt-poignet.jpg" alt="Poignet en côte"></div><figcaption><b>Les finitions</b><span>Poignets et bas en côte, nets et plats.</span></figcaption></figure>
-        <figure class="g6"><div class="cadre"><img src="img/dt-maille.jpg" alt="Gros plan sur la maille jersey unie"></div><figcaption><b>La maille</b><span>Mérinos extrafin, jersey uni 12 jauges.</span></figcaption></figure>
+        <figure class="g1"><div class="cadre"><img src="img/d-col.jpg" alt="Col montant en côte doublée"></div><figcaption><b>Le col</b><span>Montant, en côte doublée, 7 cm.</span></figcaption></figure>
+        <figure class="g2"><div class="cadre"><img src="img/d-etiquette.jpg" alt="Étiquette tissée beige au col : NOCELLI, N° 01 / 50"></div><figcaption><b>Le numéro</b><span>Seule marque NOCELLI, à l'intérieur du col.</span></figcaption></figure>
+        <figure class="g3"><div class="cadre"><img src="img/d-poignet.jpg" alt="Poignet en côte"></div><figcaption><b>Les finitions</b><span>Poignets et bas en côte, nets et plats.</span></figcaption></figure>
+        <figure class="g4"><div class="cadre"><img src="img/d-maille.jpg" alt="Gros plan sur la maille jersey unie"></div><figcaption><b>La maille</b><span>Mérinos extrafin, jersey uni 12 jauges.</span></figcaption></figure>
       </div>
       <p class="defile">Faites glisser pour voir les détails</p>
     </div>
