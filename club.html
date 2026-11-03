@@ -115,7 +115,7 @@
 </head>
 <body>
 
-<div class="annonce">Nocelli Private Club &nbsp;·&nbsp; Founders &nbsp;·&nbsp; Signature</div>
+<div class="annonce" data-sans-founders="Nocelli Private Club · Signature">Nocelli Private Club &nbsp;·&nbsp; Founders &nbsp;·&nbsp; Signature</div>
 
 <header class="tete">
   <div class="wrap nav">
@@ -150,10 +150,10 @@
       <div>
         <span class="eyebrow apparait">Private Club</span>
         <h1 class="apparait d1">NOCELLI <span>Private Club</span></h1>
-        <p class="intro apparait d2">Deux cartes. Founders est offerte aux 50 premiers acheteurs du cardigan NC-01. Signature coûte CHF 290 par an, limitée à 50 membres.</p>
+        <p class="intro apparait d2" data-sans-founders="Signature coûte CHF 290 par an, limitée à 50 membres.">Deux cartes. Founders est offerte aux 50 premiers acheteurs du cardigan NC-01. Signature coûte CHF 290 par an, limitée à 50 membres.</p>
         <div class="actions apparait d3">
           <button class="btn clair" type="button" data-rejoindre="signature">Rejoindre Signature</button>
-          <a class="lien" href="#comparer">Comparer</a>
+          <a class="lien" href="#comparer" data-founders>Comparer</a>
         </div>
       </div>
       <div class="eventail" id="eventail" aria-label="Les deux cartes du club"><span class="specimen">Spécimens · 85,6 × 54 mm</span></div>
@@ -165,27 +165,29 @@
       <div class="formules-tete">
         <div>
           <span class="eyebrow">Les cartes</span>
-          <h2>Deux cartes.</h2>
+          <h2 data-sans-founders="Signature.">Deux cartes.</h2>
         </div>
         <p>Touchez une carte pour la retourner.</p>
       </div>
 
-      <div class="onglets" role="tablist" aria-label="Formules">
+      <div class="onglets" data-founders role="tablist" aria-label="Formules">
         <button type="button" role="tab" aria-selected="true" aria-controls="f-founders" data-cible="0">Founders</button>
         <button type="button" role="tab" aria-selected="false" aria-controls="f-signature" data-cible="1">Signature</button>
       </div>
 
       <div class="trio" id="trio">
-        <article class="formule founders" id="f-founders">
+        <article class="formule founders" id="f-founders" data-founders>
           <div class="scene-carte" data-carte="founders"></div>
           <div class="titre"><h3>Founders Club</h3><span class="prix">Gratuit<small>à vie</small></span></div>
           <p class="desc">Offerte aux 50 premiers acheteurs du cardigan <span style="white-space:nowrap">NC-01</span>, numérotés de 01 / 50 à 50 / 50.</p>
           <ul>
             <li>Carte numérotée, livrée avec le cardigan</li>
-            <li>Les nouvelles collections 48 h avant le public</li>
+            <li>Tous les avantages Signature, offerts à vie</li>
+            <li>Les nouvelles collections 72 h avant le public</li>
             <li>Priorité sur les éditions limitées</li>
+            <li>Dîners privés, soirées à Genève et rencontres entre membres</li>
+            <li>Accès prioritaire aux voyages NOCELLI, avec 10 % de réduction</li>
             <li>Vote sur les futures collections</li>
-            <li>10 % de réduction sur tous les événements et voyages NOCELLI</li>
           </ul>
           <div class="cta">
             <a class="btn" href="cardigan-noce.html" aria-describedby="places-f">Avec l'achat du NC-01</a>
@@ -210,7 +212,7 @@
           <div class="cta">
             <button class="btn plein" type="button" data-rejoindre="signature">Rejoindre pour CHF 290/an</button>
             <small>Un an dès le paiement. Renouvellement automatique, annulable à tout moment.</small>
-            <small>Déjà fondateur ? Signature s'ajoute à votre carte Founders.</small>
+            <small data-founders>Déjà fondateur ? Signature s'ajoute à votre carte Founders.</small>
           </div>
         </article>
       </div>
@@ -218,7 +220,7 @@
     </div>
   </section>
 
-  <section class="comparer" id="comparer">
+  <section class="comparer" id="comparer" data-founders>
     <div class="wrap">
       <span class="eyebrow">Comparatif</span>
       <h2>Comparer.</h2>
@@ -246,16 +248,16 @@
         <div><a class="lien" href="membre.html">Mon espace membre</a></div>
       </div>
       <div>
-        <details open>
+        <details open data-founders>
           <summary>Comment devenir fondateur ?</summary>
           <div class="rep">
             <p>Achetez le cardigan NC-01. Les 50 premières commandes payées reçoivent les numéros 01 / 50 à 50 / 50, dans l'ordre des paiements. Une place par client. Une commande remboursée perd sa place.</p>
           </div>
         </details>
-        <details>
+        <details data-founders>
           <summary>Les fondateurs ont-ils accès aux événements ?</summary>
           <div class="rep">
-            <p>Oui, avec 10 % de réduction sur tous les événements et voyages NOCELLI. Un fondateur peut aussi prendre Signature pour CHF 290 par an et garde son numéro.</p>
+            <p>Oui. Les fondateurs ont accès à tout : dîners privés, soirées, rencontres entre membres et voyages, avec 10 % de réduction sur chacun. Rien à payer pour la carte, à vie.</p>
           </div>
         </details>
         <details>
@@ -267,7 +269,7 @@
         <details>
           <summary>Comment se passent les voyages ?</summary>
           <div class="rep">
-            <p>Les membres Signature y ont un accès prioritaire. Le voyage est à la charge de chaque membre ; les fondateurs ont 10 % de réduction. Acompte non remboursable à la réservation.</p>
+            <p>Les membres Signature et les fondateurs y ont un accès prioritaire. Le voyage est à la charge de chaque membre ; les fondateurs ont 10 % de réduction. Acompte non remboursable à la réservation.</p>
           </div>
         </details>
         <details>
@@ -279,7 +281,7 @@
         <details>
           <summary>Comment acheter en avant-première ?</summary>
           <div class="rep">
-            <p>Dans votre espace membre. Chaque lancement s'y ouvre 72 heures avant le public pour Signature, 48 heures pour Founders. Les quantités restent limitées.</p>
+            <p>Dans votre espace membre. Chaque lancement s'y ouvre 72 heures avant le public pour Signature et Founders. Les quantités restent limitées.</p>
           </div>
         </details>
         <details>
@@ -352,6 +354,7 @@
 <script src="club/serveur.js"></script>
 <script src="club/cartes.js"></script>
 <script src="club/commun.js"></script>
+<script src="club/offre.js"></script>
 <script src="club/page-club.js"></script>
 <script src="club/assistant.js"></script>
 <script src="js/langue.js"></script>

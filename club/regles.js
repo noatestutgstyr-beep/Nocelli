@@ -30,7 +30,7 @@
    * Formules (décision de Noa, 31.10.2026 au soir) :
    *  - Signature : CHF 290/an, 50 membres au plus, collections 72 h avant le public
    *    (48 h + 24 h), dîners, soirées et voyages réservés aux membres mais payants séparément ;
-   *  - Founders : gratuit à vie, collections 48 h avant, 10 % de remise sur les événements
+   *  - Founders : gratuit à vie, accès à tout ce que donne Signature (72 h avant, dîners, soirées, voyages), plus 10 % de remise sur les événements
    *    et les voyages.
    */
   var EVENEMENTS_INCLUS_SIGNATURE = 0;   // depuis le 31.10.2026 soir : tout est payant séparément
@@ -386,7 +386,7 @@
     if (!l || !l.publie) return { ok: false, raison: 'introuvable', message: "Cette collection n'est pas encore annoncée." };
     var phase = phaseLancement(l, now);
     // Signature : la vente s'ouvre 24 h plus tôt pour eux (72 h avant le public).
-    if (phase === 'annonce' && compteId && now >= l.publicLe - (l.heuresAnticipees + HEURES_EN_PLUS_SIGNATURE) * HEURE && droits(etat, compteId, now).signature) phase = 'membres';
+    if (phase === 'annonce' && compteId && now >= l.publicLe - (l.heuresAnticipees + HEURES_EN_PLUS_SIGNATURE) * HEURE && (function(d){return d.signature||d.categorie==='founders';})(droits(etat, compteId, now))) phase = 'membres';
     if (phase === 'annonce') return { ok: false, raison: 'pas_ouvert', message: 'La vente n’est pas encore ouverte.' };
     if (phase === 'membres') {
       var d = compteId ? droits(etat, compteId, now) : { accesAnticipe: false };

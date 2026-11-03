@@ -8,10 +8,10 @@
 
   // [avantage, a-t-il ce droit ?, réservé aux fondateurs (masqué pour les autres)]
   var AVANTAGES = [
-    ['Les nouvelles collections avant le public (72 h avec Signature, 48 h pour Founders)', function (d) { return d.accesAnticipe; }],
+    ['Les nouvelles collections 72 h avant le public', function (d) { return d.accesAnticipe; }],
     ['Notifications des lancements', function (d) { return d.membre; }],
-    ['Dîners privés, soirées à Genève et rencontres entre membres', function (d) { return d.signature; }],
-    ['Accès prioritaire aux voyages NOCELLI', function (d) { return d.signature; }],
+    ['Dîners privés, soirées à Genève et rencontres entre membres', function (d) { return d.signature || d.categorie === 'founders'; }],
+    ['Accès prioritaire aux voyages NOCELLI', function (d) { return d.signature || d.categorie === 'founders'; }],
     ['10 % de réduction sur tous les événements et voyages NOCELLI', function (d) { return d.categorie === 'founders'; }, true],
     ['Votes sur les futures collections', function (d) { return d.votes; }],
     ['Contenus réservés aux membres', function (d) { return d.contenus; }],
@@ -263,7 +263,7 @@
   /* ---------------- Collections ---------------- */
   function blocCollections(s) {
     var tete = '<div class="bloc-tete"><div><span class="eyebrow">En avant-première</span><h2>Collections en avant-première</h2></div>' +
-      '<p>' + (s.droits.accesAnticipe ? 'Achat possible 48 h avant le public. Quantités limitées.' : 'Les membres achètent 48 h avant le public.') + '</p></div>';
+      '<p>' + (s.droits.accesAnticipe ? 'Achat possible 72 h avant le public. Quantités limitées.' : 'Les membres achètent 48 h avant le public.') + '</p></div>';
     if (!s.lancements.length) return tete + vide('Aucune collection annoncée pour le moment.', 'Vous serez prévenu par e-mail.');
     return tete + '<div class="liste-items">' + s.lancements.map(function (l) {
       var phase = { annonce: '<span class="pastille neutre">Annoncée</span>', membres: '<span class="pastille ok">Ouverte aux membres</span>', public: '<span class="pastille ok">Ouverte à tous</span>' }[l.phase];

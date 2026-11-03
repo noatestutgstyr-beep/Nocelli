@@ -14,11 +14,11 @@
   // Tableau comparatif
   // 1 = oui, 0 = non, texte = ce qui s'applique
   var LIGNES = [
-    ['Collections avant le public', '48&nbsp;h', '72&nbsp;h'],
+    ['Collections avant le public', '72&nbsp;h', '72&nbsp;h'],
     ['Priorité sur les éditions limitées', 1, 1],
-    ['Dîners privés et soirées', '10&nbsp;% de réduction', 'Accès exclusif'],
-    ['Voyages NOCELLI', '10&nbsp;% de réduction', 'Accès prioritaire'],
-    ['Rencontres entre membres', 0, 1],
+    ['Dîners privés et soirées', 'Accès exclusif, −10&nbsp;%', 'Accès exclusif'],
+    ['Voyages NOCELLI', 'Accès prioritaire, −10&nbsp;%', 'Accès prioritaire'],
+    ['Rencontres entre membres', 1, 1],
     ['Votes sur les futures collections', 1, 1],
     ['Carte numérique et imprimée', 1, 1],
     ['Gratuit, à vie', 1, 0]
@@ -30,6 +30,7 @@
 
   // Places fondateurs restantes
   Club.placesFondateurs().then(function (p) {
+    if (p.restantes === 0 && window.NocelliFermerFounders) window.NocelliFermerFounders();
     var t = p.restantes === 0 ? 'Les 50 places sont attribuées.' : p.restantes + ' places sur 50 encore libres.';
     document.querySelectorAll('[data-places]').forEach(function (el) { el.textContent = t; });
   });
