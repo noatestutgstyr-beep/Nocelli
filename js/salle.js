@@ -23,7 +23,9 @@ var COLLECTIONS = [
 ];
 
 // Dimensions de la salle (mètres)
-var HW = 2.3, ZB = -2.2, D = 0.62, T = 0.035, Y_BAS = 0.62, Y_HAUT = 2.35, Y_TRINGLE = 2.2, PLAFOND = 2.9;
+var HW = 2.3, ZB = -2.2, D = 0.62, T = 0.035, Y_BAS = 0.86, Y_HAUT = 2.35, Y_TRINGLE = 2.2, PLAFOND = 2.9;
+// les pièces et leurs cintres sont présentés un peu plus grands que nature, pour habiter le rayon
+var ECHELLE = 1.4;
 var Z_COTE = .9, Z_PORTE = 3.4, Z_DEPART = 7.0, Z_ARRIVEE = 1.85, OEIL = 1.5;
 
 function hasard(seed) {
@@ -109,7 +111,7 @@ export async function ouvrir(o) {
   var matLed = new THREE.MeshBasicMaterial({ color: 0xffd8a0 });
   matLed.color.multiplyScalar(2.2);
   var matSpot = new THREE.MeshBasicMaterial({ color: 0x8a7458 });
-  var matSol = new THREE.MeshPhysicalMaterial({ color: 0x130c08, roughness: .2, metalness: 0, clearcoat: 1, clearcoatRoughness: .12, envMapIntensity: .5 });
+  var matSol = new THREE.MeshPhysicalMaterial({ color: 0x130c08, roughness: .2, metalness: 0, clearcoat: .5, clearcoatRoughness: .3, envMapIntensity: .5 });
   var matPlafond = new THREE.MeshStandardMaterial({ color: 0x120b07, roughness: .9 });
   var matCintre = new THREE.MeshStandardMaterial({ map: texNoyer, color: 0xc08a5a, roughness: .3, envMapIntensity: .8 });
   var matInvisible = new THREE.MeshBasicMaterial({ visible: false });
@@ -315,7 +317,7 @@ export async function ouvrir(o) {
   }
 
   // ---------- Armoire : une rangée de rayons face à +z ----------
-  var rayons = [], pieces = [], lumieres = [];
+  var rayons = [], pieces = [], tiroirs = [];
   function armoire(n, l, ordre) {
     var g = new THREE.Group(), L = n * l;
     boite(g, L, .08, D - .05, bois(L / .8, .2, true), 0, .04, -D / 2 - .025);
@@ -328,10 +330,17 @@ export async function ouvrir(o) {
     for (var k = 0; k <= n; k++) boite(g, T, Y_HAUT + .26 - .08, D + .005, bois(.25, 2.2, false), -L / 2 + k * l, (Y_HAUT + .26 + .08) / 2, -D / 2);
     for (k = 0; k < n; k++) {
       var x = -L / 2 + (k + .5) * l, c = COLLECTIONS[ordre[k]], r = { groupe: g, x: x, coll: c, pieces: [] };
-      // tiroirs et poignées
-      [.215, .485].forEach(function (y) {
-        boite(g, l - T - .012, .255, .024, bois(1.2, .4, true), x, y, .006);
-        boite(g, .2, .012, .016, matLaiton, x, y + .07, .026);
+      // tiroirs : un clic les ouvre (caisson vide, doublé de daim, prêt pour les accessoires), un autre les referme
+      [.2075, .4625, .7175].forEach(function (y) {
+        var lt = l - T - .012, ht = .245, pr = D - .14, tg = new THREE.Group();
+        tg.position.set(x, y, 0); g.add(tg);
+        var face = boite(tg, lt, ht, .024, bois(1.2, .4, true), 0, 0, .006);
+        boite(tg, .2, .012, .016, matLaiton, 0, .07, .026);
+        boite(tg, lt - .03, .01, pr, matDaim, 0, -ht / 2 + .035, -.006 - pr / 2);
+        [-1, 1].forEach(function (s) { boite(tg, .012, ht - .07, pr, bois(.6, .3, true), s * (lt / 2 - .021), -.005, -.006 - pr / 2); });
+        boite(tg, lt - .03, ht - .07, .012, bois(1.2, .3, true), 0, -.005, -.006 - pr);
+        var tir = { groupe: tg, face: face, t: 0, ouvert: false, rayon: r };
+        face.userData.tiroir = tir; tiroirs.push(tir);
       });
       // fond en daim, bande LED, tringle et supports
       boite(g, l - T, Y_HAUT - Y_BAS - T * 2, .02, matDaim, x, (Y_HAUT + Y_BAS) / 2, -D + .012);
@@ -350,7 +359,8 @@ export async function ouvrir(o) {
       var liste = c.pieces || [], nb = liste.length || 3, ecart = Math.min(.24, (l - .3) / Math.max(1, nb - 1));
       for (var j = 0; j < nb; j++) {
         var px = x + (nb === 1 ? 0 : (j - (nb - 1) / 2) * ecart);
-        var pivot = new THREE.Group(); pivot.position.set(px, Y_TRINGLE + .028, -D / 2); pivot.rotation.order = 'YXZ'; g.add(pivot);
+        var pivot = new THREE.Group(); pivot.position.set(px, Y_TRINGLE + .028 * ECHELLE, -D / 2); pivot.rotation.order = 'YXZ'; g.add(pivot);
+        pivot.scale.setScalar(ECHELLE);
         pivot.add(cintre());
         // comme dans une vraie armoire : la pièce pend perpendiculaire à la tringle, l'épaule vers le visiteur
         var etat = { pivot: pivot, x: px, rayon: r, t: 0, v: 0, cible: 0, repos: -Math.PI / 2 + .1, ph: Math.random() * 6.28, info: liste[j] || null };
@@ -384,6 +394,7 @@ export async function ouvrir(o) {
     var sx = (i - 1) * 1.4, spot = new THREE.Mesh(new THREE.CircleGeometry(.035, 24), matSpot);
     spot.rotation.x = Math.PI / 2; spot.position.set(sx, PLAFOND - .002, ZB + D + 1.1); scene.add(spot);
   }
+  var lumTiroir = new THREE.PointLight(0xffd2a0, 0, .55, 2); scene.add(lumTiroir);
   var lumPorte = new THREE.PointLight(0xffc896, 1.4, 4, 2); lumPorte.position.set(0, 2.4, Z_PORTE - .3); scene.add(lumPorte);
 
   // ---------- Rendu ----------
@@ -408,13 +419,24 @@ export async function ouvrir(o) {
   var souris = new THREE.Vector2(0, 0), regard = { yaw: 0, pitch: 0, cy: 0, cp: 0 }, glisse = null, survol = null, choisi = null;
   var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), entree = reduit ? 1 : 0, sortie = -1, finSortie = null;
   var balayage = tactile && !reduit ? 0 : -1, dernier = null, surFiche = false;
-  var proxies = pieces.map(function (p) { return p.proxy; });
+  var cibles = pieces.map(function (p) { return p.proxy; }).concat(tiroirs.map(function (t) { return t.face; }));
+  var tiroirSurvol = null, tiroirOuvert = null, tiroirVu = null;
+  // ce qui est sous le pointeur : { piece } ou { tiroir }, ou rien
   function viser(cx, cy) {
     var r = canvas.getBoundingClientRect();
     ndc.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    var h = ray.intersectObjects(proxies, false)[0];
-    return h ? h.object.userData.piece : null;
+    var h = ray.intersectObjects(cibles, false)[0];
+    return h ? h.object.userData : {};
+  }
+  function survoler(c) {
+    choisir(c.piece || null); tiroirSurvol = c.tiroir || null;
+    canvas.style.cursor = c.piece || c.tiroir ? 'pointer' : '';
+  }
+  function basculer(t) {
+    if (t.ouvert) { t.ouvert = false; tiroirOuvert = null; return; }
+    if (tiroirOuvert) tiroirOuvert.ouvert = false;
+    t.ouvert = true; tiroirOuvert = tiroirVu = t; choisir(null);
   }
   function choisir(p) {
     if (survol === p) return;
@@ -440,7 +462,7 @@ export async function ouvrir(o) {
       if (Math.abs(dx) + Math.abs(dy) > 6) glisse.bouge = true;
       regard.yaw = Math.max(-1, Math.min(1, glisse.yaw + dx * .004));
       regard.pitch = Math.max(-.25, Math.min(.2, glisse.pitch + dy * .002));
-    } else if (e.pointerType === 'mouse' && entree >= 1) choisir(viser(e.clientX, e.clientY));
+    } else if (e.pointerType === 'mouse' && entree >= 1) survoler(viser(e.clientX, e.clientY));
   });
   canvas.addEventListener('pointerdown', function (e) {
     balayage = -1;
@@ -449,7 +471,11 @@ export async function ouvrir(o) {
   canvas.addEventListener('pointerup', function (e) {
     var g = glisse; glisse = null;
     if (g && g.bouge) return;
-    var p = viser(e.clientX, e.clientY);
+    var c = viser(e.clientX, e.clientY), p = c.piece || null;
+    if (entree < 1) return;
+    // un tiroir s'ouvre ou se referme ; un clic dans le vide referme celui qui est ouvert
+    if (c.tiroir) { basculer(c.tiroir); return; }
+    if (!p && tiroirOuvert) { basculer(tiroirOuvert); }
     if (e.pointerType === 'mouse') { aller(p); return; }
     // au doigt : un premier toucher présente la pièce, le second ouvre sa fiche
     if (p && p === survol) aller(p); else choisir(p);
@@ -457,7 +483,7 @@ export async function ouvrir(o) {
   canvas.addEventListener('pointercancel', function () { glisse = null; });
   canvas.addEventListener('pointerleave', function (e) {
     if (e.pointerType !== 'mouse' || (e.relatedTarget && fiche.contains(e.relatedTarget))) return; // vers la fiche : elle reste
-    souris.set(0, 0); dernier = null; choisir(null);
+    souris.set(0, 0); dernier = null; survoler({});
   });
   fiche.addEventListener('pointerenter', function () { surFiche = true; });
   fiche.addEventListener('pointerleave', function (e) { surFiche = false; if (e.relatedTarget !== canvas) { dernier = null; choisir(null); } });
@@ -483,6 +509,17 @@ export async function ouvrir(o) {
       var actif = survol && survol.rayon === r ? survol.t : 0, autre = survol && survol.rayon !== r ? survol.t : 0;
       r.lumiere.intensity = r.base * (1 - .35 * autre);
     });
+    // tiroirs : ils glissent comme sur des coulisses à fermeture douce ; au survol, ils s'entrouvrent à peine
+    tiroirs.forEach(function (t) {
+      var c = t.ouvert ? 1 : t === tiroirSurvol ? .06 : 0;
+      t.t += (c - t.t) * Math.min(1, dt * (t.ouvert ? 4 : 5.5));
+      t.groupe.position.z = t.t * .36;
+    });
+    // une lumière douce s'allume dans le tiroir ouvert
+    if (tiroirVu) {
+      tiroirVu.groupe.parent.localToWorld(lumTiroir.position.set(tiroirVu.groupe.position.x, tiroirVu.groupe.position.y + .02, tiroirVu.groupe.position.z - .12));
+      lumTiroir.intensity = .45 * lisse(Math.min(1, tiroirVu.t));
+    }
   }
   function boucle() {
     raf = requestAnimationFrame(boucle);
@@ -496,7 +533,7 @@ export async function ouvrir(o) {
     // entrée : la caméra arrive en plein élan (relais du zoom de la vidéo) puis ralentit jusqu'à l'armoire
     if (entree < 1) entree = Math.min(1, entree + dt / 2.8);
     // survol recalculé à chaque image : la pièce réagit aussi quand c'est la vue qui glisse sous la souris
-    if (!tactile && dernier && !surFiche && entree >= 1 && sortie < 0) choisir(viser(dernier[0], dernier[1]));
+    if (!tactile && dernier && !surFiche && entree >= 1 && sortie < 0) survoler(viser(dernier[0], dernier[1]));
     var e = 1 - Math.pow(1 - entree, 2.6);
     // sortie : elle repart doucement puis accélère ; à mi-course la page reprend la main en fondu
     if (sortie >= 0) {
@@ -514,13 +551,20 @@ export async function ouvrir(o) {
     regard.cp += (regard.pitch - regard.cp) * Math.min(1, dt * 3.2);
     var z = THREE.MathUtils.lerp(Z_DEPART, Z_ARRIVEE, e), foc = survol ? lisse(Math.max(0, Math.min(1, survol.t))) : 0;
     var bx = regard.cy * -.35 * e, by = OEIL + (1 - e) * -.12, yaw = regard.cy * e, pitch = -.05 + regard.cp * e;
-    // la pièce survolée attire le regard et rapproche un peu le visiteur
+    // la pièce survolée (ou le tiroir ouvert) attire le regard et rapproche un peu le visiteur
+    var avance = .42, hauteur = .3;
+    if (foc > 0) { survol.pivot.getWorldPosition(regardCible); regardCible.y -= .4 * ECHELLE; }
+    else if (tiroirVu && tiroirVu.t > .02) {
+      foc = lisse(Math.min(1, tiroirVu.t)); avance = .55; hauteur = .85;
+      tiroirVu.groupe.getWorldPosition(regardCible);
+    }
+    // pour un tiroir, le regard reste au-dessus et plonge dedans
+    var leve = foc > 0 && !survol ? 1.1 : 0, plonge = survol ? .6 : .92;
     if (foc > 0) {
-      survol.pivot.getWorldPosition(regardCible); regardCible.y -= .4;
-      bx += (regardCible.x - bx) * .42 * foc; by += (regardCible.y - by) * .3 * foc; z += (regardCible.z - z) * .42 * foc;
+      bx += (regardCible.x - bx) * avance * foc; by += (regardCible.y + leve - by) * hauteur * foc; z += (regardCible.z - z) * avance * foc;
       var dx = regardCible.x - bx, dy = regardCible.y - by, dz = regardCible.z - z;
       yaw += (Math.atan2(-dx, -dz) - yaw) * .6 * foc;
-      pitch += (Math.atan2(dy, Math.hypot(dx, dz)) - pitch) * .6 * foc;
+      pitch += (Math.atan2(dy, Math.hypot(dx, dz)) - pitch) * plonge * foc;
     }
     camera.position.set(bx, by, z);
     camera.rotation.y = yaw;
@@ -528,7 +572,7 @@ export async function ouvrir(o) {
     poser(dt, temps);
     // fiche à côté de la pièce survolée
     if (survol && !fiche.hidden) {
-      survol.pivot.getWorldPosition(vec); vec.y -= .42;
+      survol.pivot.getWorldPosition(vec); vec.y -= .42 * ECHELLE;
       vec.project(camera);
       var w = racine.clientWidth, h = racine.clientHeight, sx = (vec.x + 1) / 2 * w, sy = (1 - vec.y) / 2 * h;
       if (w > 700) { fiche.style.left = Math.min(w - 300, sx + Math.min(240, w * .14)) + 'px'; fiche.style.top = Math.max(90, Math.min(h - 240, sy - 70)) + 'px'; }
@@ -546,6 +590,7 @@ export async function ouvrir(o) {
   return {
     demarrer: function () {
       entree = reduit ? 1 : 0; sortie = -1; finSortie = null; balayage = tactile && !reduit ? 0 : -1; dernier = null;
+      tiroirs.forEach(function (t) { t.ouvert = false; t.t = 0; t.groupe.position.z = 0; }); tiroirOuvert = tiroirVu = tiroirSurvol = null;
       regard.yaw = regard.pitch = regard.cy = regard.cp = 0; souris.set(0, 0);
       horloge.start(); if (!raf) boucle();
     },
@@ -554,6 +599,8 @@ export async function ouvrir(o) {
       if (reduit) { mi(); return; }
       sortie = 0; finSortie = mi;
     },
+    // Échap referme d'abord un tiroir ouvert
+    echap: function () { if (!tiroirOuvert) return false; basculer(tiroirOuvert); return true; },
     arreter: function () { cancelAnimationFrame(raf); raf = 0; }
   };
 }

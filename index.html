@@ -362,8 +362,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .form-guide{justify-self:start;margin-top:-12px;color:var(--crema)}
 .guide{border:0;padding:0;width:min(640px,calc(100% - 32px));max-height:calc(100svh - 48px);background:var(--avorio);color:var(--noce)}
 .guide::backdrop{background:rgba(33,20,13,.55)}
-.guide-in{padding:clamp(24px,4vw,44px)}
-.guide-tete{display:flex;justify-content:space-between;align-items:start;gap:16px}
+.guide-in{--gp:clamp(24px,4vw,44px);padding:var(--gp)}
+/* l'en-tête et sa croix restent en haut de la fenêtre pendant qu'on descend dans les mesures */
+.guide-tete{display:flex;justify-content:space-between;align-items:start;gap:16px;position:sticky;top:0;z-index:2;background:var(--avorio);margin:calc(-1 * var(--gp)) calc(-1 * var(--gp)) 0;padding:var(--gp) var(--gp) 14px;border-bottom:1px solid var(--filo)}
 .guide h2{font-size:30px;line-height:1.1}
 .guide h3{font-family:var(--body);font-size:10.5px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);margin:26px 0 8px}
 .fermer{background:none;border:0;font-size:28px;line-height:1;cursor:pointer;width:44px;height:44px;margin:-8px -10px 0 0;color:var(--noce)}
@@ -805,7 +806,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     seuil.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();entrer();}});
     seuil.addEventListener('pointerenter',function(){preparer().catch(function(){});});
     salle.querySelector('.salle-fermer').addEventListener('click',function(){sortir(false);});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vue3d)sortir(false);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vue3d&&!vue3d.echap())sortir(false);});
     addEventListener('popstate',function(){if(vue3d)sortir(true);});
     // retour depuis la fiche de la pièce : on retrouve la page d'accueil normale
     addEventListener('pageshow',function(e){if(e.persisted&&location.hash==='#coffre'){salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';dedans=false;if(vue3d){vue3d.arreter();vue3d=null;}}});

@@ -358,8 +358,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .form-guide{justify-self:start;margin-top:-12px;color:var(--crema)}
 .guide{border:0;padding:0;width:min(640px,calc(100% - 32px));max-height:calc(100svh - 48px);background:var(--avorio);color:var(--noce)}
 .guide::backdrop{background:rgba(33,20,13,.55)}
-.guide-in{padding:clamp(24px,4vw,44px)}
-.guide-tete{display:flex;justify-content:space-between;align-items:start;gap:16px}
+.guide-in{--gp:clamp(24px,4vw,44px);padding:var(--gp)}
+/* l'en-tête et sa croix restent en haut de la fenêtre pendant qu'on descend dans les mesures */
+.guide-tete{display:flex;justify-content:space-between;align-items:start;gap:16px;position:sticky;top:0;z-index:2;background:var(--avorio);margin:calc(-1 * var(--gp)) calc(-1 * var(--gp)) 0;padding:var(--gp) var(--gp) 14px;border-bottom:1px solid var(--filo)}
 .guide h2{font-size:30px;line-height:1.1}
 .guide h3{font-family:var(--body);font-size:10.5px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--tabacco);margin:26px 0 8px}
 .fermer{background:none;border:0;font-size:28px;line-height:1;cursor:pointer;width:44px;height:44px;margin:-8px -10px 0 0;color:var(--noce)}
