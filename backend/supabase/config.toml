@@ -7,3 +7,7 @@ verify_jwt = true
 # Stripe appelle le webhook sans compte Supabase : la signature Stripe est vérifiée dans la fonction.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Les visiteurs posent leurs questions sans compte : la fonction limite elle-même le nombre de questions.
+[functions.assistant]
+verify_jwt = false

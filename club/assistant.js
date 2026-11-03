@@ -1,4 +1,4 @@
-// Case à questions NOCELLI : répond à partir des informations publiques de la marque (aucun service externe).
+// Case à questions NOCELLI : l'assistant IA (fonction serveur « assistant ») répond ; à défaut, des réponses toutes faites.
 (function () {
   var hote = document.getElementById('assistant');
   if (!hote) {
@@ -59,12 +59,12 @@
     [['lavage', 'laver', 'entretien', 'machine', 'retrecit', 'retrecir', 'repasser', 'sechage', 'boulochage', 'bouloche'], "Lavage à la main ou en machine au programme laine, à froid, puis séchage à plat. La laine est traitée anti-feutrage et ne rétrécit presque pas."],
     [['homme', 'femme', 'unisexe', 'genre', 'pour qui'], "Le Cardigan Noce se porte comme on veut. Regardez le guide des tailles pour choisir selon votre tour de poitrine."],
     [['date', 'quand sort', 'quand ouvr', 'quand commence', 'quand acheter', 'sortie', 'lancement', 'drop', 'heure', 'ouverture', 'decembre', 'disponible quand', 'quand ca sort'], "Le lancement a lieu le mardi 1er décembre 2026 à 19 h, heure suisse. Les membres du club y ont accès avant : 72 h pour Signature, 48 h pour Founders."],
-    [['acheter', 'commander', 'precommande', 'achat', 'commande', 'reserver', 'ou acheter'], "La vente se fait uniquement sur ce site, en précommande à partir du 1er décembre à 19 h. Inscrivez-vous à la liste privée pour être prévenu."],
+    [['acheter', 'commander', 'precommande', 'achat', 'commande', 'reserver', 'ou acheter'], "La vente se fait uniquement sur ce site, en précommande à partir du 1er décembre à 19 h. Créez votre compte (page « Inscription ») pour être prévenu."],
     [['livraison', 'livr', 'livrez', 'livrez quand', 'quand recevoir', 'delai', 'expedition', 'recevoir', 'envoi', 'colis', 'poste', 'semaine'], "C'est une précommande : livraison en Suisse 4 à 6 semaines après l'ouverture."],
     [['etranger', 'france', 'international', 'europe', 'hors suisse', 'douane', 'en france', 'livrez vous en'], "Pour l'instant, la livraison se fait en Suisse uniquement."],
     [['paiement', 'payer', 'twint', 'carte bancaire', 'visa', 'mastercard', 'facture', 'plusieurs fois'], "Paiement par carte ou TWINT, en francs suisses."],
     [['retour', 'echange', 'rembourse', 'remboursement', 'pas la bonne taille'], "Pour un échange de taille ou un retour, écrivez-nous sur Instagram, @nocelli.ch, nous trouverons une solution. Une commande remboursée perd sa place Founders."],
-    [['inscri', 'liste', 'newsletter', 'prevenu', 'alerte', 'm inscrire', 'waitlist', 'attente'], "Inscrivez-vous à la liste privée sur la page d'accueil (bouton « M'inscrire ») pour être prévenu avant l'ouverture."],
+    [['inscri', 'liste', 'newsletter', 'prevenu', 'alerte', 'm inscrire', 'waitlist', 'attente'], "Créez votre compte sur la page « Inscription » (en haut à droite) : vous recevez le lien de commande en premier le jour de l'ouverture."],
     [['club', 'private club', 'carte', 'cartes', 'membre', 'adhesion', 'difference'], "Le NOCELLI Private Club a deux cartes. Founders : gratuite à vie pour les 50 premiers acheteurs du cardigan. Signature : CHF 290 par an, limitée à 50 membres, avec dîners, soirées et voyages."],
     [['founders', 'fondateur', 'fondateurs', 'gratuit', 'devenir', 'premiers acheteurs'], "Founders est gratuite à vie pour les 50 premiers acheteurs du cardigan NC-01 : carte numérotée et accès à tout : collections 72 h avant le public, priorité sur les éditions limitées, dîners privés, soirées, rencontres entre membres, accès prioritaire aux voyages, vote sur les futures collections, et 10 % sur tous les événements NOCELLI."],
     [['signature', 'abonnement', 'prix signature', 'combien signature', '290', 'carte noire'], "Signature coûte CHF 290 par an, limitée à 50 membres : carte noire personnalisée, collections 72 h avant le public, priorité sur les éditions limitées, dîners privés dans les restaurants les plus prisés de Genève, soirées privées et accès prioritaire aux voyages. Les repas, soirées et voyages sont payants séparément."],
@@ -110,7 +110,7 @@
     '<div class="as-boite">' +
       '<div class="as-tete"><span class="as-titre">Une question ?</span><span class="as-sous">La maison vous répond</span></div>' +
       '<div class="as-fil" aria-live="polite"><p class="as-m as-n">Bonjour. Posez-moi votre question sur NOCELLI, le Cardigan Noce, les tailles, la livraison ou le club.</p></div>' +
-      '<form class="as-f" autocomplete="off"><label class="sr" for="as-q">Votre question</label><input id="as-q" type="text" placeholder="Écrivez votre question…" maxlength="200"><button type="submit" aria-label="Envoyer">→</button></form>' +
+      '<form class="as-f" autocomplete="off"><label class="sr" for="as-q">Votre question</label><input id="as-q" type="text" placeholder="Écrivez votre question…" maxlength="600"><button type="submit" aria-label="Envoyer">→</button></form>' +
       '<div class="as-sugg"></div>' +
     '</div>';
   var st = document.createElement('style');
@@ -134,14 +134,55 @@
     '#assistant input::placeholder{color:rgba(58,37,25,.45)}' +
     '#assistant .as-f button{border:0;background:none;color:#b08d57;font-size:20px;padding:0 2px 0 12px;cursor:pointer;transition:transform .3s}' +
     '#assistant .as-f button:hover{transform:translateX(3px)}' +
-    '#assistant .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}';
+    '#assistant .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}' +
+    // trois points qui respirent pendant que l'assistant cherche
+    '#assistant .as-attente{display:flex;gap:6px;height:26px;align-items:center}' +
+    '#assistant .as-attente::before,#assistant .as-attente::after{content:"";width:5px;height:5px;transform:rotate(45deg);background:#b08d57;animation:as-souffle 1.2s ease-in-out infinite}' +
+    '#assistant .as-attente::after{animation-delay:.4s}' +
+    '@keyframes as-souffle{0%,100%{opacity:.2}50%{opacity:1}}' +
+    '#assistant .as-src{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-family:Jost,sans-serif;font-style:normal;font-size:11px;letter-spacing:.06em}' +
+    '#assistant .as-src a{color:#b08d57;text-decoration:none;border-bottom:1px solid rgba(176,141,87,.4)}';
   document.head.appendChild(st);
   var fil = hote.querySelector('.as-fil'), champ = hote.querySelector('input'), sugg = hote.querySelector('.as-sugg');
-  function bulle(t, c) { var p = document.createElement('p'); p.className = 'as-m ' + c; p.textContent = t; fil.appendChild(p); fil.scrollTop = fil.scrollHeight; }
+  function bulle(t, c) { var p = document.createElement('p'); p.className = 'as-m ' + c; p.textContent = t; fil.appendChild(p); fil.scrollTop = fil.scrollHeight; return p; }
+  function sourcesSous(p, sources) {
+    if (!sources || !sources.length) return;
+    var d = document.createElement('span'); d.className = 'as-src';
+    sources.forEach(function (s) {
+      var a = document.createElement('a'); a.href = s.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = s.titre;
+      d.appendChild(a);
+    });
+    p.appendChild(d); fil.scrollTop = fil.scrollHeight;
+  }
+
+  // Assistant IA (fonction serveur « assistant », Claude) : il relit tout le site et cherche sur le web.
+  // Sans serveur, ou s'il ne répond pas, la case garde les réponses toutes faites ci-dessus.
+  var histo = [], enCours = false;
+  function demanderIA(q) {
+    var srv = window.NOCELLI_SERVEUR;
+    if (!srv || !srv.url || !window.fetch) return Promise.reject(new Error('sans_serveur'));
+    histo.push({ role: 'user', content: q });
+    return fetch(srv.url + '/functions/v1/assistant', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': srv.cle },
+      body: JSON.stringify({ messages: histo, langue: (document.documentElement.lang || 'fr').slice(0, 2), page: location.pathname.split('/').pop() })
+    }).then(function (r) { return r.json().catch(function () { return {}; }); }).then(function (j) {
+      if (j.reponse) { histo.push({ role: 'assistant', content: j.reponse }); return j; }
+      histo.pop();
+      // question refusée ou trop de questions : le message de l'assistant ; panne : réponses toutes faites
+      if (j.erreur === 'refus' || j.erreur === 'limite') return { reponse: j.message };
+      throw new Error(j.erreur || 'erreur');
+    }, function (e) { histo.pop(); throw e; });
+  }
   function demander(q) {
-    q = q.trim(); if (!q) return;
+    q = q.trim(); if (!q || enCours) return;
     bulle(q, 'as-u'); champ.value = '';
-    setTimeout(function () { bulle(repondre(q), 'as-n'); }, 350);
+    enCours = true;
+    var attente = bulle('', 'as-n as-attente');
+    demanderIA(q).then(function (r) {
+      attente.remove(); sourcesSous(bulle(r.reponse, 'as-n'), r.sources);
+    }, function () {
+      attente.remove(); bulle(repondre(q), 'as-n');
+    }).then(function () { enCours = false; });
   }
   SUGG.forEach(function (s) { var b = document.createElement('button'); b.type = 'button'; b.textContent = s; b.addEventListener('click', function () { demander(s); }); sugg.appendChild(b); });
   hote.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); demander(champ.value); });

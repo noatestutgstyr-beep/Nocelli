@@ -1,4 +1,4 @@
-# Met en ligne les fonctions de paiement (Stripe) sur Supabase.
+# Met en ligne les fonctions de paiement (Stripe) et l'assistant (Claude) sur Supabase.
 # Il faut le secret SUPABASE_ACCESS_TOKEN dans Settings > Secrets and variables > Actions.
 name: Fonctions Supabase
 on:
@@ -26,4 +26,14 @@ jobs:
       - run: supabase functions deploy paiement --project-ref "$PROJET"
         working-directory: backend
       - run: supabase functions deploy stripe-webhook --project-ref "$PROJET" --no-verify-jwt
+        working-directory: backend
+      # Assistant : la clé Claude vit dans les secrets du dépôt et est recopiée dans Supabase (jamais dans le site)
+      - name: Clé de l'assistant
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then supabase secrets set ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" --project-ref "$PROJET"
+          else echo "::warning::Pas de secret ANTHROPIC_API_KEY : l'assistant garde ses réponses toutes faites."; fi
+        working-directory: backend
+      - run: supabase functions deploy assistant --project-ref "$PROJET" --no-verify-jwt
         working-directory: backend
