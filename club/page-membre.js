@@ -10,9 +10,10 @@
   var AVANTAGES = [
     ['Les nouvelles collections 72 h avant le public', function (d) { return d.accesAnticipe; }],
     ['Notifications des lancements', function (d) { return d.membre; }],
-    ['Dîners privés, soirées à Genève et rencontres entre membres', function (d) { return d.signature || d.categorie === 'founders'; }],
+    ['Dîners privés et soirées à Genève', function (d) { return d.signature || d.categorie === 'founders'; }],
+    ['Rencontres entre membres', function (d) { return d.categorie === 'founders'; }, true],
     ['Accès prioritaire aux voyages NOCELLI', function (d) { return d.signature || d.categorie === 'founders'; }],
-    ['10 % de réduction sur tous les événements et voyages NOCELLI', function (d) { return d.categorie === 'founders'; }, true],
+    ['10 % de réduction sur tous les événements NOCELLI', function (d) { return d.categorie === 'founders'; }, true],
     ['Votes sur les futures collections', function (d) { return d.votes; }],
     ['Contenus réservés aux membres', function (d) { return d.contenus; }],
     ['Carte numérique et imprimée', function (d) { return d.membre; }],
@@ -319,7 +320,7 @@
   /* ---------------- Événements ---------------- */
   function blocEvenements(s) {
     var tete = '<div class="bloc-tete"><div><span class="eyebrow">Événements privés</span><h2>Événements privés</h2></div>' +
-      '<p>' + (s.droits.categorie === 'founders' ? 'Fondateurs : 10 % de réduction sur chaque événement et voyage.' : 'Repas, soirées et voyages payants séparément.') +
+      '<p>' + (s.droits.categorie === 'founders' ? 'Fondateurs : 10 % de réduction sur chaque événement.' : 'Repas, soirées et voyages payants séparément.') +
       ' Complet : liste d’attente.</p></div>';
     if (!s.droits.evenements) {
       return tete + '<div class="verrou"><div><span class="eyebrow">Private Club</span><h3>Les événements privés sont réservés aux membres.</h3>' +

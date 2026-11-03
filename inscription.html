@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Inscription · Nocelli</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Créer votre compte Nocelli.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Jost:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="club/club.css">
+<link rel="stylesheet" href="club/cartes.css">
+<style>
+/* Inscription : une seule chose sur la page, le formulaire de création de compte. */
+.inscription{min-height:calc(100svh - 240px);display:grid;align-items:center;padding-block:clamp(64px,9vw,130px)}
+.inscription .wrap{width:100%;max-width:560px}
+.inscription h1{font-size:clamp(36px,4.4vw,58px);line-height:1.05;margin-top:16px}
+.inscription .intro{margin-top:18px;max-width:44ch;color:rgba(58,37,25,.8)}
+.inscription form{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px}
+.inscription form .plein-l{grid-column:1/-1}
+.inscription .note{font-size:13px;color:var(--tabacco);max-width:46ch}
+.inscription .deja{margin-top:34px;padding-top:22px;border-top:1px solid var(--filo);font-size:14px;color:var(--tabacco)}
+.inscription .deja a{color:var(--noce)}
+.inscription .fait{display:grid;gap:14px;margin-top:40px}
+@media (max-width:520px){.inscription form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="annonce">Prima Edizione &nbsp;·&nbsp; 50 pièces numérotées</div>
+<header class="tete">
+  <div class="wrap nav">
+    <div style="display:flex;align-items:center">
+      <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><span></span></button>
+      <nav class="gauche" aria-label="Sections">
+        <a href="index.html#collection">Collection</a>
+        <a href="club.html">Private Club</a>
+      </nav>
+    </div>
+    <a class="marque" href="index.html">NOCELLI</a>
+    <nav class="droite" aria-label="Compte">
+      <a href="membre.html" data-lien-compte>Mon compte</a>
+      <a href="inscription.html">Liste privée</a>
+      <a class="cta" href="inscription.html" aria-current="page">Inscription</a>
+    </nav>
+  </div>
+</header>
+
+<div class="menu" id="menu" hidden>
+  <ul>
+    <li><a href="index.html#collection">Collection</a></li>
+    <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
+    <li><a href="inscription.html">Inscription</a></li>
+    <li><a href="club.html">Private Club</a></li>
+    <li><a href="membre.html">Mon compte</a></li>
+  </ul>
+  <p>Founders · Signature</p>
+</div>
+
+<main>
+  <section class="inscription">
+    <div class="wrap">
+      <span class="eyebrow">Inscription</span>
+      <h1>Créer mon compte</h1>
+      <p class="intro">Votre compte Nocelli : vos commandes, et le lien de commande en premier le jour de l'ouverture.</p>
+      <form id="f-inscription" novalidate>
+        <div class="champ"><label for="i-prenom">Prénom</label><input id="i-prenom" name="prenom" autocomplete="given-name" required></div>
+        <div class="champ"><label for="i-nom">Nom</label><input id="i-nom" name="nom" autocomplete="family-name" required></div>
+        <div class="champ plein-l"><label for="i-email">E-mail</label><input id="i-email" name="email" type="email" inputmode="email" autocomplete="email" required></div>
+        <p class="erreur plein-l" id="i-err" role="alert"></p>
+        <button class="btn plein plein-l" type="submit">Créer mon compte</button>
+        <p class="note plein-l">Pas de mot de passe : nous vous envoyons un lien par e-mail pour confirmer votre compte.</p>
+      </form>
+      <div class="fait" id="i-fait" hidden></div>
+      <p class="deja">Déjà un compte ? <a href="membre.html">Se connecter</a></p>
+    </div>
+  </section>
+</main>
+
+<footer class="pied-club">
+  <div class="wrap">
+    <div class="ligne">
+      <a class="marque" href="index.html">NOCELLI</a>
+      <ul>
+        <li><a href="club.html">Private Club</a></li>
+        <li><a href="club.html#faq">Questions fréquentes</a></li>
+        <li><a href="inscription.html">Inscription</a></li>
+      </ul>
+    </div>
+    <div class="bas"><span>© 2026 Nocelli · nocelli.ch<a class="insta" href="https://www.instagram.com/nocelli.ch" target="_blank" rel="noopener" aria-label="Nocelli sur Instagram" style="display:inline-flex;vertical-align:middle;margin-left:14px;color:inherit;opacity:.8"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r=".9" fill="currentColor" stroke="none"/></svg></a><a class="tiktok" href="https://www.tiktok.com/@thelorvani" target="_blank" rel="noopener" aria-label="Nocelli sur TikTok" style="display:inline-flex;vertical-align:middle;margin-left:12px;color:inherit;opacity:.8"><svg width="14" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 2h-3.4v13.4a3.1 3.1 0 1 1-3.1-3.1c.3 0 .6 0 .9.1V8.9a6.6 6.6 0 1 0 5.6 6.5V8.6a8.2 8.2 0 0 0 4.8 1.5V6.7a4.9 4.9 0 0 1-4.8-4.7z"/></svg></a><a class="mail" href="mailto:maison.nocelli@gmail.com" aria-label="Écrire à Nocelli : maison.nocelli@gmail.com" title="maison.nocelli@gmail.com" style="display:inline-flex;vertical-align:middle;margin-left:12px;color:inherit;opacity:.8"><svg width="16" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6l8.5 7 8.5-7"/></svg></a></span><span>Vos données ne servent qu'à votre adhésion et à vos commandes.</span></div>
+  </div>
+</footer>
+<script src="club/regles.js"></script>
+<script src="club/donnees.js"></script>
+<script src="club/vendor/supabase.js"></script>
+<script src="club/config.js"></script>
+<script src="club/serveur.js"></script>
+<script src="club/commun.js"></script>
+<script>
+// Inscription : crée le compte (lien de confirmation par e-mail) et inscrit l'adresse à la liste privée,
+// qui reçoit le lien de commande en premier le jour de l'ouverture.
+(function(){
+  var Club=window.Club,NC=window.NC;
+  var f=document.getElementById('f-inscription'),err=document.getElementById('i-err'),fait=document.getElementById('i-fait');
+  // déjà connecté (ou retour par le lien de confirmation) : direction l'espace membre
+  if(Club&&Club.pret)Club.pret.then(function(){if(Club.session())location.replace('membre.html');});
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var prenom=document.getElementById('i-prenom').value.trim(),nom=document.getElementById('i-nom').value.trim(),email=document.getElementById('i-email').value.trim();
+    if(!prenom){err.textContent='Indiquez votre prénom.';document.getElementById('i-prenom').focus();return;}
+    if(!nom){err.textContent='Indiquez votre nom.';document.getElementById('i-nom').focus();return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err.textContent='Cette adresse e-mail ne semble pas complète. Vérifiez-la, par exemple nom@exemple.ch.';document.getElementById('i-email').focus();return;}
+    err.textContent='';
+    var bouton=f.querySelector('button[type=submit]');bouton.disabled=true;
+    // liste privée (Supabase, table liste_privee : ajout seulement) ; un échec ici n'empêche pas la création du compte
+    var srv=window.NOCELLI_SERVEUR;
+    if(srv&&srv.url)fetch(srv.url+'/rest/v1/liste_privee',{method:'POST',headers:{'apikey':srv.cle,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({email:email.toLowerCase(),prenom:prenom.slice(0,60),taille:null,langue:(document.documentElement.lang||'fr').slice(0,2)})}).catch(function(){});
+    Club.connexion(email,(prenom+' '+nom).slice(0,80)).then(function(r){
+      if(r&&r.lienEnvoye){f.hidden=true;fait.innerHTML=NC.lienEnvoye(r.email);fait.hidden=false;return;}
+      location.href='membre.html';
+    },function(e){
+      bouton.disabled=false;
+      err.textContent=(e&&e.message?e.message+' ':'')+'Vérifiez votre adresse et réessayez.';
+    });
+  });
+})();
+</script>
+<script src="js/langue.js"></script>
+</body>
+</html>

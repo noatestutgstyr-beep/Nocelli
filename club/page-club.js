@@ -17,8 +17,8 @@
     ['Collections avant le public', '72&nbsp;h', '72&nbsp;h'],
     ['Priorité sur les éditions limitées', 1, 1],
     ['Dîners privés et soirées', 'Accès exclusif, −10&nbsp;%', 'Accès exclusif'],
-    ['Voyages NOCELLI', 'Accès prioritaire, −10&nbsp;%', 'Accès prioritaire'],
-    ['Rencontres entre membres', 1, 1],
+    ['Voyages NOCELLI', 'Accès prioritaire', 'Accès prioritaire'],
+    ['Rencontres entre membres', 1, 0],
     ['Votes sur les futures collections', 1, 1],
     ['Carte numérique et imprimée', 1, 1],
     ['Gratuit, à vie', 1, 0]

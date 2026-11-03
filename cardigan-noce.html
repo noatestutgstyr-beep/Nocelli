@@ -56,6 +56,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(247,243,236,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--filo)}
 .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--head)}
 .nav nav{display:flex;gap:34px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase}
+.nav nav a{white-space:nowrap}
+@media (max-width:1180px){.nav nav{gap:20px;letter-spacing:.2em}}
 .nav nav a{text-decoration:none;opacity:.75;transition:opacity .3s}
 .nav nav a:hover{opacity:1}
 .nav .droite{justify-content:flex-end}
@@ -455,7 +457,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     <a class="marque" href="index.html">NOCELLI</a>
     <nav class="droite" aria-label="Compte">
       <a href="membre.html" data-lien-compte>Mon compte</a>
-      <a class="cta" href="index.html#liste">Liste privée</a>
+      <a href="inscription.html">Liste privée</a>
+      <a class="cta" href="inscription.html">Inscription</a>
     </nav>
   </div>
 </header>
@@ -464,7 +467,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   <ul>
     <li><a href="index.html#collection">Collection</a></li>
     <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-    <li><a href="index.html#liste">Liste privée</a></li>
+    <li><a href="inscription.html">Inscription</a></li>
     <li><a href="club.html">Private Club</a></li>
     <li><a href="membre.html">Mon compte</a></li>
   </ul>
@@ -506,7 +509,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
           <div class="chips" role="group" aria-label="Choisir la taille"><button type="button" aria-pressed="false">S</button><button type="button" aria-pressed="false">M</button><button type="button" aria-pressed="false">L</button></div>
         </div>
         <div class="cta">
-          <a class="btn plein" href="index.html#liste" data-precommande>M'inscrire</a>
+          <a class="btn plein" href="inscription.html" data-precommande>M'inscrire</a>
           <small data-precommande-note>Gratuit. Aucun paiement maintenant.</small>
         </div>
         <div class="fiche">
@@ -565,7 +568,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <span class="eyebrow">Le numéro</span>
       <blockquote>50 pièces, <em>chacune numérotée au col.</em></blockquote>
       <p>Pas de logo à l'extérieur. Votre numéro, de 01 à 50, est sur l'étiquette tissée à l'intérieur du col.</p>
-      <div><a class="lien" href="index.html#liste">M'inscrire</a></div>
+      <div><a class="lien" href="inscription.html">M'inscrire</a></div>
     </div>
   </section>
 
@@ -665,7 +668,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         <h4>Prima Edizione</h4>
         <ul>
           <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-          <li><a href="index.html#liste">Liste privée</a></li>
+          <li><a href="inscription.html">Inscription</a></li>
           </ul>
       </div>
       <div>
@@ -682,7 +685,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 
 <div class="barre" id="barre">
   <div class="t"><b>Cardigan Noce</b><span data-barre>CHF 139 · 50 pièces</span></div>
-  <a class="btn plein" href="index.html#liste" data-precommande>M'inscrire</a>
+  <a class="btn plein" href="inscription.html" data-precommande>M'inscrire</a>
 </div>
 
 <script>
@@ -698,7 +701,7 @@ var PRECOMMANDE={S:'',M:'',L:''};
     // Avant l'ouverture : la taille choisie suit jusqu'au formulaire de la liste privée.
     chips.forEach(function(c){c.addEventListener('click',function(){
       var t=c.textContent.trim();chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});
-      boutons.forEach(function(b){b.href='index.html?taille='+t+'#liste';});
+      boutons.forEach(function(b){b.href='inscription.html';});
     });});
     return;
   }

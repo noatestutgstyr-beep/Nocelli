@@ -57,6 +57,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(247,243,236,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--filo)}
 .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--head)}
 .nav nav{display:flex;gap:34px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase}
+.nav nav a{white-space:nowrap}
+@media (max-width:1180px){.nav nav{gap:20px;letter-spacing:.2em}}
 .nav nav a{text-decoration:none;opacity:.75;transition:opacity .3s}
 .nav nav a:hover{opacity:1}
 .nav .droite{justify-content:flex-end}
@@ -442,14 +444,14 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .seuil:hover::before,.seuil:focus-visible::before{opacity:1;transform:scale(1.06);animation:none}
 .seuil:focus-visible{outline:1px solid rgba(228,209,176,.6);outline-offset:6px}
 @keyframes seuil-souffle{0%,100%{opacity:0}50%{opacity:.55}}
-.hero-video{transform-origin:var(--ox,64%) var(--oy,42%);transition:transform 1.25s cubic-bezier(.65,0,.25,1),filter 1.25s ease}
-.hero-voile,.hero-texte{transition:opacity .7s ease}
-.hero.plonge .hero-video{transform:scale(4.2);filter:brightness(1.7) blur(1.5px)}
+.hero-video{transform-origin:var(--ox,64%) var(--oy,42%);transition:transform 1.2s cubic-bezier(.2,.6,.3,1),filter 1.2s ease-out;will-change:transform}
+.hero-voile,.hero-texte{transition:opacity .5s ease}
+.hero.plonge .hero-video{transform:translate(var(--tx,0px),var(--ty,0px)) scale(2.6);filter:brightness(1.25);transition:transform 1.05s cubic-bezier(.55,.05,.8,.4),filter 1.05s ease-in}
 .hero.plonge .hero-voile,.hero.plonge .hero-texte{opacity:0}
 
 /* La salle des collections, en 3D, par-dessus toute la page */
-.salle{position:fixed;inset:0;z-index:90;background:#0b0705;color:var(--avorio);opacity:0;transition:opacity .9s ease;overscroll-behavior:contain}
-.salle.visible{opacity:1}
+.salle{position:fixed;inset:0;z-index:90;background:#0b0705;color:var(--avorio);opacity:0;visibility:hidden;transition:opacity .8s ease,visibility 0s linear .8s;overscroll-behavior:contain}
+.salle.visible{opacity:1;visibility:visible;transition:opacity .75s cubic-bezier(.4,0,.2,1),visibility 0s}
 .salle canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
 .salle-marque{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-family:var(--display);font-size:15px;letter-spacing:.5em;margin-right:-.5em;color:rgba(228,209,176,.7);pointer-events:none}
 .salle-fermer{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));width:48px;height:48px;border-radius:50%;border:1px solid rgba(228,209,176,.32);background:rgba(20,12,8,.35);cursor:pointer;transition:border-color .4s,background .4s}
@@ -489,7 +491,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     <a class="marque" href="#haut">NOCELLI</a>
     <nav class="droite" aria-label="Compte">
       <a href="membre.html" data-lien-compte>Mon compte</a>
-      <a class="cta" href="#liste">Liste privée</a>
+      <a href="inscription.html">Liste privée</a>
+      <a class="cta" href="inscription.html">Inscription</a>
     </nav>
   </div>
 </header>
@@ -498,7 +501,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   <ul>
     <li><a href="#collection">Collection</a></li>
     <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-    <li><a href="#liste">Liste privée</a></li>
+    <li><a href="inscription.html">Inscription</a></li>
     <li><a href="club.html">Private Club</a></li>
     <li><a href="membre.html">Mon compte</a></li>
   </ul>
@@ -519,7 +522,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <p class="hero-annonce">La collection d'automne est sur le point de sortir.</p>
       <p>Pour commander, inscrivez-vous avec votre adresse e-mail.</p>
       <div class="actions">
-        <a class="btn clair" href="#liste">M'inscrire</a>
+        <a class="btn clair" href="inscription.html">M'inscrire</a>
         <a class="lien" href="#collection">Découvrir la collection</a>
       </div>
       <div class="compte" data-compte>
@@ -554,54 +557,6 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     </div>
   </section>
 
-  <section class="liste" id="liste">
-    <div class="liste-fond" aria-hidden="true"></div>
-    <div class="wrap liste-in">
-      <span class="eyebrow">Liste privée</span>
-      <h2>Inscrivez-vous.</h2>
-      <p class="sous">Ouverture le mardi 1er décembre à 19h00, heure suisse. Les inscrits reçoivent le lien de commande en premier.</p>
-      <div class="compte compte-liste" data-compte>
-          <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mardi 1er décembre · 19h00, heure suisse</span></div>
-          <div class="compte-grille" role="timer" aria-live="off">
-            <div><b data-u="j">--</b><span>Jours</span></div>
-            <div><b data-u="h">--</b><span>Heures</span></div>
-            <div><b data-u="m">--</b><span>Minutes</span></div>
-            <div><b data-u="s">--</b><span>Secondes</span></div>
-          </div>
-          <p class="compte-fin" hidden>La Prima Edizione est ouverte.</p>
-        </div>
-
-      <form id="form-liste" novalidate>
-        <div>
-          <label for="prenom">Prénom</label>
-          <input id="prenom" name="prenom" autocomplete="given-name" placeholder="Lorenzo">
-        </div>
-        <div>
-          <label for="email">E-mail</label>
-          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="vous@exemple.ch" required>
-        </div>
-        <div class="full">
-          <label id="taille-label">Votre taille</label>
-          <div class="tailles" role="radiogroup" aria-labelledby="taille-label">
-            <label><input type="radio" name="taille" id="t-s" value="S"><span>S</span></label>
-            <label><input type="radio" name="taille" id="t-m" value="M" checked><span>M</span></label>
-            <label><input type="radio" name="taille" id="t-l" value="L"><span>L</span></label>
-          </div>
-        </div>
-        <button type="button" class="guide-lien form-guide full" data-guide>Comment choisir ma taille ?</button>
-        <p class="erreur full" id="erreur" role="alert"></p>
-        <button class="btn clair full" type="submit">M'inscrire</button>
-      </form>
-
-      <div class="merci" id="merci" hidden>
-        <span class="eyebrow">Grazie</span>
-        <h3 id="merci-titre">Vous êtes sur la liste.</h3>
-        <p>Vous recevrez le lien de commande le 1er décembre à 19h00.</p>
-      </div>
-
-      <p class="mention">Aucun paiement maintenant. Désinscription possible à tout moment.</p>
-    </div>
-  </section>
   <section class="circolo" id="club">
     <div class="wrap circolo-grid">
       <div class="club-cartes" id="club-cartes" role="img" aria-label="Les cartes du Nocelli Private Club : Founders Club chocolat et or, Signature Club noir et or"></div>
@@ -676,7 +631,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         <h4>Prima Edizione</h4>
         <ul>
           <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-          <li><a href="#liste">Liste privée</a></li>
+          <li><a href="inscription.html">Inscription</a></li>
           </ul>
       </div>
       <div>
@@ -693,7 +648,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 
 <div class="barre" id="barre">
   <div class="t"><b>Nocelli</b><span data-barre data-prefixe="Prima Edizione">Prima Edizione</span></div>
-  <a class="btn plein" href="#liste">M'inscrire</a>
+  <a class="btn plein" href="inscription.html">M'inscrire</a>
 </div>
 
 <script src="club/vendor/qrcode.js"></script>
@@ -793,10 +748,21 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       if(!module)module=import('./js/salle.js').catch(function(e){module=null;throw e;});
       return module;
     }
+    // la salle se construit en coulisses dès que la porte est ouverte : au clic, tout est déjà prêt (pas d'à-coup)
+    var prete=null;
+    function preparer(){
+      if(!prete)prete=charger().then(function(m){
+        salle.hidden=false;
+        return m.ouvrir({racine:salle,fiche:document.getElementById('salle-fiche'),reduit:reduit,aller:function(u){
+          salle.classList.remove('visible');setTimeout(function(){location.href=u;},reduit?0:600);
+        }});
+      }).catch(function(e){prete=null;salle.hidden=true;throw e;});
+      return prete;
+    }
     function ouvrirSeuil(){
       if(seuil.classList.contains('ouvert'))return;
       placer();seuil.classList.add('ouvert');seuil.tabIndex=0;
-      setTimeout(function(){charger().catch(function(){});},1500);
+      setTimeout(function(){preparer().catch(function(){});},600);
     }
     addEventListener('resize',placer);
     coffre.addEventListener('ended',ouvrirSeuil);
@@ -804,45 +770,46 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     if(reduit||coffre.paused&&coffre.poster.indexOf('coffre-fin')>-1)ouvrirSeuil();
     setTimeout(ouvrirSeuil,9000);
 
+    // Entrée en un seul mouvement : la vidéo glisse l'ouverture au centre et s'y enfonce en accélérant,
+    // la caméra 3D prend le relais en plein élan devant la même porte, puis ralentit jusqu'à l'armoire.
     function entrer(){
       if(dedans)return;dedans=true;
-      placer();heroEl.classList.add('plonge');
-      var t0=Date.now(),attente=reduit?0:1150;
-      charger().then(function(m){
-        salle.hidden=false;
-        return m.ouvrir({racine:salle,fiche:document.getElementById('salle-fiche'),reduit:reduit,aller:function(u){
-          salle.classList.remove('visible');setTimeout(function(){location.href=u;},reduit?0:600);
-        }});
-      }).then(function(v){
+      placer();
+      var r=heroEl.getBoundingClientRect(),ox=parseFloat(heroEl.style.getPropertyValue('--ox'))||r.width*.64,oy=parseFloat(heroEl.style.getPropertyValue('--oy'))||r.height*.42;
+      heroEl.style.setProperty('--tx',(innerWidth/2-(r.left+ox))+'px');heroEl.style.setProperty('--ty',(innerHeight/2-(r.top+oy))+'px');
+      heroEl.classList.add('plonge');
+      var t0=Date.now(),relais=reduit?0:520;
+      preparer().then(function(v){
         vue3d=v;
         setTimeout(function(){
           body.style.overflow='hidden';
           v.demarrer();salle.classList.add('visible');
           try{history.pushState({coffre:1},'','#coffre');}catch(e){}
           salle.querySelector('.salle-fermer').focus({preventScroll:true});
-        },Math.max(0,attente-(Date.now()-t0)));
+        },Math.max(0,relais-(Date.now()-t0)));
       }).catch(function(){
         // pas de 3D possible (navigateur ancien, hors ligne…) : on va directement à la pièce
         location.href='cardigan-noce.html';
       });
     }
+    // Sortie : la caméra recule à travers la porte ; à mi-course la vidéo reprend sa place en fondu
     function sortir(depuisHistorique){
       if(!vue3d)return;
       var v=vue3d;vue3d=null;
       if(!depuisHistorique&&history.state&&history.state.coffre){try{history.back();}catch(e){}}
       v.quitter(function(){
         salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';
-        setTimeout(function(){v.detruire();salle.hidden=true;dedans=false;seuil.focus({preventScroll:true});},reduit?0:900);
+        setTimeout(function(){v.arreter();dedans=false;seuil.focus({preventScroll:true});},reduit?0:1000);
       });
     }
     seuil.addEventListener('click',entrer);
     seuil.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();entrer();}});
-    seuil.addEventListener('pointerenter',function(){charger().catch(function(){});});
+    seuil.addEventListener('pointerenter',function(){preparer().catch(function(){});});
     salle.querySelector('.salle-fermer').addEventListener('click',function(){sortir(false);});
     document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vue3d)sortir(false);});
     addEventListener('popstate',function(){if(vue3d)sortir(true);});
     // retour depuis la fiche de la pièce : on retrouve la page d'accueil normale
-    addEventListener('pageshow',function(e){if(e.persisted&&location.hash==='#coffre'){salle.hidden=true;salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';dedans=false;if(vue3d){vue3d.detruire();vue3d=null;}}});
+    addEventListener('pageshow',function(e){if(e.persisted&&location.hash==='#coffre'){salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';dedans=false;if(vue3d){vue3d.arreter();vue3d=null;}}});
     if(location.hash==='#coffre')try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
   }
 
@@ -890,40 +857,6 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     if(r===0)clearInterval(timer);
   }
   var timer=setInterval(tick,1000);tick();
-
-  var form=document.getElementById('form-liste');
-  if(form){
-  var merci=document.getElementById('merci');
-  var err=document.getElementById('erreur');
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
-    var email=document.getElementById('email').value.trim();
-    var prenom=document.getElementById('prenom').value.trim();
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
-      err.textContent="Cette adresse e-mail ne semble pas complète. Vérifiez-la, par exemple nom@exemple.ch.";
-      document.getElementById('email').focus();
-      return;
-    }
-    err.textContent="";
-    var taille=(form.querySelector('input[name=taille]:checked')||{}).value||'';
-    try{localStorage.setItem('nocelli-liste',JSON.stringify({email:email,prenom:prenom,taille:taille}));}catch(_){}
-    var bouton=form.querySelector('button[type=submit]');
-    var fini=function(){
-      if(prenom){document.getElementById('merci-titre').textContent=prenom+", vous êtes sur la liste.";}
-      form.hidden=true;
-      merci.hidden=false;
-    };
-    // Envoi à la liste privée de Nocelli (Supabase, table liste_privee : ajout seulement, personne ne peut la lire depuis le site).
-    var srv=window.NOCELLI_SERVEUR;
-    if(!srv||!srv.url){fini();return;}
-    if(bouton)bouton.disabled=true;
-    fetch(srv.url+'/rest/v1/liste_privee',{method:'POST',headers:{'apikey':srv.cle,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({email:email.toLowerCase(),prenom:prenom.slice(0,60),taille:taille||null,langue:(document.documentElement.lang||'fr').slice(0,2)})})
-      .then(function(r){if(!r.ok&&r.status!==409)throw new Error(r.status);fini();})
-      .catch(function(){if(bouton)bouton.disabled=false;err.textContent="L'inscription n'a pas pu être envoyée. Vérifiez votre connexion et réessayez.";});
-  });
-  try{var tq=(location.search.match(/[?&]taille=(S|M|L)\b/)||[])[1];if(tq){var rb=form.querySelector('input[name=taille][value='+tq+']');if(rb)rb.checked=true;}}catch(_){}
-  }
 
   // Les trois cartes du Private Club (club/cartes.js)
   if(window.NocelliCartes){

@@ -12,8 +12,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 // Ordre des rayons : fond au centre, fond gauche, fond droite, côté gauche (fond puis avant), côté droit (fond puis avant)
 var COLLECTIONS = [
   { nom: 'Prima Edizione', sous: 'Autunno 2026', pieces: [
-    { nom: 'Le Cardigan Noce', num: 'N° 01 / 50', prix: 'CHF 139', url: 'cardigan-noce.html',
-      face: 'img/cardigan-face.webp', dos: 'img/cardigan-dos.webp' }
+    { nom: 'Le Cardigan Noce', num: 'N° 01 / 50', prix: 'CHF 139', url: 'cardigan-noce.html', modele: 'img/360/' }
   ] },
   { nom: 'Seconda Edizione', sous: 'In arrivo' },
   { nom: 'Terza Edizione', sous: 'In arrivo' },
@@ -25,13 +24,12 @@ var COLLECTIONS = [
 
 // Dimensions de la salle (mètres)
 var HW = 2.3, ZB = -2.2, D = 0.62, T = 0.035, Y_BAS = 0.62, Y_HAUT = 2.35, Y_TRINGLE = 2.2, PLAFOND = 2.9;
-var Z_COTE = .9, Z_PORTE = 3.4, Z_DEPART = 6.4, Z_ARRIVEE = 1.85, OEIL = 1.5;
+var Z_COTE = .9, Z_PORTE = 3.4, Z_DEPART = 7.0, Z_ARRIVEE = 1.85, OEIL = 1.5;
 
 function hasard(seed) {
   return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
 function lisse(x) { return x * x * (3 - 2 * x); }
-function easeInOut(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
 
 export async function ouvrir(o) {
   // les plaques sont gravées avec les polices du site : on les attend
@@ -41,7 +39,8 @@ export async function ouvrir(o) {
   var mobile = Math.min(innerWidth, innerHeight) < 700;
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile ? 1.6 : 2));
+  var finesse = Math.min(devicePixelRatio || 1, 1.5), mesure = { n: 0, s: 0 };
+  renderer.setPixelRatio(finesse);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = .95;
@@ -178,8 +177,8 @@ export async function ouvrir(o) {
 
   // ---------- Cintre ----------
   var courbeCintre = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-.215, -.125, 0), new THREE.Vector3(-.16, -.098, 0), new THREE.Vector3(-.08, -.07, 0),
-    new THREE.Vector3(0, -.058, 0), new THREE.Vector3(.08, -.07, 0), new THREE.Vector3(.16, -.098, 0), new THREE.Vector3(.215, -.125, 0)]);
+    new THREE.Vector3(-.148, -.106, 0), new THREE.Vector3(-.11, -.09, 0), new THREE.Vector3(-.06, -.068, 0),
+    new THREE.Vector3(0, -.058, 0), new THREE.Vector3(.06, -.068, 0), new THREE.Vector3(.11, -.09, 0), new THREE.Vector3(.148, -.106, 0)]);
   var geoCintre = new THREE.TubeGeometry(courbeCintre, 64, .009, 14, false);
   var geoBout = new THREE.SphereGeometry(.009, 14, 10);
   var crochet = [];
@@ -190,40 +189,129 @@ export async function ouvrir(o) {
     var g = new THREE.Group();
     var c = new THREE.Mesh(geoCrochet, matLaiton); c.position.y = -.002; c.rotation.y = Math.PI / 2; c.castShadow = true; g.add(c);
     var b = new THREE.Mesh(geoCintre, matCintre); b.castShadow = true; g.add(b);
-    [-.215, .215].forEach(function (x) { var s = new THREE.Mesh(geoBout, matCintre); s.position.set(x, -.125, 0); g.add(s); });
+    [-.148, .148].forEach(function (x) { var s = new THREE.Mesh(geoBout, matCintre); s.position.set(x, -.106, 0); g.add(s); });
     var n = new THREE.Mesh(new THREE.CylinderGeometry(.007, .007, .02, 10), matLaiton); n.position.y = -.05; g.add(n);
     return g;
   }
 
-  // ---------- Vêtement : la photo détourée posée sur une surface galbée, face et dos ----------
-  var chargeur = new THREE.TextureLoader();
-  function charger(url) {
+  // ---------- Vêtement : le volume reconstruit de la visionneuse 360° (img/360/) ----------
+  // Chaque face reçoit la vraie photo (face, dos, côté) ; la maille jersey est rendue en relief,
+  // avec le reflet velouté de la laine (sheen) : de près, on voit la matière.
+  var chargeur = new THREE.TextureLoader(), attentes = [];
+  function charger(url, srgb, rep) {
     return new Promise(function (ok) {
-      chargeur.load(url, function (t) { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; ok(t); }, undefined, function () { ok(null); });
+      chargeur.load(url, function (t) {
+        t.flipY = false; t.anisotropy = aniso;
+        if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+        if (rep) t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        ok(t);
+      }, undefined, function () { ok(null); });
     });
   }
-  function vetement(face, dos) {
-    var asp = face.image.height / face.image.width, W = .7, H = W * asp, g = new THREE.Group();
-    function nappe(tex, sens) {
-      var geo = new THREE.PlaneGeometry(W, H, 32, 40), p = geo.attributes.position;
-      for (var k = 0; k < p.count; k++) {
-        var x = p.getX(k) / (W / 2), y = (p.getY(k) + H / 2) / H; // y : 0 en bas, 1 au col
-        var torse = Math.max(0, 1 - x * x * 1.15);                  // volume du buste, nul aux manches
-        var epaule = lisse(Math.min(1, (1 - y) / .16));             // l'épaule s'aplatit sur le cintre
-        p.setZ(k, .045 * torse * epaule + .011);
-      }
-      geo.computeVertexNormals();
-      var m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, alphaTest: .5, roughness: .92, envMapIntensity: .12, side: THREE.FrontSide }));
-      if (sens < 0) m.rotation.y = Math.PI;
-      m.castShadow = true; m.receiveShadow = true;
-      m.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: tex, alphaTest: .5 });
-      return m;
+  function volume(g) {
+    var nx = g.nx, ny = g.ny, N = nx * ny, raw = atob(g.d), d = new Uint8Array(N), i, j;
+    for (i = 0; i < N; i++) d[i] = raw.charCodeAt(i);
+    var ox = new Int8Array(N), oy = new Int8Array(N), rx = atob(g.ox), ry = atob(g.oy);
+    for (i = 0; i < N; i++) { ox[i] = rx.charCodeAt(i) << 24 >> 24; oy[i] = ry.charCodeAt(i) << 24 >> 24; }
+    var K = 32, bras = g.arms || [], NA = 0;
+    bras.forEach(function (a) { NA += a.y.length * (K + 1); });
+    var P = new Float32Array(N * 6 + NA * 3), Nr = new Float32Array(N * 6 + NA * 3), idx = [];
+    for (j = 0; j < ny; j++) for (i = 0; i < nx; i++) {
+      var k = j * nx + i, q = d[k], dd = q === 255 ? 0 : q / 254 * g.dmax;
+      var X = g.gx0 + i * g.step + ox[k] - g.cx, Y = g.ymid - (g.gy0 + j * g.step + oy[k]), c = g.c[j];
+      P.set([X, Y, c + dd], k * 3); P.set([X, Y, c - dd], (N + k) * 3);
     }
-    // le haut de l'image (col) dépasse un peu au-dessus des épaules du cintre
-    var yc = .005 - H / 2;
-    var f = nappe(face, 1); f.position.y = yc; g.add(f);
-    if (dos) { var b = nappe(dos, -1); b.position.y = yc; g.add(b); }
-    return g;
+    function tri(a, b, c) {
+      idx.push(a, b, c);
+      var ax = P[a * 3], ay = P[a * 3 + 1], az = P[a * 3 + 2];
+      var ux = P[b * 3] - ax, uy = P[b * 3 + 1] - ay, uz = P[b * 3 + 2] - az;
+      var vx = P[c * 3] - ax, vy = P[c * 3 + 1] - ay, vz = P[c * 3 + 2] - az;
+      var n1 = uy * vz - uz * vy, n2 = uz * vx - ux * vz, n3 = ux * vy - uy * vx;
+      [a, b, c].forEach(function (v) { Nr[v * 3] += n1; Nr[v * 3 + 1] += n2; Nr[v * 3 + 2] += n3; });
+    }
+    for (j = 0; j < ny - 1; j++) for (i = 0; i < nx - 1; i++) {
+      var a = j * nx + i, b = a + 1, c2 = a + nx, e = c2 + 1;
+      if (d[a] === 255 || d[b] === 255 || d[c2] === 255 || d[e] === 255) continue;
+      tri(a, c2, b); tri(b, c2, e);
+      tri(N + a, N + b, N + c2); tri(N + b, N + e, N + c2);
+    }
+    var base = 2 * N;
+    bras.forEach(function (a) {
+      var n = a.y.length, r, t;
+      for (r = 0; r < n; r++) for (t = 0; t <= K; t++) {
+        var th = t / K * Math.PI * 2, co = Math.cos(th), si = Math.sin(th), v = base + r * (K + 1) + t;
+        P.set([a.xc[r] + a.r[r] * co, g.ymid - a.y[r], a.zc[r] + a.r[r] * si], v * 3);
+        Nr.set([co, 0, si], v * 3);
+      }
+      for (r = 0; r < n - 1; r++) for (t = 0; t < K; t++) {
+        var q0 = base + r * (K + 1) + t, q1 = q0 + 1, q2 = q0 + K + 1, q3 = q2 + 1;
+        idx.push(q0, q2, q1, q1, q2, q3);
+      }
+      base += n * (K + 1);
+    });
+    for (i = 0; i < Nr.length; i += 3) { var l = Math.hypot(Nr[i], Nr[i + 1], Nr[i + 2]) || 1; Nr[i] /= l; Nr[i + 1] /= l; Nr[i + 2] /= l; }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(P, 3));
+    geo.setAttribute('normal', new THREE.BufferAttribute(Nr, 3));
+    geo.setIndex(idx);
+    return geo;
+  }
+  function tricot(g, tx) {
+    var F = g.F, B = g.B, S = g.S;
+    var u = {
+      tF: { value: tx[0] }, tB: { value: tx[1] }, tS: { value: tx[2] }, tM: { value: tx[3] }, tK: { value: tx[4] }, tA: { value: tx[5] },
+      uK: { value: new THREE.Vector2(g.kScale || 0, g.kAmp || 0) }, uRelief: { value: .0004 },
+      uF: { value: new THREE.Vector4(g.cx, g.ymid, 1 / F.W, 1 / F.H) },
+      uB: { value: new THREE.Vector4(B.bcx, B.kx, 1 / B.W, 1 / B.H) },
+      uB2: { value: new THREE.Vector4(B.by0, B.fy0, B.ky, S.sy0) },
+      uS: { value: new THREE.Vector4(S.C0, 1 / S.r, 1 / S.W, 1 / S.H) }
+    };
+    var m = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: .86, metalness: 0, sheen: .3, sheenRoughness: .55, sheenColor: new THREE.Color(0x5a3620), envMapIntensity: .15, side: THREE.DoubleSide });
+    m.onBeforeCompile = function (sh) {
+      Object.assign(sh.uniforms, u);
+      sh.vertexShader = 'varying vec3 vP0;\nvarying vec3 vN0;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vP0 = position; vN0 = normal;');
+      sh.fragmentShader = 'uniform sampler2D tF,tB,tS,tM,tK,tA;\nuniform vec2 uK;\nuniform float uRelief;\nuniform vec4 uF,uB,uB2,uS;\nvarying vec3 vP0;\nvarying vec3 vN0;\n' +
+        sh.fragmentShader.replace('#include <map_fragment>', [
+          'float yf=uF.y-vP0.y;',
+          'vec2 uvF=vec2((vP0.x+uF.x)*uF.z,yf*uF.w);',
+          'vec2 uvB=vec2((uB.x-vP0.x*uB.y)*uB.z,(uB2.x+(yf-uB2.y)*uB2.z)*uB.w);',
+          'vec2 uvS=vec2((uS.x-vP0.z*uS.y)*uS.z,(uB2.w+(yf-uB2.y)*uS.y)*uS.w);',
+          'vec3 n0=normalize(vN0);',
+          'if(texture2D(tM,uvF).r<.5&&abs(n0.z)>.55)discard;',
+          'vec2 h0=normalize(n0.xz+vec2(0.,1e-4));',
+          'float wf=pow(max(h0.y,0.),6.),wb=pow(max(-h0.y,0.),6.),ws=pow(abs(h0.x),6.),wt=wf+wb+ws+1e-4;',
+          'vec3 cTex=(texture2D(tF,uvF).rgb*wf+texture2D(tB,uvB).rgb*wb+texture2D(tS,uvS).rgb*ws)/wt;',
+          'float kn=mix(texture2D(tK,vP0.xy*uK.x).r,texture2D(tK,vec2(vP0.z,vP0.y)*uK.x).r,ws/wt);',
+          // pas de maille jersey sur le zip ni sur les bord-côtes, déjà dans les photos
+          'float aK=(texture2D(tA,uvF).r*wf+texture2D(tA,uvB).g*wb+texture2D(tA,uvS).b*ws)/wt;',
+          'diffuseColor.rgb*=cTex*(1.+uK.y*.6*aK*(kn-.5)*2.);'
+        ].join('\n'))
+        // face toujours tournée vers le regard : les manches (tubes) ne s'assombrissent plus selon leur sens de construction
+        .replace('#include <normal_fragment_begin>', THREE.ShaderChunk.normal_fragment_begin.replace('normal *= faceDirection;', 'normal *= sign(dot(normal, vViewPosition) + 1e-6);'))
+        .replace('#include <normal_fragment_maps>', [
+          '#include <normal_fragment_maps>',
+          '{ vec3 sx=dFdx(-vViewPosition),sy=dFdy(-vViewPosition);',
+          '  float pr=1.-smoothstep(.12,.45,length(fwidth(vP0.xy*uK.x)));',
+          '  float hx=dFdx(kn)*aK*pr,hy=dFdy(kn)*aK*pr;',
+          '  vec3 r1=cross(sy,normal),r2=cross(normal,sx); float dt=dot(sx,r1)*faceDirection;',
+          '  normal=normalize(abs(dt)*normal-sign(dt)*(hx*r1+hy*r2)*uRelief); }'
+        ].join('\n'));
+    };
+    return m;
+  }
+  function vetement(dossier) {
+    return Promise.all([fetch(dossier + 'geo.json').then(function (r) { return r.json(); }),
+      charger(dossier + 'tex-face.jpg', true), charger(dossier + 'tex-dos.jpg', true), charger(dossier + 'tex-cote.jpg', true),
+      charger(dossier + 'masque.png'), charger(dossier + 'maille.png', false, true), charger(dossier + 'maille-masque.png')]).then(function (a) {
+      var g = a[0], s = .64 / g.Hn; // le vêtement mesure 64 cm du col à l'ourlet
+      var m = new THREE.Mesh(volume(g), tricot(g, a.slice(1)));
+      m.scale.setScalar(s);
+      // l'épaule (départ des manches) se pose sur les bouts du cintre
+      var yEpaule = g.arms && g.arms[0] ? g.ymid - g.arms[0].y[0] : g.ymid - g.fy0 - 180;
+      m.position.y = -.112 - yEpaule * s;
+      m.castShadow = true; m.receiveShadow = true;
+      return m;
+    });
   }
 
   // ---------- Armoire : une rangée de rayons face à +z ----------
@@ -255,7 +343,7 @@ export async function ouvrir(o) {
       var pl = new THREE.Mesh(new THREE.BoxGeometry(.66, .145, .008), [matLaiton, matLaiton, matLaiton, matLaiton, plaque(c.nom, c.sous), matLaiton]);
       pl.position.set(x, Y_HAUT + .13, .045); g.add(pl);
       // lumière du rayon : elle lave le daim depuis la bande LED
-      var sp = new THREE.SpotLight(0xffc98f, ordre[k] === 0 ? 5 : 3.2, 3.2, 1.05, 1, 2);
+      var sp = new THREE.SpotLight(0xffc98f, ordre[k] === 0 ? 2.6 : 3.2, 3.2, 1.05, 1, 2);
       sp.position.set(x, Y_HAUT - .06, -.08); sp.target.position.set(x, Y_BAS + .2, -D + .04);
       g.add(sp); g.add(sp.target); r.lumiere = sp; r.base = sp.intensity;
       // pièces de la collection, ou cintres vides en attente
@@ -264,14 +352,13 @@ export async function ouvrir(o) {
         var px = x + (nb === 1 ? 0 : (j - (nb - 1) / 2) * ecart);
         var pivot = new THREE.Group(); pivot.position.set(px, Y_TRINGLE + .028, -D / 2); pivot.rotation.order = 'YXZ'; g.add(pivot);
         pivot.add(cintre());
-        var etat = { pivot: pivot, x: px, rayon: r, t: 0, v: 0, cible: 0, repos: liste.length === 1 ? -.5 : -1.3, ph: Math.random() * 6.28, info: liste[j] || null };
+        // comme dans une vraie armoire : la pièce pend perpendiculaire à la tringle, l'épaule vers le visiteur
+        var etat = { pivot: pivot, x: px, rayon: r, t: 0, v: 0, cible: 0, repos: -Math.PI / 2 + .1, ph: Math.random() * 6.28, info: liste[j] || null };
         pivot.rotation.y = etat.repos;
         if (etat.info) {
-          var proxy = new THREE.Mesh(new THREE.BoxGeometry(.66, .95, .3), matInvisible); proxy.position.y = -.44; proxy.userData.piece = etat; pivot.add(proxy);
+          var proxy = new THREE.Mesh(new THREE.BoxGeometry(.5, .72, .5), matInvisible); proxy.position.y = -.4; proxy.userData.piece = etat; pivot.add(proxy);
           etat.proxy = proxy; pieces.push(etat);
-          (function (e) {
-            Promise.all([charger(e.info.face), charger(e.info.dos)]).then(function (tx) { if (tx[0]) e.pivot.add(vetement(tx[0], tx[1])); });
-          })(etat);
+          attentes.push(vetement(etat.info.modele).then(function (m) { this.pivot.add(m); }.bind(etat)).catch(function () {}));
         }
         r.pieces.push(etat);
       }
@@ -289,7 +376,7 @@ export async function ouvrir(o) {
 
   // Lumières d'ensemble : très peu, la lumière vient des rayons
   scene.add(new THREE.HemisphereLight(0x8a6a4c, 0x0a0604, .35));
-  var cle = new THREE.SpotLight(0xffe2bd, 12, 7, .3, .95, 1.6);
+  var cle = new THREE.SpotLight(0xffe2bd, 3.4, 7, .5, 1, 1.6);
   cle.position.set(.35, 2.45, .7); cle.target.position.set(0, 1.62, ZB + D / 2);
   cle.castShadow = true; cle.shadow.mapSize.set(mobile ? 1024 : 2048, mobile ? 1024 : 2048); cle.shadow.bias = -.0004; cle.shadow.radius = 5; cle.shadow.normalBias = .02;
   scene.add(cle); scene.add(cle.target);
@@ -313,14 +400,14 @@ export async function ouvrir(o) {
     camera.fov = w / h < .8 ? 52 : w / h < 1.2 ? 56 : 48;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
-    if (composer) composer.setSize(w, h);
+    if (composer) { composer.setPixelRatio(finesse); composer.setSize(w, h); }
   }
   taille(); addEventListener('resize', taille);
 
   // ---------- Regard et survol ----------
   var souris = new THREE.Vector2(0, 0), regard = { yaw: 0, pitch: 0, cy: 0, cp: 0 }, glisse = null, survol = null, choisi = null;
   var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), entree = reduit ? 1 : 0, sortie = -1, finSortie = null;
-  var balayage = tactile && !reduit ? 0 : -1;
+  var balayage = tactile && !reduit ? 0 : -1, dernier = null, surFiche = false;
   var proxies = pieces.map(function (p) { return p.proxy; });
   function viser(cx, cy) {
     var r = canvas.getBoundingClientRect();
@@ -331,8 +418,9 @@ export async function ouvrir(o) {
   }
   function choisir(p) {
     if (survol === p) return;
-    if (survol) survol.cible = 0;
-    survol = p; if (p) p.cible = 1;
+    // zone de survol élargie tant que la pièce est choisie : la caméra qui s'approche ne la fait pas clignoter
+    if (survol) { survol.cible = 0; survol.proxy.scale.setScalar(1); }
+    survol = p; if (p) { p.cible = 1; p.proxy.scale.setScalar(1.4); }
     canvas.style.cursor = p ? 'pointer' : '';
     if (p) {
       fiche.href = p.info.url;
@@ -346,7 +434,7 @@ export async function ouvrir(o) {
   function aller(p) { if (p && entree >= 1) o.aller(p.info.url); }
   canvas.addEventListener('pointermove', function (e) {
     var r = canvas.getBoundingClientRect();
-    if (e.pointerType === 'mouse') souris.set((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1);
+    if (e.pointerType === 'mouse') { souris.set((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1); dernier = [e.clientX, e.clientY]; }
     if (glisse) {
       var dx = e.clientX - glisse.x, dy = e.clientY - glisse.y;
       if (Math.abs(dx) + Math.abs(dy) > 6) glisse.bouge = true;
@@ -367,7 +455,12 @@ export async function ouvrir(o) {
     if (p && p === survol) aller(p); else choisir(p);
   });
   canvas.addEventListener('pointercancel', function () { glisse = null; });
-  canvas.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { souris.set(0, 0); choisir(null); } });
+  canvas.addEventListener('pointerleave', function (e) {
+    if (e.pointerType !== 'mouse' || (e.relatedTarget && fiche.contains(e.relatedTarget))) return; // vers la fiche : elle reste
+    souris.set(0, 0); dernier = null; choisir(null);
+  });
+  fiche.addEventListener('pointerenter', function () { surFiche = true; });
+  fiche.addEventListener('pointerleave', function (e) { surFiche = false; if (e.relatedTarget !== canvas) { dernier = null; choisir(null); } });
   fiche.addEventListener('focus', function () { if (!survol && pieces[0]) choisir(pieces[0]); });
 
   // ---------- Animation ----------
@@ -384,21 +477,31 @@ export async function ouvrir(o) {
         if (survol && survol !== p && survol.rayon === r) voisin = (p.x < survol.x ? -1 : 1) * .07 * survol.t;
         p.pivot.position.x = p.x + voisin;
         p.pivot.rotation.y = THREE.MathUtils.lerp(p.repos, face, Math.max(0, Math.min(1.08, p.t)));
-        p.pivot.rotation.x = -.2 * p.t + Math.sin(temps * .7 + p.ph) * .006 * (1 - p.t);
+        p.pivot.rotation.x = -.13 * p.t + Math.sin(temps * .7 + p.ph) * .006 * (1 - p.t);
         p.pivot.rotation.z = Math.sin(temps * .9 + p.ph) * .01 * (1 - p.t) + p.v * .012;
       });
       var actif = survol && survol.rayon === r ? survol.t : 0, autre = survol && survol.rayon !== r ? survol.t : 0;
-      r.lumiere.intensity = r.base * (1 + .55 * actif - .35 * autre);
+      r.lumiere.intensity = r.base * (1 - .35 * autre);
     });
   }
   function boucle() {
     raf = requestAnimationFrame(boucle);
     var dt = Math.min(.05, horloge.getDelta()), temps = horloge.elapsedTime;
-    if (entree < 1) entree = Math.min(1, entree + dt / 2.6);
-    var e = easeInOut(entree);
+    // résolution adaptative : si l'appareil peine, on affine moins plutôt que de saccader
+    mesure.n++; mesure.s += dt;
+    if (mesure.n === 30) {
+      if (mesure.s / 30 > .021 && finesse > .8) { finesse = Math.max(.8, finesse - .2); renderer.setPixelRatio(finesse); taille(); }
+      mesure.n = 0; mesure.s = 0;
+    }
+    // entrée : la caméra arrive en plein élan (relais du zoom de la vidéo) puis ralentit jusqu'à l'armoire
+    if (entree < 1) entree = Math.min(1, entree + dt / 2.8);
+    // survol recalculé à chaque image : la pièce réagit aussi quand c'est la vue qui glisse sous la souris
+    if (!tactile && dernier && !surFiche && entree >= 1 && sortie < 0) choisir(viser(dernier[0], dernier[1]));
+    var e = 1 - Math.pow(1 - entree, 2.6);
+    // sortie : elle repart doucement puis accélère ; à mi-course la page reprend la main en fondu
     if (sortie >= 0) {
-      sortie = Math.min(1, sortie + dt / 1.4); e = 1 - easeInOut(sortie);
-      if (sortie >= 1 && finSortie) { var f = finSortie; finSortie = null; f(); return; }
+      sortie = Math.min(1, sortie + dt / 1.6); e = Math.min(e, 1 - Math.pow(sortie, 2.2));
+      if (sortie >= .42 && finSortie) { var f = finSortie; finSortie = null; f(); }
     }
     // regard : la souris oriente doucement la tête, le doigt fait glisser la vue
     if (!tactile && !glisse) { regard.yaw = -souris.x * .5; regard.pitch = -souris.y * .1; }
@@ -414,7 +517,7 @@ export async function ouvrir(o) {
     // la pièce survolée attire le regard et rapproche un peu le visiteur
     if (foc > 0) {
       survol.pivot.getWorldPosition(regardCible); regardCible.y -= .4;
-      bx += (regardCible.x - bx) * .22 * foc; by += (regardCible.y - by) * .15 * foc; z += (regardCible.z - z) * .22 * foc;
+      bx += (regardCible.x - bx) * .42 * foc; by += (regardCible.y - by) * .3 * foc; z += (regardCible.z - z) * .42 * foc;
       var dx = regardCible.x - bx, dy = regardCible.y - by, dz = regardCible.z - z;
       yaw += (Math.atan2(-dx, -dz) - yaw) * .6 * foc;
       pitch += (Math.atan2(dy, Math.hypot(dx, dz)) - pitch) * .6 * foc;
@@ -434,17 +537,23 @@ export async function ouvrir(o) {
     if (composer) composer.render(); else renderer.render(scene, camera);
   }
 
+  // tout est chargé et compilé avant le premier clic : l'entrée démarre sans à-coup
+  await Promise.all(attentes);
+  camera.position.set(0, OEIL - .12, Z_DEPART); camera.rotation.set(-.05, 0, 0);
+  try { if (renderer.compileAsync) await renderer.compileAsync(scene, camera); else renderer.compile(scene, camera); } catch (e) {}
+  if (composer) composer.render(); else renderer.render(scene, camera);
+
   return {
-    demarrer: function () { horloge.start(); boucle(); },
-    quitter: function (fin) {
-      choisir(null);
-      if (reduit) { fin(); return; }
-      sortie = 0; finSortie = fin;
+    demarrer: function () {
+      entree = reduit ? 1 : 0; sortie = -1; finSortie = null; balayage = tactile && !reduit ? 0 : -1; dernier = null;
+      regard.yaw = regard.pitch = regard.cy = regard.cp = 0; souris.set(0, 0);
+      horloge.start(); if (!raf) boucle();
     },
-    detruire: function () {
-      cancelAnimationFrame(raf); removeEventListener('resize', taille);
-      scene.traverse(function (m) { if (m.geometry) m.geometry.dispose(); });
-      renderer.dispose(); pmrem.dispose();
-    }
+    quitter: function (mi) {
+      choisir(null);
+      if (reduit) { mi(); return; }
+      sortie = 0; finSortie = mi;
+    },
+    arreter: function () { cancelAnimationFrame(raf); raf = 0; }
   };
 }
