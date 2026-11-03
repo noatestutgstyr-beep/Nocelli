@@ -6,6 +6,7 @@
 <title>Nocelli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Nocelli, pièces en séries numérotées. La collection d'automne sort le mardi 1er décembre à 19h00, heure suisse. Inscription par e-mail pour commander.">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="club/cartes.css">
@@ -434,6 +435,37 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   .lignes li{padding-block:18px}
   .manifesto h2{font-size:30px}
 }
+/* Le seuil du coffre : aucune inscription, seulement la lumière qui respire dans l'ouverture et un curseur en anneau */
+.seuil{position:absolute;z-index:3;border-radius:50%;display:none;cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Ccircle cx='22' cy='22' r='17' fill='none' stroke='%23E4D1B0' stroke-width='1'/%3E%3Ccircle cx='22' cy='22' r='2' fill='%23E4D1B0'/%3E%3C/svg%3E") 22 22,pointer;-webkit-tap-highlight-color:transparent}
+.seuil.ouvert{display:block}
+.seuil::before{content:"";position:absolute;inset:-18%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,222,170,.5),rgba(255,206,140,.16) 55%,rgba(255,206,140,0));mix-blend-mode:screen;opacity:0;transition:opacity .8s ease,transform 1.2s cubic-bezier(.2,.7,.2,1);animation:seuil-souffle 4.2s ease-in-out 1.2s infinite}
+.seuil:hover::before,.seuil:focus-visible::before{opacity:1;transform:scale(1.06);animation:none}
+.seuil:focus-visible{outline:1px solid rgba(228,209,176,.6);outline-offset:6px}
+@keyframes seuil-souffle{0%,100%{opacity:0}50%{opacity:.55}}
+.hero-video{transform-origin:var(--ox,64%) var(--oy,42%);transition:transform 1.25s cubic-bezier(.65,0,.25,1),filter 1.25s ease}
+.hero-voile,.hero-texte{transition:opacity .7s ease}
+.hero.plonge .hero-video{transform:scale(4.2);filter:brightness(1.7) blur(1.5px)}
+.hero.plonge .hero-voile,.hero.plonge .hero-texte{opacity:0}
+
+/* La salle des collections, en 3D, par-dessus toute la page */
+.salle{position:fixed;inset:0;z-index:90;background:#0b0705;color:var(--avorio);opacity:0;transition:opacity .9s ease;overscroll-behavior:contain}
+.salle.visible{opacity:1}
+.salle canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+.salle-marque{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-family:var(--display);font-size:15px;letter-spacing:.5em;margin-right:-.5em;color:rgba(228,209,176,.7);pointer-events:none}
+.salle-fermer{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));width:48px;height:48px;border-radius:50%;border:1px solid rgba(228,209,176,.32);background:rgba(20,12,8,.35);cursor:pointer;transition:border-color .4s,background .4s}
+.salle-fermer:hover{border-color:rgba(228,209,176,.8);background:rgba(20,12,8,.6)}
+.salle-fermer::before,.salle-fermer::after{content:"";position:absolute;left:15px;right:15px;top:50%;height:1px;background:var(--crema);transform:rotate(45deg)}
+.salle-fermer::after{transform:rotate(-45deg)}
+.salle-fiche{position:absolute;left:0;top:0;width:290px;display:grid;gap:8px;padding:22px 24px 20px;text-decoration:none;color:var(--avorio);background:rgba(20,12,8,.62);border:1px solid rgba(228,209,176,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .6s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.salle-fiche.visible{opacity:1;transform:none;pointer-events:auto}
+.salle-fiche .eyebrow{color:var(--crema)}
+.salle-fiche b{font-family:var(--display);font-weight:400;font-size:26px;line-height:1.15}
+.salle-fiche [data-prix]{font-family:var(--display);font-size:18px;color:rgba(247,243,236,.84)}
+.salle-fiche .lien{justify-self:start;margin-top:8px;color:var(--crema);font-size:10px}
+@media (max-width:700px){
+  .salle-fiche{left:16px!important;right:16px;top:auto!important;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:auto}
+}
+
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -480,6 +512,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <source src="video/coffre.webm" type="video/webm">
     </video>
     <div class="hero-voile" aria-hidden="true"></div>
+    <div class="seuil" id="seuil" role="link" tabindex="-1" aria-label="Entrer dans le coffre"></div>
     <div class="wrap hero-texte">
       <span class="eyebrow">Prima Edizione</span>
       <h1 class="hero-marque">NOCELLI</h1>
@@ -584,6 +617,18 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     </div>
   </section>
 </main>
+
+<div class="salle" id="salle" role="dialog" aria-modal="true" aria-label="La salle des collections" hidden>
+  <canvas tabindex="-1" aria-hidden="true"></canvas>
+  <span class="salle-marque" aria-hidden="true">NOCELLI</span>
+  <button class="salle-fermer" type="button" aria-label="Quitter le coffre"></button>
+  <a class="salle-fiche" id="salle-fiche" href="cardigan-noce.html">
+    <span class="eyebrow" data-num>N° 01 / 50</span>
+    <b data-nom>Le Cardigan Noce</b>
+    <span data-prix>CHF 139</span>
+    <span class="lien">Voir la pièce</span>
+  </a>
+</div>
 
 <dialog class="guide" id="guide" aria-labelledby="guide-titre">
   <div class="guide-in">
@@ -726,6 +771,79 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     }
     // lecture refusée (mode économie d'énergie du téléphone…) : on montre le coffre ouvert plutôt que la porte fermée
     else{var pr=coffre.play();if(pr&&pr.catch)pr.catch(function(e){if(e&&e.name==='NotAllowedError'&&coffre.paused&&!coffre.currentTime)coffre.poster='img/coffre-fin.jpg';});}
+  }
+
+  // Le seuil : une fois la porte ouverte, l'ouverture du coffre mène à la salle des collections (js/salle.js, en 3D)
+  var seuil=document.getElementById('seuil'),salle=document.getElementById('salle'),heroEl=document.querySelector('.hero');
+  if(coffre&&seuil&&salle){
+    var reduit=matchMedia('(prefers-reduced-motion: reduce)').matches,module=null,vue3d=null,dedans=false;
+    // ouverture dans l'image du coffre ouvert (1600 × 800) : centre et rayons
+    var TROU={x:1035,y:335,rx:122,ry:140,w:1600,h:800};
+    function placer(){
+      var W=coffre.offsetWidth,H=coffre.offsetHeight;if(!W||!H)return;
+      var s=Math.max(W/TROU.w,H/TROU.h),pos=getComputedStyle(coffre).objectPosition.split(' ');
+      var px=parseFloat(pos[0])/100,py=parseFloat(pos[1]||'50%')/100;
+      var ox=(W-TROU.w*s)*(isNaN(px)?.5:px),oy=(H-TROU.h*s)*(isNaN(py)?.5:py);
+      var cx=coffre.offsetLeft+ox+TROU.x*s,cy=coffre.offsetTop+oy+TROU.y*s;
+      seuil.style.left=(cx-TROU.rx*s)+'px';seuil.style.top=(cy-TROU.ry*s)+'px';
+      seuil.style.width=(TROU.rx*2*s)+'px';seuil.style.height=(TROU.ry*2*s)+'px';
+      heroEl.style.setProperty('--ox',(ox+TROU.x*s)+'px');heroEl.style.setProperty('--oy',(oy+TROU.y*s)+'px');
+    }
+    function charger(){
+      if(!module)module=import('./js/salle.js').catch(function(e){module=null;throw e;});
+      return module;
+    }
+    function ouvrirSeuil(){
+      if(seuil.classList.contains('ouvert'))return;
+      placer();seuil.classList.add('ouvert');seuil.tabIndex=0;
+      setTimeout(function(){charger().catch(function(){});},1500);
+    }
+    addEventListener('resize',placer);
+    coffre.addEventListener('ended',ouvrirSeuil);
+    coffre.addEventListener('timeupdate',function(){if(coffre.duration&&coffre.currentTime>coffre.duration-.4)ouvrirSeuil();});
+    if(reduit||coffre.paused&&coffre.poster.indexOf('coffre-fin')>-1)ouvrirSeuil();
+    setTimeout(ouvrirSeuil,9000);
+
+    function entrer(){
+      if(dedans)return;dedans=true;
+      placer();heroEl.classList.add('plonge');
+      var t0=Date.now(),attente=reduit?0:1150;
+      charger().then(function(m){
+        salle.hidden=false;
+        return m.ouvrir({racine:salle,fiche:document.getElementById('salle-fiche'),reduit:reduit,aller:function(u){
+          salle.classList.remove('visible');setTimeout(function(){location.href=u;},reduit?0:600);
+        }});
+      }).then(function(v){
+        vue3d=v;
+        setTimeout(function(){
+          body.style.overflow='hidden';
+          v.demarrer();salle.classList.add('visible');
+          try{history.pushState({coffre:1},'','#coffre');}catch(e){}
+          salle.querySelector('.salle-fermer').focus({preventScroll:true});
+        },Math.max(0,attente-(Date.now()-t0)));
+      }).catch(function(){
+        // pas de 3D possible (navigateur ancien, hors ligne…) : on va directement à la pièce
+        location.href='cardigan-noce.html';
+      });
+    }
+    function sortir(depuisHistorique){
+      if(!vue3d)return;
+      var v=vue3d;vue3d=null;
+      if(!depuisHistorique&&history.state&&history.state.coffre){try{history.back();}catch(e){}}
+      v.quitter(function(){
+        salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';
+        setTimeout(function(){v.detruire();salle.hidden=true;dedans=false;seuil.focus({preventScroll:true});},reduit?0:900);
+      });
+    }
+    seuil.addEventListener('click',entrer);
+    seuil.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();entrer();}});
+    seuil.addEventListener('pointerenter',function(){charger().catch(function(){});});
+    salle.querySelector('.salle-fermer').addEventListener('click',function(){sortir(false);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vue3d)sortir(false);});
+    addEventListener('popstate',function(){if(vue3d)sortir(true);});
+    // retour depuis la fiche de la pièce : on retrouve la page d'accueil normale
+    addEventListener('pageshow',function(e){if(e.persisted&&location.hash==='#coffre'){salle.hidden=true;salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';dedans=false;if(vue3d){vue3d.detruire();vue3d=null;}}});
+    if(location.hash==='#coffre')try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
   }
 
   // Vues de la pièce et loupe
