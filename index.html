@@ -455,7 +455,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       </nav>
     </div>
     <a class="marque" href="#haut">NOCELLI</a>
-    <nav class="droite" aria-label="Liste privée">
+    <nav class="droite" aria-label="Compte">
+      <a href="membre.html" data-lien-compte>Mon compte</a>
       <a class="cta" href="#liste">Liste privée</a>
     </nav>
   </div>
@@ -788,10 +789,22 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     err.textContent="";
     var taille=(form.querySelector('input[name=taille]:checked')||{}).value||'';
     try{localStorage.setItem('nocelli-liste',JSON.stringify({email:email,prenom:prenom,taille:taille}));}catch(_){}
-    if(prenom){document.getElementById('merci-titre').textContent=prenom+", vous êtes sur la liste.";}
-    form.hidden=true;
-    merci.hidden=false;
+    var bouton=form.querySelector('button[type=submit]');
+    var fini=function(){
+      if(prenom){document.getElementById('merci-titre').textContent=prenom+", vous êtes sur la liste.";}
+      form.hidden=true;
+      merci.hidden=false;
+    };
+    // Envoi à la liste privée de Nocelli (Supabase, table liste_privee : ajout seulement, personne ne peut la lire depuis le site).
+    var srv=window.NOCELLI_SERVEUR;
+    if(!srv||!srv.url){fini();return;}
+    if(bouton)bouton.disabled=true;
+    fetch(srv.url+'/rest/v1/liste_privee',{method:'POST',headers:{'apikey':srv.cle,'Authorization':'Bearer '+srv.cle,'Content-Type':'application/json','Prefer':'return=minimal,resolution=ignore-duplicates'},
+      body:JSON.stringify({email:email.toLowerCase(),prenom:prenom.slice(0,60),taille:taille||null,langue:(document.documentElement.lang||'fr').slice(0,2)})})
+      .then(function(r){if(!r.ok&&r.status!==409)throw new Error(r.status);fini();})
+      .catch(function(){if(bouton)bouton.disabled=false;err.textContent="L'inscription n'a pas pu être envoyée. Vérifiez votre connexion et réessayez.";});
   });
+  try{var tq=(location.search.match(/[?&]taille=(S|M|L)\b/)||[])[1];if(tq){var rb=form.querySelector('input[name=taille][value='+tq+']');if(rb)rb.checked=true;}}catch(_){}
   }
 
   // Les trois cartes du Private Club (club/cartes.js)
@@ -802,6 +815,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 })();
 </script>
 
+<script src="club/config.js"></script>
 <script src="club/assistant.js"></script><script src="club/offre.js"></script>
 <script src="js/langue.js"></script>
 

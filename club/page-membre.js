@@ -107,7 +107,7 @@
 
   function blocAdhesion(s) {
     var d = s.droits, c = s.compte, ab = s.abonnement, f = s.fondateur;
-    var numero = d.categorie === 'founders' ? 'Founding Member ' + ('0' + f.numero).slice(-2) + ' / 50' : 'Member ' + ('000' + c.numeroMembre).slice(-4);
+    var numero = d.categorie === 'founders' ? 'Founding Member ' + ('0' + f.numero).slice(-2) + ' / 50' : 'Member ' + ('0' + c.numeroMembre).slice(-2) + ' / 50';
     var lignes =
       '<div><dt>Membre</dt><dd>' + e(c.nom || c.email) + ' <button class="lien" type="button" id="modifier-nom" style="margin-left:10px;font-size:9.5px">Modifier</button></dd></div>' +
       '<div><dt>Catégorie</dt><dd><b>' + NOMS[d.categorie] + '</b></dd></div>' +
@@ -416,7 +416,7 @@
           document.body.style.overflow = '';
           rendre();
           var c = s.compte || {}, prenom = (c.nom || '').split(' ')[0];
-          var num = c.numeroMembre ? 'Member ' + ('000' + c.numeroMembre).slice(-4) : '';
+          var num = c.numeroMembre ? 'Member ' + ('0' + c.numeroMembre).slice(-2) + ' / 50' : '';
           NC.fenetre('<div class="accueil">' +
             '<span class="eyebrow">Benvenuto · Signature Club</span>' +
             '<h3>' + (prenom ? 'Bienvenue, ' + e(prenom) + '.' : 'Bienvenue.') + '</h3>' +

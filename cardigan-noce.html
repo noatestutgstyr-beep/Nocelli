@@ -453,7 +453,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       </nav>
     </div>
     <a class="marque" href="index.html">NOCELLI</a>
-    <nav class="droite" aria-label="Liste privée">
+    <nav class="droite" aria-label="Compte">
+      <a href="membre.html" data-lien-compte>Mon compte</a>
       <a class="cta" href="index.html#liste">Liste privée</a>
     </nav>
   </div>
@@ -514,22 +515,24 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
             <dl>
               <dt>Matière</dt><dd>100 % laine mérinos extrafine, 18,5 à 19,5 microns, douce, ne gratte pas</dd>
               <dt>Maille</dt><dd>Jersey uni 12 jauges, 280 à 320 g/m², léger et respirant</dd>
-              <dt>Traitement</dt><dd>Anti-boulochage et anti-feutrage</dd>
+              <dt>Traitement</dt><dd>Traitement qui limite le boulochage et le feutrage</dd>
               <dt>Col</dt><dd>Montant, en côte doublée, 7 cm, légèrement conique</dd>
               <dt>Fermeture</dt><dd>Zip métal à double curseur, tirettes lisses</dd>
               <dt>Manches</dt><dd>Montées, entièrement diminuées, épaule naturelle</dd>
               <dt>Poches</dt><dd>Aucune</dd>
+              <dt>Fabrication</dt><dd>Fabriqué en Italie</dd>
+              <dt>Entretien</dt><dd>À la main ou programme laine à 30 °C, séchage à plat, pas de sèche-linge</dd>
               <dt>Finitions</dt><dd>Poignets 7 cm et bas 6 cm en côte</dd>
               <dt>Coupe</dt><dd>Ajustée, près du corps sans serrer</dd>
             </dl>
           </details>
           <details>
             <summary>Le numéro</summary>
-            <p class="texte">Aucun logo à l'extérieur. Une étiquette tissée beige à l'intérieur du col porte NOCELLI et le numéro de votre pièce, de N° 01 / 50 à N° 50 / 50. Coloris chocolat, teint en un seul bain pour les 50 pièces.</p>
+            <p class="texte">Aucun logo à l'extérieur. Une étiquette tissée beige à l'intérieur du col porte NOCELLI et le numéro de votre pièce, de N° 01 / 50 à N° 50 / 50. Les numéros sont attribués dans l'ordre des paiements. Coloris chocolat.</p>
           </details>
           <details>
             <summary>Livraison</summary>
-            <p class="texte">Précommande : livraison en Suisse 4 à 6 semaines après l'ouverture. Prix en CHF, TVA incluse.</p>
+            <p class="texte">Le 1er décembre à 19h00, les inscrits reçoivent le lien de commande par e-mail. Paiement par carte ou TWINT, livraison en Suisse 4 à 6 semaines après l'ouverture. Prix en CHF, TVA incluse.</p>
           </details>
         </div>
       </div>
@@ -635,7 +638,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <li>Épaules larges ou bras longs : la plus grande, l'épaule et la manche tomberont juste.</li>
       <li>Silhouette fine et grande : la taille de votre poitrine ; la longueur suit.</li>
     </ul>
-    <p class="guide-note">Le mérinos se détend légèrement en le portant, il ne rétrécit pas avec un lavage laine à 30 °C.</p>
+    <p class="guide-note">Le mérinos se détend légèrement en le portant. Entretien : à la main ou programme laine à 30 °C, séchage à plat, pas de sèche-linge.</p>
   </div>
 </dialog>
 
@@ -691,7 +694,14 @@ var PRECOMMANDE={S:'',M:'',L:''};
   var boutons=[].slice.call(document.querySelectorAll('[data-precommande]'));
   var note=document.querySelector('[data-precommande-note]');
   var chips=[].slice.call(document.querySelectorAll('.tailles-info .chips button'));
-  if(!ouvert){chips.forEach(function(c){c.disabled=true;c.style.cursor='default';});return;}
+  if(!ouvert){
+    // Avant l'ouverture : la taille choisie suit jusqu'au formulaire de la liste privée.
+    chips.forEach(function(c){c.addEventListener('click',function(){
+      var t=c.textContent.trim();chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});
+      boutons.forEach(function(b){b.href='index.html?taille='+t+'#liste';});
+    });});
+    return;
+  }
   if(note)note.textContent='Carte ou TWINT. Livraison en Suisse 4 à 6 semaines après l\'ouverture.';
   function maj(){
     boutons.forEach(function(b){
@@ -851,6 +861,7 @@ var PRECOMMANDE={S:'',M:'',L:''};
 </script>
 
 
+<script src="club/assistant.js"></script>
 <script src="js/langue.js"></script>
 </body>
 </html>

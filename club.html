@@ -101,6 +101,7 @@
 @media (max-width:960px){
   .ouverture-grid{grid-template-columns:1fr;padding-block:56px 70px}
   .eventail{justify-self:center;max-width:520px;margin-top:10px}
+  .eventail .carte{width:64%;left:18%}
   .faq-grid{grid-template-columns:1fr}
   .faq .aside{position:static}
   /* Téléphone : une formule à la fois, on glisse de l'une à l'autre */
@@ -122,24 +123,25 @@
     <div style="display:flex;align-items:center">
       <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><span></span></button>
       <nav class="gauche" aria-label="Sections">
-        <a href="cardigan-noce.html">La pièce</a>
+        <a href="index.html#collection">Collection</a>
         <a href="club.html" aria-current="page">Private Club</a>
       </nav>
     </div>
     <a class="marque" href="index.html">NOCELLI</a>
     <nav class="droite" aria-label="Compte">
       <a href="membre.html" data-lien-compte>Mon compte</a>
-      <a class="cta" href="#formules">Rejoindre</a>
+      <a class="cta" href="index.html#liste">Liste privée</a>
     </nav>
   </div>
 </header>
 
 <div class="menu" id="menu" hidden>
   <ul>
+    <li><a href="index.html#collection">Collection</a></li>
     <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
+    <li><a href="index.html#liste">Liste privée</a></li>
     <li><a href="club.html">Private Club</a></li>
     <li><a href="membre.html">Mon compte</a></li>
-    <li><a href="index.html#liste">Liste privée</a></li>
   </ul>
   <p>Founders · Signature</p>
 </div>
@@ -150,7 +152,7 @@
       <div>
         <span class="eyebrow apparait">Private Club</span>
         <h1 class="apparait d1">NOCELLI <span>Private Club</span></h1>
-        <p class="intro apparait d2" data-sans-founders="Signature coûte CHF 290 par an, limitée à 50 membres.">Deux cartes. Founders est offerte aux 50 premiers acheteurs du cardigan NC-01. Signature coûte CHF 290 par an, limitée à 50 membres.</p>
+        <p class="intro apparait d2" data-sans-founders="Signature coûte CHF 290 par an, limitée à 50 membres.">Deux cartes. Founders est offerte à chaque acheteur du cardigan NC-01. Signature coûte CHF 290 par an, limitée à 50 membres.</p>
         <div class="actions apparait d3">
           <button class="btn clair" type="button" data-rejoindre="signature">Rejoindre Signature</button>
           <a class="lien" href="#comparer" data-founders>Comparer</a>
@@ -179,7 +181,7 @@
         <article class="formule founders" id="f-founders" data-founders>
           <div class="scene-carte" data-carte="founders"></div>
           <div class="titre"><h3>Founders Club</h3><span class="prix">Gratuit<small>à vie</small></span></div>
-          <p class="desc">Offerte aux 50 premiers acheteurs du cardigan <span style="white-space:nowrap">NC-01</span>, numérotés de 01 / 50 à 50 / 50.</p>
+          <p class="desc">Offerte à chaque acheteur du cardigan <span style="white-space:nowrap">NC-01</span>, numérotés de 01 / 50 à 50 / 50.</p>
           <ul>
             <li>Carte numérotée, livrée avec le cardigan</li>
             <li>Tous les avantages Signature, offerts à vie</li>

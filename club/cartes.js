@@ -38,7 +38,7 @@
 
   function libelleNumero(categorie, numero) {
     if (categorie === 'founders') return 'Member <b>' + pad(numero || 1, 2) + '</b> / 50';
-    return 'Member <b>' + pad(numero || 1, 4) + '</b>';
+    return 'Member <b>' + pad(numero || 1, 2) + '</b> / 50';
   }
 
   function adresseQr(jeton) {
