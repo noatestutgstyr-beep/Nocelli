@@ -23,17 +23,17 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase functions deploy paiement --project-ref "$PROJET"
+      - run: supabase functions deploy paiement --project-ref "$PROJET" --yes
         working-directory: backend
-      - run: supabase functions deploy stripe-webhook --project-ref "$PROJET" --no-verify-jwt
+      - run: supabase functions deploy stripe-webhook --project-ref "$PROJET" --yes --no-verify-jwt
         working-directory: backend
       # Assistant : la clé Claude vit dans les secrets du dépôt et est recopiée dans Supabase (jamais dans le site)
       - name: Clé de l'assistant
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          if [ -n "$ANTHROPIC_API_KEY" ]; then supabase secrets set ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" --project-ref "$PROJET"
+          if [ -n "$ANTHROPIC_API_KEY" ]; then supabase secrets set ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" --project-ref "$PROJET" --yes
           else echo "::warning::Pas de secret ANTHROPIC_API_KEY : l'assistant garde ses réponses toutes faites."; fi
         working-directory: backend
-      - run: supabase functions deploy assistant --project-ref "$PROJET" --no-verify-jwt
+      - run: supabase functions deploy assistant --project-ref "$PROJET" --yes --no-verify-jwt
         working-directory: backend
