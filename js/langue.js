@@ -14,14 +14,16 @@
     var r=REG[lang]||[];for(var i=0;i<r.length;i++){if(r[i][0].test(k))return k.replace(r[i][0],r[i][1]);}
     return null;
   }
+  // Pour l'assistant : traduction exacte d'un texte du site (null si absent du dictionnaire).
+  window.NocelliLangue={langue:lang,traduire:function(s,l){var k=String(s).replace(/\s+/g,' ').trim();return (D[l]&&D[l][k])||null;}};
   function passe(racine){
     if(lang==='fr'||!racine)return;
-    if(racine.nodeType===3){var t=tr(racine.nodeValue);if(t!==null&&t!==racine.nodeValue)racine.nodeValue=t;return;}
-    if(racine.nodeType!==1||/^(SCRIPT|STYLE)$/.test(racine.nodeName))return;
+    if(racine.nodeType===3){if(racine.parentNode&&racine.parentNode.closest&&racine.parentNode.closest('[data-sans-traduction]'))return;var t=tr(racine.nodeValue);if(t!==null&&t!==racine.nodeValue)racine.nodeValue=t;return;}
+    if(racine.nodeType!==1||/^(SCRIPT|STYLE)$/.test(racine.nodeName)||racine.closest('[data-sans-traduction]'))return;
     var w=document.createTreeWalker(racine,NodeFilter.SHOW_TEXT),n,l=[];while(n=w.nextNode())l.push(n);
-    l.forEach(function(n){if(!/^(SCRIPT|STYLE)$/.test(n.parentNode.nodeName)){var t=tr(n.nodeValue);if(t!==null&&t!==n.nodeValue)n.nodeValue=t;}});
+    l.forEach(function(n){if(!/^(SCRIPT|STYLE)$/.test(n.parentNode.nodeName)&&!n.parentNode.closest('[data-sans-traduction]')){var t=tr(n.nodeValue);if(t!==null&&t!==n.nodeValue)n.nodeValue=t;}});
     var els=[racine].concat([].slice.call(racine.querySelectorAll('[placeholder],[aria-label],[alt],[title]')));
-    els.forEach(function(e){if(!e.getAttribute)return;ATTR.forEach(function(a){var v=e.getAttribute(a);if(v){var t=tr(v);if(t!==null&&t!==v)e.setAttribute(a,t);}});});
+    els.forEach(function(e){if(!e.getAttribute||e.closest('[data-sans-traduction]'))return;ATTR.forEach(function(a){var v=e.getAttribute(a);if(v){var t=tr(v);if(t!==null&&t!==v)e.setAttribute(a,t);}});});
   }
   function selecteur(){
     var nav=document.querySelector('.nav nav.droite');
