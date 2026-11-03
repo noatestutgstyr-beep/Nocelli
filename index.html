@@ -799,7 +799,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     var srv=window.NOCELLI_SERVEUR;
     if(!srv||!srv.url){fini();return;}
     if(bouton)bouton.disabled=true;
-    fetch(srv.url+'/rest/v1/liste_privee',{method:'POST',headers:{'apikey':srv.cle,'Authorization':'Bearer '+srv.cle,'Content-Type':'application/json','Prefer':'return=minimal,resolution=ignore-duplicates'},
+    fetch(srv.url+'/rest/v1/liste_privee',{method:'POST',headers:{'apikey':srv.cle,'Content-Type':'application/json','Prefer':'return=minimal'},
       body:JSON.stringify({email:email.toLowerCase(),prenom:prenom.slice(0,60),taille:taille||null,langue:(document.documentElement.lang||'fr').slice(0,2)})})
       .then(function(r){if(!r.ok&&r.status!==409)throw new Error(r.status);fini();})
       .catch(function(){if(bouton)bouton.disabled=false;err.textContent="L'inscription n'a pas pu être envoyée. Vérifiez votre connexion et réessayez.";});
