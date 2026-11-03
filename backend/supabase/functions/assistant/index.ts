@@ -10,7 +10,7 @@ const SITE = (Deno.env.get('SITE_URL') ?? 'https://nocelli.ch').replace(/\/+$/, 
 const CLE = Deno.env.get('ANTHROPIC_API_KEY') ?? '';
 const MODELE = Deno.env.get('ASSISTANT_MODELE') ?? 'claude-opus-5-5';
 const PAGES = ['index.html', 'cardigan-noce.html', 'club.html', 'inscription.html'];
-const ORIGINES = [new URL(SITE).origin, 'https://www.nocelli.ch', ...(Deno.env.get('ASSISTANT_ORIGINES') ?? '').split(',').filter(Boolean)];
+const ORIGINES = ['https://nocelli.ch', 'https://www.nocelli.ch', new URL(SITE).origin, ...(Deno.env.get('ASSISTANT_ORIGINES') ?? '').split(',').filter(Boolean)];
 
 function cors(req: Request) {
   const o = req.headers.get('origin') ?? '';
