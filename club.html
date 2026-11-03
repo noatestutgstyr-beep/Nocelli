@@ -116,7 +116,6 @@
 </head>
 <body>
 
-<div class="annonce" data-sans-founders="Nocelli Private Club · Signature">Nocelli Private Club &nbsp;·&nbsp; Founders &nbsp;·&nbsp; Signature</div>
 
 <header class="tete">
   <div class="wrap nav">
@@ -340,7 +339,7 @@
     placer();
     addEventListener('load',function(){limite=Math.max(limite,Date.now()+8000);placer();[200,1000,2500,5000].forEach(function(d){setTimeout(placer,d);});});
     // Dans un cadre aussi haut que la page (sans défilement propre), c'est la page qui l'entoure qu'il faut remonter
-    var sommet=document.querySelector('.annonce');
+    var sommet=document.querySelector('header');
     if(!ancre&&sommet&&window.top!==window&&'IntersectionObserver' in window){
       new IntersectionObserver(function(es){if(!libre&&Date.now()-debut<4000&&!es[es.length-1].isIntersecting&&!window.pageYOffset)sommet.scrollIntoView({block:'start'});}).observe(sommet);
     }

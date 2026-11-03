@@ -46,8 +46,6 @@ p{margin:0}
 
 /* En-tête (identique à la page d'accueil) */
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--avorio)}
-.annonce{background:var(--noce-scuro);color:var(--crema);text-align:center;font-size:10px;letter-spacing:.32em;text-transform:uppercase;padding-block:10px;padding-left:var(--gx);padding-right:var(--gxr)}
-.annonce b{font-weight:400;color:var(--avorio)}
 header.tete{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(247,243,236,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--filo)}
 .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--head)}
 .nav nav{display:flex;gap:30px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase}
@@ -126,7 +124,6 @@ footer.pied-club{background:var(--avorio);padding-block:60px 36px;border-top:1px
 }
 @media (max-width:520px){
   body{font-size:15.5px}
-  .annonce{font-size:9.5px;letter-spacing:.2em}
   .marque{font-size:18px;letter-spacing:.36em;margin-right:-.36em}
   .nav nav.droite .cta{font-size:10px;letter-spacing:.18em}
 }
