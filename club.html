@@ -90,6 +90,8 @@
 
 
 @media (min-width:961px){.formule .desc{min-height:5.2em}}
+/* Ordinateur : les deux cartes partagent les mêmes lignes, leurs boutons sont à la même hauteur */
+@media (min-width:961px){.trio{grid-template-rows:repeat(5,auto);row-gap:24px}.formule{display:grid;grid-row:span 5;grid-template-rows:subgrid}.formule .cta{align-content:start}}
 @media (max-width:600px){
   .tableau table{min-width:0}
   .tableau thead th{font-size:15px}
@@ -128,8 +130,8 @@
     </div>
     <a class="marque" href="index.html">NOCELLI</a>
     <nav class="droite" aria-label="Compte">
-      <a href="membre.html" data-lien-compte>Mon compte</a>
-      <a class="cta" href="inscription.html">Inscription</a>
+      <a href="panier.html" data-panier>Panier</a>
+      <a class="cta" href="inscription.html" data-lien-compte>Inscription</a>
     </nav>
   </div>
 </header>
@@ -138,9 +140,9 @@
   <ul>
     <li><a href="index.html#collection">Collection</a></li>
     <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-    <li><a href="inscription.html">Inscription</a></li>
+    <li><a href="inscription.html" data-lien-compte>Inscription</a></li>
     <li><a href="club.html">Private Club</a></li>
-    <li><a href="membre.html">Mon compte</a></li>
+    <li><a href="panier.html" data-panier>Panier</a></li>
   </ul>
   <p>Founders · Signature</p>
 </div>
@@ -208,10 +210,9 @@
             <li>Soirées privées dans les plus belles adresses de Genève</li>
             <li>Accès prioritaire aux voyages NOCELLI</li>
           </ul>
-          <p class="desc" style="font-size:13px">Les repas, soirées et voyages sont payants séparément.</p>
           <div class="cta">
             <button class="btn plein" type="button" data-rejoindre="signature">Rejoindre pour CHF 290/an</button>
-            <small>Un an dès le paiement. Renouvellement automatique, annulable à tout moment.</small>
+            <small>Les repas, soirées et voyages sont payants séparément. Un an dès le paiement, renouvellement automatique, annulable à tout moment.</small>
             <small data-founders>Déjà fondateur ? Signature s'ajoute à votre carte Founders.</small>
           </div>
         </article>
@@ -308,7 +309,7 @@
       <ul>
         <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
         <li><a href="club.html">Private Club</a></li>
-        <li><a href="membre.html">Mon compte</a></li>
+        <li><a href="panier.html" data-panier>Panier</a></li>
         <li><a href="#faq">Questions fréquentes</a></li>
       </ul>
     </div>
@@ -351,6 +352,7 @@
 <script src="club/donnees.js"></script>
 <script src="club/vendor/supabase.js"></script>
 <script src="club/config.js"></script>
+<script src="js/panier.js"></script>
 <script src="club/serveur.js"></script>
 <script src="club/cartes.js"></script>
 <script src="club/commun.js"></script>

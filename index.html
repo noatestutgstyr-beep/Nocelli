@@ -463,8 +463,47 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .salle-fiche b{font-family:var(--display);font-weight:400;font-size:26px;line-height:1.15}
 .salle-fiche [data-prix]{font-family:var(--display);font-size:18px;color:rgba(247,243,236,.84)}
 .salle-fiche .lien{justify-self:start;margin-top:8px;color:var(--crema);font-size:10px}
+/* Fiche détaillée : un panneau ivoire glisse depuis la droite, la salle reste visible à gauche */
+.salle-detail{position:absolute;top:0;right:0;bottom:0;z-index:3;width:min(480px,100%);background:var(--avorio);color:var(--noce);box-shadow:-30px 0 60px -30px rgba(0,0,0,.6);transform:translateX(104%);transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.salle-detail.ouverte{transform:none}
+.sd-defile{height:100%;overflow-y:auto;overscroll-behavior:contain;padding:clamp(22px,3vw,34px) clamp(20px,3vw,34px) calc(34px + env(safe-area-inset-bottom,0px))}
+.salle-detail-fermer{position:absolute;top:14px;right:14px;z-index:2;width:42px;height:42px;border-radius:50%;border:1px solid var(--filo);background:rgba(247,243,236,.9);cursor:pointer}
+.salle-detail-fermer::before,.salle-detail-fermer::after{content:"";position:absolute;left:13px;right:13px;top:50%;height:1px;background:var(--noce);transform:rotate(45deg)}
+.salle-detail-fermer::after{transform:rotate(-45deg)}
+.sd-attente{padding-top:40vh;text-align:center;letter-spacing:.3em;color:var(--tabacco)}
+.sd-galerie{display:grid;gap:10px}
+.sd-grande{width:100%;aspect-ratio:4/5;object-fit:contain;background:#EFE6D8}
+.sd-vignettes{display:flex;gap:8px;overflow-x:auto}
+.sd-vignettes button{flex:none;width:58px;height:72px;padding:0;border:1px solid transparent;background:#EFE6D8;cursor:pointer}
+.sd-vignettes button[aria-pressed=true]{border-color:var(--noce)}
+.sd-vignettes img{width:100%;height:100%;object-fit:contain}
+.sd-texte{display:grid;gap:14px;margin-top:26px}
+.sd-titre{font-size:32px;line-height:1.1}
+.sd-texte .prix-ligne{margin-top:0}
+.sd-intro{color:rgba(58,37,25,.84)}
+.sd-tailles{display:grid;gap:10px;margin-top:6px}
+.sd-tailles .chips{display:flex;gap:8px}
+.sd-tailles .chips button{min-width:56px;height:46px;border:1px solid var(--filo);background:none;font:inherit;letter-spacing:.1em;cursor:pointer;transition:background .3s,color .3s}
+.sd-tailles .chips button[aria-pressed=true]{background:var(--noce);color:var(--avorio);border-color:var(--noce)}
+.sd-cta{display:grid;gap:8px;margin-bottom:8px}
+.sd-cta .btn{width:100%}
+.sd-cta small{font-size:12.5px;color:var(--tabacco);text-align:center}
+.sd-texte details{border-top:1px solid var(--filo);padding-block:14px}
+.sd-texte summary{cursor:pointer;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between}
+.sd-texte summary::-webkit-details-marker{display:none}
+.sd-texte summary::after{content:"+";font-size:15px;letter-spacing:0;color:var(--tabacco)}
+.sd-texte details[open] summary::after{content:"−"}
+.sd-texte dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:14px 0 0;font-size:14px}
+.sd-texte dt{color:var(--tabacco)}
+.sd-texte dd{margin:0}
+.sd-texte .texte{margin-top:12px;font-size:14px}
+.sd-texte table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;font-variant-numeric:tabular-nums}
+.sd-texte th,.sd-texte td{padding:7px 4px;border-bottom:1px solid var(--filo);text-align:center;font-weight:300}
+.sd-texte tbody th,.sd-texte thead th:first-child{text-align:left}
+.sd-page{justify-self:start;margin-top:6px}
 @media (max-width:700px){
   .salle-fiche{left:16px!important;right:16px;top:auto!important;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:auto}
+  .salle-detail{width:100%}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -488,8 +527,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     </div>
     <a class="marque" href="#haut">NOCELLI</a>
     <nav class="droite" aria-label="Compte">
-      <a href="membre.html" data-lien-compte>Mon compte</a>
-      <a class="cta" href="inscription.html">Inscription</a>
+      <a href="panier.html" data-panier>Panier</a>
+      <a class="cta" href="inscription.html" data-lien-compte>Inscription</a>
     </nav>
   </div>
 </header>
@@ -498,9 +537,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   <ul>
     <li><a href="#collection">Collection</a></li>
     <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-    <li><a href="inscription.html">Inscription</a></li>
+    <li><a href="inscription.html" data-lien-compte>Inscription</a></li>
     <li><a href="club.html">Private Club</a></li>
-    <li><a href="membre.html">Mon compte</a></li>
+    <li><a href="panier.html" data-panier>Panier</a></li>
   </ul>
   <p>Radici · Ouverture le 1er décembre</p>
 </div>
@@ -554,20 +593,6 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     </div>
   </section>
 
-  <section class="circolo" id="club">
-    <div class="wrap circolo-grid">
-      <div class="club-cartes" id="club-cartes" role="img" aria-label="Les cartes du Nocelli Private Club : Founders Club chocolat et or, Signature Club noir et or"></div>
-      <div>
-        <span class="eyebrow">Private Club</span>
-        <h2>Le Private Club</h2>
-        <ul class="formules-mini">
-          <li data-founders><div><strong>Founders Club</strong><span>Pour les 50 acheteurs du Cardigan Noce. Tous les avantages du club, offerts à vie.</span></div><b>Offert</b></li>
-          <li><div><strong>Signature Club</strong><span>50 membres. Collections 72 h avant, dîners privés et soirées à Genève.</span></div><b>CHF 290 / an</b></li>
-        </ul>
-        <div class="actions"><a class="btn plein" href="club.html#formules">Découvrir le Private Club</a><a class="lien" href="membre.html">Mon compte</a></div>
-      </div>
-    </div>
-  </section>
 </main>
 
 <div class="salle" id="salle" role="dialog" aria-modal="true" aria-label="La salle des collections" hidden>
@@ -580,6 +605,10 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     <span data-prix>CHF 139</span>
     <span class="lien">Voir la pièce</span>
   </a>
+  <aside class="salle-detail" id="salle-detail" aria-label="Fiche de la pièce" hidden>
+    <button class="salle-detail-fermer" type="button" aria-label="Fermer la fiche"></button>
+    <div class="sd-defile" data-contenu></div>
+  </aside>
 </div>
 
 <dialog class="guide" id="guide" aria-labelledby="guide-titre">
@@ -750,7 +779,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     function preparer(){
       if(!prete)prete=charger().then(function(m){
         salle.hidden=false;
-        return m.ouvrir({racine:salle,fiche:document.getElementById('salle-fiche'),reduit:reduit,aller:function(u){
+        return m.ouvrir({racine:salle,fiche:document.getElementById('salle-fiche'),reduit:reduit,ouvrirFiche:ouvrirFiche,aller:function(u){
           salle.classList.remove('visible');setTimeout(function(){location.href=u;},reduit?0:600);
         }});
       }).catch(function(e){prete=null;salle.hidden=true;throw e;});
@@ -792,6 +821,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     // Sortie : la caméra recule à travers la porte ; à mi-course la vidéo reprend sa place en fondu
     function sortir(depuisHistorique){
       if(!vue3d)return;
+      fermerFiche();
       var v=vue3d;vue3d=null;
       if(!depuisHistorique&&history.state&&history.state.coffre){try{history.back();}catch(e){}}
       v.quitter(function(){
@@ -802,8 +832,64 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     seuil.addEventListener('click',entrer);
     seuil.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();entrer();}});
     seuil.addEventListener('pointerenter',function(){preparer().catch(function(){});});
-    salle.querySelector('.salle-fermer').addEventListener('click',function(){sortir(false);});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vue3d&&!vue3d.echap())sortir(false);});
+    salle.querySelector('.salle-fermer').addEventListener('click',function(){fermerFiche();sortir(false);});
+    // Échap ferme d'abord la fiche, puis un tiroir ouvert, puis la salle
+    document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!vue3d)return;if(!detail.hidden){fermerFiche();return;}if(!vue3d.echap())sortir(false);});
+
+    // Fiche détaillée d'une pièce, dans la salle : photos, prix, taille, panier et détails, lus sur la page de la pièce
+    var detail=document.getElementById('salle-detail'),detailZone=detail.querySelector('[data-contenu]'),pagesLues={};
+    function lirePage(u){
+      if(!pagesLues[u])pagesLues[u]=fetch(u).then(function(r){return r.text();}).then(function(t){return new DOMParser().parseFromString(t,'text/html');});
+      return pagesLues[u];
+    }
+    function fermerFiche(){
+      if(detail.hidden)return;
+      detail.classList.remove('ouverte');setTimeout(function(){if(!detail.classList.contains('ouverte'))detail.hidden=true;},reduit?0:500);
+    }
+    detail.querySelector('.salle-detail-fermer').addEventListener('click',fermerFiche);
+    function ouvrirFiche(info){
+      detail.hidden=false;requestAnimationFrame(function(){detail.classList.add('ouverte');});
+      detailZone.innerHTML='<p class="sd-attente">· · ·</p>';
+      lirePage(info.url).then(function(doc){
+        var d=document.createElement('div'),pi=doc.querySelector('.piece-info')||doc.body,taille='';
+        function q(s){return pi.querySelector(s);}
+        // photos : toutes les vues de la page, sans doublon
+        var imgs=[];[].forEach.call(doc.querySelectorAll('.vues img, .vues [data-src]'),function(x){var s=x.getAttribute('data-src')||x.getAttribute('src');if(s&&imgs.indexOf(s)<0)imgs.push(s);});
+        if(!imgs.length)imgs=[info.image];
+        var g=document.createElement('div');g.className='sd-galerie';
+        var grande=document.createElement('img');grande.className='sd-grande';grande.src=imgs[0];grande.alt=info.nom;g.appendChild(grande);
+        var vign=document.createElement('div');vign.className='sd-vignettes';
+        imgs.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',i?'false':'true');b.setAttribute('aria-label','Vue '+(i+1));
+          var im=document.createElement('img');im.src=s;im.alt='';b.appendChild(im);
+          b.addEventListener('click',function(){grande.src=s;[].forEach.call(vign.children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});});vign.appendChild(b);});
+        g.appendChild(vign);d.appendChild(g);
+        var t=document.createElement('div');t.className='sd-texte';
+        [['.eyebrow','span','eyebrow'],['.titre-piece','h2','sd-titre'],['.prix-ligne','div','prix-ligne'],['.intro','p','sd-intro']].forEach(function(c){var x=q(c[0]);if(!x)return;var y=document.createElement(c[1]);y.className=c[2];y.innerHTML=x.innerHTML;t.appendChild(y);});
+        // taille et panier
+        var tl=document.createElement('div');tl.className='sd-tailles';tl.innerHTML='<span class="eyebrow">Taille</span><div class="chips" role="group" aria-label="Choisir la taille"></div>';
+        var chips=tl.querySelector('.chips'),src=[].slice.call(pi.querySelectorAll('.tailles-info .chips button'));
+        (src.length?src.map(function(x){return x.textContent.trim();}):['S','M','L']).forEach(function(s){var b=document.createElement('button');b.type='button';b.textContent=s;b.setAttribute('aria-pressed','false');
+          b.addEventListener('click',function(){taille=s;[].forEach.call(chips.children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});note.textContent=noteBase;});chips.appendChild(b);});
+        t.appendChild(tl);
+        var cta=document.createElement('div');cta.className='sd-cta';
+        cta.innerHTML='<button class="btn plein" type="button">Ajouter au panier</button><small>Réservé aux membres inscrits. Aucun paiement maintenant.</small>';
+        var note=cta.querySelector('small'),noteBase=note.textContent;
+        cta.querySelector('button').addEventListener('click',function(){
+          if(!taille){note.textContent='Choisissez d\'abord votre taille.';chips.animate&&chips.animate([{opacity:.4},{opacity:1}],{duration:600});return;}
+          if(window.NocelliPanier&&NocelliPanier.ajouter({ref:info.ref,nom:info.nom,taille:taille,prix:info.montant,image:info.image,url:info.url})){
+            note.innerHTML='';note.append('Ajouté au panier · taille '+taille+'. ');var a=document.createElement('a');a.href='panier.html';a.textContent='Voir le panier';note.appendChild(a);
+          }
+        });
+        t.appendChild(cta);
+        // guide des tailles et détails de la pièce (matière, numéro, livraison)
+        var tab=doc.querySelector('#guide table');
+        if(tab){var gd=document.createElement('details');gd.innerHTML='<summary>Guide des tailles</summary>';gd.appendChild(document.importNode(tab,true));t.appendChild(gd);}
+        [].forEach.call(pi.querySelectorAll('.fiche details'),function(x){var y=document.importNode(x,true);y.open=false;t.appendChild(y);});
+        var tout=document.createElement('a');tout.className='lien sd-page';tout.href=info.url;tout.textContent='Voir la page complète';t.appendChild(tout);
+        d.appendChild(t);
+        detailZone.innerHTML='';detailZone.appendChild(d);detailZone.scrollTop=0;
+      }).catch(function(){location.href=info.url;});
+    }
     addEventListener('popstate',function(){if(vue3d)sortir(true);});
     // retour depuis la fiche de la pièce : on retrouve la page d'accueil normale
     addEventListener('pageshow',function(e){if(e.persisted&&location.hash==='#coffre'){salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';dedans=false;if(vue3d){vue3d.arreter();vue3d=null;}}});
@@ -864,6 +950,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 </script>
 
 <script src="club/config.js"></script>
+<script src="js/panier.js"></script>
 <script src="club/assistant.js"></script><script src="club/offre.js"></script>
 <script src="js/langue.js"></script>
 

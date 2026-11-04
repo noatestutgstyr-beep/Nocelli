@@ -71,14 +71,12 @@
     if (a) a.insertAdjacentHTML('beforeend', ' &nbsp;<span class="mode-test" title="Démonstration : les données restent dans ce navigateur, aucun paiement réel">Mode test</span>');
   }
 
-  // « Mon compte » affiche le prénom quand on est connecté.
+  // « Inscription » devient le prénom une fois connecté (js/panier.js) ; ici, le nom du profil fait foi.
   // (après le chargement de la session quand le vrai serveur est branché)
   ((window.Club && window.Club.pret) || Promise.resolve()).then(function () {
     var s = window.Club && window.Club.session();
-    document.querySelectorAll('[data-lien-compte]').forEach(function (l) {
-      if (s) l.textContent = s.role === 'admin' ? 'Administration' : 'Mon compte';
-      if (s && s.role === 'admin') l.href = 'admin.html';
-    });
+    if (s && window.NocelliPanier) window.NocelliPanier.preciser(s);
+    if (s && s.role === 'admin') document.querySelectorAll('[data-lien-compte]').forEach(function (l) { l.textContent = 'Administration'; l.href = 'admin.html'; });
   });
 
   // Message affiché après l'envoi d'un lien de connexion (vrai serveur).

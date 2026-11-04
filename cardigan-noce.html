@@ -454,8 +454,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     </div>
     <a class="marque" href="index.html">NOCELLI</a>
     <nav class="droite" aria-label="Compte">
-      <a href="membre.html" data-lien-compte>Mon compte</a>
-      <a class="cta" href="inscription.html">Inscription</a>
+      <a href="panier.html" data-panier>Panier</a>
+      <a class="cta" href="inscription.html" data-lien-compte>Inscription</a>
     </nav>
   </div>
 </header>
@@ -464,9 +464,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
   <ul>
     <li><a href="index.html#collection">Collection</a></li>
     <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-    <li><a href="inscription.html">Inscription</a></li>
+    <li><a href="inscription.html" data-lien-compte>Inscription</a></li>
     <li><a href="club.html">Private Club</a></li>
-    <li><a href="membre.html">Mon compte</a></li>
+    <li><a href="panier.html" data-panier>Panier</a></li>
   </ul>
   <p>Radici · Ouverture le 1er décembre</p>
 </div>
@@ -501,13 +501,13 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
           <span class="prix-note">TVA incluse · Coloris chocolat</span>
         </div>
         <p class="intro">Cardigan zippé en mérinos extrafin, coupe ajustée. Sans logo à l'extérieur, numéroté au col.</p>
-        <div class="tailles-info">
+        <div class="tailles-info" id="choisir-taille">
           <div class="tailles-tete"><span class="eyebrow">Tailles</span><button type="button" class="guide-lien" data-guide>Comment choisir ma taille ?</button></div>
           <div class="chips" role="group" aria-label="Choisir la taille"><button type="button" aria-pressed="false">S</button><button type="button" aria-pressed="false">M</button><button type="button" aria-pressed="false">L</button></div>
         </div>
         <div class="cta">
-          <a class="btn plein" href="inscription.html" data-precommande>M'inscrire</a>
-          <small data-precommande-note>Gratuit. Aucun paiement maintenant.</small>
+          <button class="btn plein" type="button" data-ajouter>Ajouter au panier</button>
+          <small data-ajout-note>Réservé aux membres inscrits. Aucun paiement maintenant.</small>
         </div>
         <div class="fiche">
           <details open>
@@ -565,7 +565,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <span class="eyebrow">Le numéro</span>
       <blockquote>50 pièces, <em>chacune numérotée au col.</em></blockquote>
       <p>Pas de logo à l'extérieur. Votre numéro, de 01 à 50, est sur l'étiquette tissée à l'intérieur du col.</p>
-      <div><a class="lien" href="inscription.html">M'inscrire</a></div>
+      <div><a class="lien" href="#choisir-taille">Choisir ma taille</a></div>
     </div>
   </section>
 
@@ -574,9 +574,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <span class="eyebrow">Édition limitée</span>
       <div class="chiffre" aria-label="50 pièces">50<sup>pièces</sup></div>
       <h2>Cinquante pièces. Chacune porte son numéro.</h2>
-      <p>Trois tailles, S, M et L. Les inscrits reçoivent le lien de commande en premier.</p>
+      <p>Trois tailles, S, M et L. Les membres inscrits reçoivent le lien de commande en premier.</p>
       <ol class="etapes">
-        <li><b>I.</b><strong>La liste privée</strong><span>Inscrivez-vous. C'est gratuit et sans engagement.</span></li>
+        <li><b>I.</b><strong>Votre panier</strong><span>Créez votre compte et ajoutez votre taille au panier. C'est gratuit et sans engagement.</span></li>
         <li><b>II.</b><strong>L'ouverture</strong><span>Mardi 1er décembre à 19h00, heure suisse. Vous recevez le lien en premier.</span></li>
         <li><b>III.</b><strong>Votre numéro</strong><span>Cinquante pièces au total, livrées en Suisse 4 à 6 semaines après l'ouverture.</span></li>
       </ol>
@@ -682,42 +682,33 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 
 <div class="barre" id="barre">
   <div class="t"><b>Cardigan Noce</b><span data-barre>CHF 139 · 50 pièces</span></div>
-  <a class="btn plein" href="inscription.html" data-precommande>M'inscrire</a>
+  <button class="btn plein" type="button" data-ajouter>Ajouter au panier</button>
 </div>
 
 <script>
-/* Précommande payante (CHF 139). Coller ici les 3 liens de paiement Stripe (un par taille, chacun limité
-   à son nombre de pièces). Tant qu'un lien est vide, le bouton reste « M'inscrire » vers la liste privée. */
-var PRECOMMANDE={S:'',M:'',L:''};
+/* Ajouter au panier : choisir la taille, puis la pièce entre dans le panier du compte (js/panier.js).
+   Sans compte, la pièce est gardée de côté et on passe par l'inscription. Le paiement se fait depuis le panier. */
 (function(){
-  var ouvert=PRECOMMANDE.S||PRECOMMANDE.M||PRECOMMANDE.L, taille='';
-  var boutons=[].slice.call(document.querySelectorAll('[data-precommande]'));
-  var note=document.querySelector('[data-precommande-note]');
+  var taille='';
+  var boutons=[].slice.call(document.querySelectorAll('[data-ajouter]'));
+  var note=document.querySelector('[data-ajout-note]');
   var chips=[].slice.call(document.querySelectorAll('.tailles-info .chips button'));
-  if(!ouvert){
-    // Avant l'ouverture : la taille choisie suit jusqu'au formulaire de la liste privée.
-    chips.forEach(function(c){c.addEventListener('click',function(){
-      var t=c.textContent.trim();chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});
-      boutons.forEach(function(b){b.href='inscription.html';});
-    });});
-    return;
-  }
-  if(note)note.textContent='Carte ou TWINT. Livraison en Suisse 4 à 6 semaines après l\'ouverture.';
-  function maj(){
-    boutons.forEach(function(b){
-      if(taille&&PRECOMMANDE[taille]){b.href=PRECOMMANDE[taille];b.textContent='Précommander · '+taille+' · CHF 139';}
-      else{b.href='#choisir-taille';b.textContent='Précommander · CHF 139';}
-    });
-  }
-  chips.forEach(function(c){
-    var t=c.textContent.trim();
-    if(!PRECOMMANDE[t]){c.disabled=true;c.style.opacity='.35';c.title='Épuisé';return;}
-    c.addEventListener('click',function(){taille=t;chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});maj();});
-  });
-  boutons.forEach(function(b){b.addEventListener('click',function(e){
-    if(!taille){e.preventDefault();var z=document.querySelector('.tailles-info');z.scrollIntoView({behavior:'smooth',block:'center'});z.animate&&z.animate([{opacity:.4},{opacity:1}],{duration:700});}
+  var noteBase=note?note.textContent:'';
+  chips.forEach(function(c){c.addEventListener('click',function(){
+    taille=c.textContent.trim();chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});
+    if(note){note.textContent=noteBase;note.style.color='';}
   });});
-  maj();
+  boutons.forEach(function(b){b.addEventListener('click',function(){
+    if(!taille){
+      var z=document.querySelector('.tailles-info');z.scrollIntoView({behavior:'smooth',block:'center'});
+      z.animate&&z.animate([{opacity:.4},{opacity:1}],{duration:700});
+      if(note){note.textContent='Choisissez d\'abord votre taille.';note.style.color='var(--noce)';}
+      return;
+    }
+    if(!window.NocelliPanier)return;
+    var ok=NocelliPanier.ajouter({ref:'NC-01',nom:'Le Cardigan Noce',taille:taille,prix:139,image:'img/cardigan-face.webp',url:'cardigan-noce.html'});
+    if(ok&&note){note.innerHTML='';note.append('Ajouté au panier · taille '+taille+'. ');var a=document.createElement('a');a.href='panier.html';a.textContent='Voir le panier';note.appendChild(a);}
+  });});
 })();
 </script>
 <script src="js/v360.js"></script>
@@ -862,6 +853,7 @@ var PRECOMMANDE={S:'',M:'',L:''};
 
 
 <script src="club/config.js"></script>
+<script src="js/panier.js"></script>
 <script src="club/assistant.js"></script>
 <script src="js/langue.js"></script>
 </body>

@@ -39,8 +39,8 @@
     </div>
     <a class="marque" href="index.html">NOCELLI</a>
     <nav class="droite" aria-label="Compte">
-      <a href="membre.html" data-lien-compte>Mon compte</a>
-      <a class="cta" href="inscription.html" aria-current="page">Inscription</a>
+      <a href="panier.html" data-panier>Panier</a>
+      <a class="cta" href="inscription.html" aria-current="page" data-lien-compte>Inscription</a>
     </nav>
   </div>
 </header>
@@ -49,9 +49,9 @@
   <ul>
     <li><a href="index.html#collection">Collection</a></li>
     <li><a href="cardigan-noce.html">Le Cardigan Noce</a></li>
-    <li><a href="inscription.html">Inscription</a></li>
+    <li><a href="inscription.html" data-lien-compte>Inscription</a></li>
     <li><a href="club.html">Private Club</a></li>
-    <li><a href="membre.html">Mon compte</a></li>
+    <li><a href="panier.html" data-panier>Panier</a></li>
   </ul>
   <p>Founders · Signature</p>
 </div>
@@ -93,6 +93,7 @@
 <script src="club/donnees.js"></script>
 <script src="club/vendor/supabase.js"></script>
 <script src="club/config.js"></script>
+<script src="js/panier.js"></script>
 <script src="club/serveur.js"></script>
 <script src="club/commun.js"></script>
 <script>
@@ -101,8 +102,10 @@
 (function(){
   var Club=window.Club,NC=window.NC;
   var f=document.getElementById('f-inscription'),err=document.getElementById('i-err'),fait=document.getElementById('i-fait');
-  // déjà connecté (ou retour par le lien de confirmation) : direction l'espace membre
-  if(Club&&Club.pret)Club.pret.then(function(){if(Club.session())location.replace('membre.html');});
+  // déjà connecté (ou retour par le lien de confirmation) : vers le panier si une pièce y attendait, sinon l'espace membre
+  if(Club&&Club.pret)Club.pret.then(function(){if(!Club.session())return;var p=false;try{p=!!localStorage.getItem('nocelli-panier-ajoute');localStorage.removeItem('nocelli-panier-ajoute');}catch(e){}location.replace(p?'panier.html':'membre.html');});
+  // arrivée depuis « Ajouter au panier »
+  if(/[?&]panier=1/.test(location.search)){var n=document.createElement('p');n.className='note';n.style.marginTop='14px';n.textContent='Le panier est réservé aux membres inscrits. Créez votre compte : la pièce choisie vous attendra dans votre panier.';document.querySelector('.inscription .intro').after(n);}
   f.addEventListener('submit',function(ev){
     ev.preventDefault();
     var prenom=document.getElementById('i-prenom').value.trim(),nom=document.getElementById('i-nom').value.trim(),email=document.getElementById('i-email').value.trim();

@@ -12,7 +12,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 // Ordre des rayons : fond au centre, fond gauche, fond droite, côté gauche (fond puis avant), côté droit (fond puis avant)
 var COLLECTIONS = [
   { nom: 'Radici', sous: 'Autunno 2026', pieces: [
-    { nom: 'Le Cardigan Noce', num: 'N° 01 / 50', prix: 'CHF 139', url: 'cardigan-noce.html', modele: 'img/360/' }
+    { nom: 'Le Cardigan Noce', num: 'N° 01 / 50', prix: 'CHF 139', url: 'cardigan-noce.html', modele: 'img/360/',
+      ref: 'NC-01', montant: 139, image: 'img/cardigan-face.webp' }
   ] },
   { nom: 'Seconda Edizione', sous: 'In arrivo' },
   { nom: 'Terza Edizione', sous: 'In arrivo' },
@@ -483,7 +484,8 @@ export async function ouvrir(o) {
       requestAnimationFrame(function () { fiche.classList.add('visible'); });
     } else fiche.classList.remove('visible');
   }
-  function aller(p) { if (p && entree >= 1) o.aller(p.info.url); }
+  // une pièce choisie ouvre sa fiche détaillée sans quitter la salle (sinon, sa page)
+  function aller(p) { if (!p || entree < 1) return; if (o.ouvrirFiche) o.ouvrirFiche(p.info); else o.aller(p.info.url); }
   canvas.addEventListener('pointermove', function (e) {
     var r = canvas.getBoundingClientRect();
     if (e.pointerType === 'mouse') { souris.set((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1); dernier = [e.clientX, e.clientY]; }
@@ -518,6 +520,7 @@ export async function ouvrir(o) {
   fiche.addEventListener('pointerenter', function () { surFiche = true; });
   fiche.addEventListener('pointerleave', function (e) { surFiche = false; if (e.relatedTarget !== canvas) { dernier = null; choisir(null); } });
   fiche.addEventListener('focus', function () { if (!survol && pieces[0]) choisir(pieces[0]); });
+  fiche.addEventListener('click', function (e) { if (survol && o.ouvrirFiche) { e.preventDefault(); o.ouvrirFiche(survol.info); } });
 
   // ---------- Animation ----------
   var horloge = new THREE.Clock(), raf = 0, vec = new THREE.Vector3(), cam = new THREE.Vector3(), regardCible = new THREE.Vector3();

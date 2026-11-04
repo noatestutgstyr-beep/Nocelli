@@ -34,22 +34,22 @@
     var carte = params.get('carte');
     app.innerHTML =
       '<section class="connexion"><div class="wrap connexion-grid"><div>' +
-      '<span class="eyebrow apparait">Mon compte</span>' +
-      '<h1 class="apparait d1">Mon compte Nocelli</h1>' +
+      '<span class="eyebrow apparait">Connexion</span>' +
+      '<h1 class="apparait d1">Se connecter</h1>' +
       (carte ? '<p class="apparait d2" style="margin-top:18px;max-width:46ch">Vous avez scanné une carte du Private Club. Pour ouvrir l’espace membre, connectez-vous avec l’adresse de votre compte. La carte seule ne donne accès à rien.</p>' :
         '<p class="apparait d2" style="margin-top:18px;max-width:46ch">Votre carte, vos avant-premières, vos invitations et vos commandes.</p>') +
       '<form id="f-cnx" class="apparait d3" novalidate>' +
-      '<div class="champ"><label for="c-email">E-mail</label><input id="c-email" type="email" inputmode="email" autocomplete="email" placeholder="vous@exemple.ch"></div>' +
-      '<div class="champ"><label for="c-nom">Prénom et nom <span style="letter-spacing:0;text-transform:none">(nouveau compte)</span></label><input id="c-nom" autocomplete="name" placeholder="Lorenzo Bianchi"></div>' +
+      '<div class="champ"><label for="c-email">E-mail</label><input id="c-email" type="email" inputmode="email" autocomplete="email"></div>' +
       '<p class="erreur" id="c-err" role="alert"></p>' +
       '<button class="btn plein" type="submit">Recevoir mon lien de connexion</button>' +
       '<p class="note">Pas de mot de passe : nous vous envoyons un lien de connexion par e-mail.' + (Club.modeTest ? ' <span class="mode-test">Mode test</span> ici, la connexion est immédiate.' : '') + '</p>' +
+      '<p class="note">Pas encore de compte ? <a href="inscription.html">Inscription</a></p>' +
       '</form></div><div class="apercu" id="apercu" aria-hidden="true"></div></div></section>';
     var ap = document.getElementById('apercu');
     ['founders', 'signature'].forEach(function (c) { ap.appendChild(C.creer({ categorie: c, numero: 1, retournable: false, vivante: false })); });
     document.getElementById('f-cnx').addEventListener('submit', function (ev) {
       ev.preventDefault();
-      Club.connexion(document.getElementById('c-email').value, document.getElementById('c-nom').value.trim()).then(function (r) {
+      Club.connexion(document.getElementById('c-email').value, '').then(function (r) {
         if (r && r.lienEnvoye) { document.getElementById('f-cnx').innerHTML = '<div style="display:grid;gap:14px">' + NC.lienEnvoye(r.email) + '</div>'; return; }
         rendre();
       }, function (err) {
@@ -66,6 +66,7 @@
       '<section class="titre-page"><div class="wrap">' +
       '<span class="eyebrow">Mon adhésion</span>' +
       '<h1>' + (prenom ? 'Bonjour, ' + e(prenom) + '.' : 'Bonjour.') + '</h1>' +
+      '<p style="margin-top:10px;color:var(--tabacco)">' + e(c.email) + '</p>' +
       '<nav class="sous-nav" aria-label="Espace membre"><a href="#adhesion">Ma carte</a><a href="#collections">Collections</a>' +
       (d.membre ? '<a href="#evenements">Événements privés</a>' : '') + '<a href="#commandes">Mes commandes</a><button type="button" id="deco">Se déconnecter</button></nav>' +
       '</div></section>';
