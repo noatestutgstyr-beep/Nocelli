@@ -1,6 +1,6 @@
 /* Nocelli : la salle du coffre (Three.js).
    On franchit la porte du coffre et on arrive devant une armoire en U : un rayon par collection.
-   Chaque pièce pend à un cintre ; au survol elle se tourne et s'incline vers le visiteur, un clic ouvre sa fiche.
+   Chaque pièce pend à un cintre ; au survol elle se tourne et s'incline vers le visiteur, et sa fiche complète apparaît à côté.
    Pour ajouter une collection ou une pièce, il suffit de compléter COLLECTIONS ci-dessous. */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -476,16 +476,13 @@ export async function ouvrir(o) {
     survol = p; if (p) { p.cible = 1; p.proxy.scale.setScalar(1.4); }
     canvas.style.cursor = p ? 'pointer' : '';
     if (p) {
-      fiche.href = p.info.url;
-      fiche.querySelector('[data-num]').textContent = p.info.num;
-      fiche.querySelector('[data-nom]').textContent = p.info.nom;
-      fiche.querySelector('[data-prix]').textContent = p.info.prix;
+      if (o.remplirFiche) o.remplirFiche(p.info);
       fiche.hidden = false;
       requestAnimationFrame(function () { fiche.classList.add('visible'); });
     } else fiche.classList.remove('visible');
   }
-  // une pièce choisie ouvre sa fiche détaillée sans quitter la salle (sinon, sa page)
-  function aller(p) { if (!p || entree < 1) return; if (o.ouvrirFiche) o.ouvrirFiche(p.info); else o.aller(p.info.url); }
+  // tout est dans la fiche du survol : un clic sur la pièce n'ouvre une page que si la salle n'a pas de fiche
+  function aller(p) { if (p && entree >= 1 && !o.remplirFiche) o.aller(p.info.url); }
   canvas.addEventListener('pointermove', function (e) {
     var r = canvas.getBoundingClientRect();
     if (e.pointerType === 'mouse') { souris.set((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1); dernier = [e.clientX, e.clientY]; }
@@ -509,7 +506,7 @@ export async function ouvrir(o) {
     if (c.tiroir) { basculer(c.tiroir); return; }
     if (!p && tiroirOuvert) { basculer(tiroirOuvert); }
     if (e.pointerType === 'mouse') { aller(p); return; }
-    // au doigt : un premier toucher présente la pièce, le second ouvre sa fiche
+    // au doigt : un toucher présente la pièce et sa fiche
     if (p && p === survol) aller(p); else choisir(p);
   });
   canvas.addEventListener('pointercancel', function () { glisse = null; });
@@ -520,7 +517,6 @@ export async function ouvrir(o) {
   fiche.addEventListener('pointerenter', function () { surFiche = true; });
   fiche.addEventListener('pointerleave', function (e) { surFiche = false; if (e.relatedTarget !== canvas) { dernier = null; choisir(null); } });
   fiche.addEventListener('focus', function () { if (!survol && pieces[0]) choisir(pieces[0]); });
-  fiche.addEventListener('click', function (e) { if (survol && o.ouvrirFiche) { e.preventDefault(); o.ouvrirFiche(survol.info); } });
 
   // ---------- Animation ----------
   var horloge = new THREE.Clock(), raf = 0, vec = new THREE.Vector3(), cam = new THREE.Vector3(), regardCible = new THREE.Vector3();
@@ -608,7 +604,8 @@ export async function ouvrir(o) {
       survol.pivot.getWorldPosition(vec); vec.y -= .42 * ECHELLE;
       vec.project(camera);
       var w = racine.clientWidth, h = racine.clientHeight, sx = (vec.x + 1) / 2 * w, sy = (1 - vec.y) / 2 * h;
-      if (w > 700) { fiche.style.left = Math.min(w - 300, sx + Math.min(240, w * .14)) + 'px'; fiche.style.top = Math.max(90, Math.min(h - 240, sy - 70)) + 'px'; }
+      var fw = fiche.offsetWidth || 340, fh = fiche.offsetHeight || 420;
+      if (w > 700) { fiche.style.left = Math.min(w - fw - 20, sx + Math.min(220, w * .13)) + 'px'; fiche.style.top = Math.max(80, Math.min(h - fh - 20, sy - fh / 2)) + 'px'; }
       else { fiche.style.left = ''; fiche.style.top = ''; }
     }
     if (composer) composer.render(); else renderer.render(scene, camera);
