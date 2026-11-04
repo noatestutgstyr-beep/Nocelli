@@ -452,7 +452,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .salle{position:fixed;inset:0;z-index:90;background:#0b0705;color:var(--avorio);opacity:0;visibility:hidden;transition:opacity .8s ease,visibility 0s linear .8s;overscroll-behavior:contain}
 .salle.visible{opacity:1;visibility:visible;transition:opacity .75s cubic-bezier(.4,0,.2,1),visibility 0s}
 .salle canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
-.salle-marque{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-family:var(--display);font-size:15px;letter-spacing:.5em;margin-right:-.5em;color:rgba(228,209,176,.7);pointer-events:none}
+.salle-marque{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-family:var(--display);font-size:15px;letter-spacing:.5em;margin-right:-.5em;color:rgba(228,209,176,.7);pointer-events:none;text-align:center}
+.salle-marque small{display:block;margin-top:6px;font-family:var(--body);font-size:9px;letter-spacing:.42em;color:rgba(228,209,176,.55)}
 .salle-fermer{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));width:48px;height:48px;border-radius:50%;border:1px solid rgba(228,209,176,.32);background:rgba(20,12,8,.35);cursor:pointer;transition:border-color .4s,background .4s}
 .salle-fermer:hover{border-color:rgba(228,209,176,.8);background:rgba(20,12,8,.6)}
 .salle-fermer::before,.salle-fermer::after{content:"";position:absolute;left:15px;right:15px;top:50%;height:1px;background:var(--crema);transform:rotate(45deg)}
@@ -470,14 +471,10 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 .sf-specs{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:4px 0 0;padding-top:14px;border-top:1px solid rgba(228,209,176,.2);font-size:12.5px;line-height:1.5}
 .sf-specs dt{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--crema);padding-top:2px}
 .sf-specs dd{margin:0;color:rgba(247,243,236,.88)}
-.sf-tailles{display:flex;gap:8px;padding-top:4px}
-.sf-tailles button{flex:1;height:40px;border:1px solid rgba(228,209,176,.4);background:none;color:var(--avorio);font:inherit;font-size:13px;letter-spacing:.1em;cursor:pointer;transition:background .3s,color .3s,border-color .3s}
-.sf-tailles button:hover{border-color:var(--crema)}
-.sf-tailles button[aria-pressed=true]{background:var(--crema);color:var(--noce-scuro);border-color:var(--crema)}
-.sf-ajout{width:100%;min-height:46px;background:var(--crema);color:var(--noce-scuro);border-color:var(--crema)}
+.sf-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sf-photos img{width:100%;aspect-ratio:4/5;object-fit:contain;background:rgba(236,227,213,.92)}
+.sf-ajout{width:100%;min-height:46px;margin-top:4px;background:var(--crema);color:var(--noce-scuro);border-color:var(--crema)}
 .sf-ajout:hover{background:var(--avorio);border-color:var(--avorio)}
-.sf-msg{font-size:11.5px;text-align:center;color:rgba(228,209,176,.75)}
-.sf-msg a{color:var(--crema)}
 @media (max-width:700px){
   .salle-fiche{left:16px!important;right:16px;top:auto!important;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:auto;max-height:58vh}
 }
@@ -571,9 +568,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 
 </main>
 
-<div class="salle" id="salle" role="dialog" aria-modal="true" aria-label="La salle des collections" hidden>
+<div class="salle" id="salle" role="dialog" aria-modal="true" aria-label="L'Armadio, la salle des collections" hidden>
   <canvas tabindex="-1" aria-hidden="true"></canvas>
-  <span class="salle-marque" aria-hidden="true">NOCELLI</span>
+  <span class="salle-marque" aria-hidden="true">NOCELLI<small>L'Armadio</small></span>
   <button class="salle-fermer" type="button" aria-label="Quitter le coffre"></button>
   <div class="salle-fiche" id="salle-fiche" aria-live="polite">
     <span class="eyebrow" data-num>N° 01 / 50</span>
@@ -746,14 +743,14 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       if(!module)module=import('./js/salle.js').catch(function(e){module=null;throw e;});
       return module;
     }
+    // quitter la salle vers une page : fondu, puis la page
+    function allerVers(u){salle.classList.remove('visible');setTimeout(function(){location.href=u;},reduit?0:600);}
     // la salle se construit en coulisses dès que la porte est ouverte : au clic, tout est déjà prêt (pas d'à-coup)
     var prete=null;
     function preparer(){
       if(!prete)prete=charger().then(function(m){
         salle.hidden=false;
-        return m.ouvrir({racine:salle,fiche:document.getElementById('salle-fiche'),reduit:reduit,remplirFiche:remplirFiche,aller:function(u){
-          salle.classList.remove('visible');setTimeout(function(){location.href=u;},reduit?0:600);
-        }});
+        return m.ouvrir({racine:salle,fiche:document.getElementById('salle-fiche'),reduit:reduit,remplirFiche:remplirFiche,aller:allerVers});
       }).catch(function(e){prete=null;salle.hidden=true;throw e;});
       return prete;
     }
@@ -813,9 +810,11 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       if(!pagesLues[u])pagesLues[u]=fetch(u).then(function(r){return r.text();}).then(function(t){return new DOMParser().parseFromString(t,'text/html');});
       return pagesLues[u];
     }
+    // Fiche de la pièce survolée : quelques photos, l'essentiel, puis « Précommander » vers sa page
+    var ESSENTIEL=['Matière','Maille','Col','Fermeture','Fabrication'];
     function remplirFiche(info){
       if(ficheInfo===info)return;ficheInfo=info;
-      var taille='',zone=ficheEl.querySelector('[data-details]');
+      var zone=ficheEl.querySelector('[data-details]');
       ficheEl.querySelector('[data-num]').textContent=info.num;
       ficheEl.querySelector('[data-nom]').textContent=info.nom;
       ficheEl.querySelector('[data-prix]').textContent=info.prix;
@@ -824,30 +823,34 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
         if(ficheInfo!==info)return;
         var pi=doc.querySelector('.piece-info')||doc.body,intro=pi.querySelector('.intro'),note=pi.querySelector('.prix-note');
         if(note){var n=document.createElement('span');n.className='sf-note';n.textContent=note.textContent;zone.appendChild(n);}
+        // quatre petites photos de la page de la pièce
+        var imgs=[];[].forEach.call(doc.querySelectorAll('.vues img'),function(x){var s=x.getAttribute('src');if(s&&imgs.indexOf(s)<0)imgs.push(s);});
+        if(imgs.length){var g=document.createElement('div');g.className='sf-photos';imgs.slice(0,4).forEach(function(s){var im=document.createElement('img');im.src=s;im.alt='';g.appendChild(im);});zone.appendChild(g);}
         if(intro){var p=document.createElement('p');p.className='sf-intro';p.textContent=intro.textContent;zone.appendChild(p);}
-        // taille et panier
-        var tl=document.createElement('div');tl.className='sf-tailles';
-        var src=[].slice.call(pi.querySelectorAll('.tailles-info .chips button')).map(function(x){return x.textContent.trim();});
-        (src.length?src:['S','M','L']).forEach(function(s){var b=document.createElement('button');b.type='button';b.textContent=s;b.setAttribute('aria-pressed','false');
-          b.addEventListener('click',function(){taille=s;[].forEach.call(tl.children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});msg.textContent=msgBase;});tl.appendChild(b);});
-        zone.appendChild(tl);
-        var ajout=document.createElement('button');ajout.type='button';ajout.className='btn sf-ajout';ajout.textContent='Ajouter au panier';zone.appendChild(ajout);
-        var msg=document.createElement('small');msg.className='sf-msg';msg.textContent='Réservé aux membres inscrits. Aucun paiement maintenant.';var msgBase=msg.textContent;zone.appendChild(msg);
-        ajout.addEventListener('click',function(){
-          if(!taille){msg.textContent='Choisissez d\'abord votre taille.';tl.animate&&tl.animate([{opacity:.4},{opacity:1}],{duration:600});return;}
-          if(window.NocelliPanier&&NocelliPanier.ajouter({ref:info.ref,nom:info.nom,taille:taille,prix:info.montant,image:info.image,url:info.url})){
-            msg.innerHTML='';msg.append('Ajouté au panier · taille '+taille+'. ');var a=document.createElement('a');a.href='panier.html';a.textContent='Voir le panier';msg.appendChild(a);
-          }
-        });
-        // spécificités : « Matière et façon » de la page, sous le panier
+        // les caractéristiques importantes seulement
         var dl=pi.querySelector('.fiche dl');
-        if(dl){var d=document.importNode(dl,true);d.className='sf-specs';zone.appendChild(d);}
+        if(dl){
+          var d=document.createElement('dl');d.className='sf-specs';
+          [].forEach.call(dl.querySelectorAll('dt'),function(dt){if(ESSENTIEL.indexOf(dt.textContent.trim())<0)return;var dd=dt.nextElementSibling;d.appendChild(document.importNode(dt,true));if(dd)d.appendChild(document.importNode(dd,true));});
+          if(d.children.length)zone.appendChild(d);
+        }
+        var b=document.createElement('a');b.className='btn sf-ajout';b.href=info.url+'?depuis=armadio';b.textContent='Précommander';
+        b.addEventListener('click',function(e){e.preventDefault();allerVers(b.getAttribute('href'));});
+        zone.appendChild(b);
       }).catch(function(){});
     }
     addEventListener('popstate',function(){if(vue3d)sortir(true);});
     // retour depuis la fiche de la pièce : on retrouve la page d'accueil normale
     addEventListener('pageshow',function(e){if(e.persisted&&location.hash==='#coffre'){salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';dedans=false;if(vue3d){vue3d.arreter();vue3d=null;}}});
     if(location.hash==='#coffre')try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+    // « Revenir à l'Armadio » depuis une pièce : la porte est déjà ouverte, on rentre directement dans la salle
+    if(location.hash==='#armadio'){
+      try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+      coffre.removeAttribute('autoplay');coffre.pause();coffre.poster='img/coffre-fin.jpg';
+      var finVideo=function(){try{coffre.currentTime=coffre.duration||999;}catch(e){}};
+      if(coffre.readyState>=1)finVideo();else coffre.addEventListener('loadedmetadata',finVideo,{once:true});
+      ouvrirSeuil();preparer().then(entrer).catch(function(){});
+    }
   }
 
   // Vues de la pièce et loupe

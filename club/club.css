@@ -50,6 +50,11 @@ header.tete{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backgrou
 .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--head)}
 .nav nav{display:flex;gap:30px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase}
 .nav nav a{white-space:nowrap}
+/* Retour à l'accueil, en haut de chaque page autre que l'accueil */
+.retour{padding-top:18px}
+.retour a{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;text-decoration:none;color:var(--tabacco);transition:color .3s}
+.retour a::before{content:"←";font-size:14px;letter-spacing:0}
+.retour a:hover{color:var(--noce)}
 @media (max-width:1180px){.nav nav{gap:20px;letter-spacing:.2em}}
 .nav nav a{text-decoration:none;opacity:.75;transition:opacity .3s}
 .nav nav a:hover,.nav nav a[aria-current=page]{opacity:1}

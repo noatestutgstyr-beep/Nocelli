@@ -69,17 +69,15 @@
 .verrou h3{font-size:26px;margin-top:8px}
 .verrou p{color:rgba(247,243,236,.78);margin-top:8px;max-width:52ch}
 
-.connexion{padding-block:clamp(70px,10vw,140px)}
-.connexion-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,7vw,110px);align-items:center}
-.connexion-grid > *{min-width:0}
-.connexion h1{font-size:clamp(36px,4.4vw,60px);line-height:1.05;margin-top:16px}
-.connexion form{display:grid;gap:24px;margin-top:34px;max-width:440px}
+/* Connexion : une seule chose sur la page, comme l'inscription */
+.connexion{min-height:calc(100svh - 240px);display:grid;align-items:center;padding-block:clamp(64px,9vw,130px)}
+.connexion .wrap{width:100%;max-width:560px}
+.connexion h1{font-size:clamp(36px,4.4vw,58px);line-height:1.05;margin-top:16px}
+.connexion .intro{margin-top:18px;max-width:44ch;color:rgba(58,37,25,.8)}
+.connexion form{display:grid;gap:24px;margin-top:40px}
 .connexion .note{font-size:13px;color:var(--tabacco);max-width:46ch}
-.connexion .apercu{position:relative;aspect-ratio:1.2/1}
-.connexion .apercu .carte{position:absolute;width:70%}
-.connexion .apercu .carte:nth-child(1){left:2%;top:4%;transform:rotate(-7deg)}
-.connexion .apercu .carte:nth-child(2){left:26%;top:22%;transform:rotate(4deg)}
-.connexion .apercu .carte:nth-child(3){left:12%;top:44%;transform:rotate(-2deg)}
+.connexion .deja{margin-top:34px;padding-top:22px;border-top:1px solid var(--filo);font-size:14px;color:var(--tabacco)}
+.connexion .deja a{color:var(--noce)}
 
 table.cmd{width:100%;border-collapse:collapse;font-size:14.5px}
 table.cmd th,table.cmd td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--filo)}
@@ -87,13 +85,11 @@ table.cmd th{font-weight:400;font-size:10.5px;letter-spacing:.22em;text-transfor
 .defile-x{overflow-x:auto;position:relative}
 
 @media (max-width:960px){
-  .adhesion,.connexion-grid{grid-template-columns:1fr}
+  .adhesion{grid-template-columns:1fr}
   .avantages{grid-template-columns:1fr}
   .item,.verrou{grid-template-columns:1fr}
   .item .droite{justify-items:start;text-align:left}
-  .tailles-achat{justify-content:flex-start}
-  .connexion .apercu{max-width:480px}
-}
+  .tailles-achat{justify-content:flex-start}}
 @media (max-width:520px){
   .fiche div{grid-template-columns:1fr;gap:2px}
 }
@@ -130,6 +126,7 @@ table.cmd th{font-weight:400;font-size:10.5px;letter-spacing:.22em;text-transfor
   <p>Founders · Signature</p>
 </div>
 
+<div class="wrap retour"><a href="index.html" data-retour>Accueil</a></div>
 <main id="app">
   <!-- Rempli par club/page-membre.js -->
   <section class="connexion"><div class="wrap"><span class="eyebrow">Chargement</span></div></section>
