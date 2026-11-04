@@ -187,13 +187,39 @@ export async function ouvrir(o) {
   for (i = 0; i <= 24; i++) { a = i / 24; var ang = Math.PI * 1.25 * a - Math.PI * .25; crochet.push(new THREE.Vector3(Math.cos(ang) * .026 - .0, Math.sin(ang) * .026 + .0, 0)); }
   crochet.push(new THREE.Vector3(-.026, -.01, 0), new THREE.Vector3(-.02, -.03, 0), new THREE.Vector3(0, -.045, 0));
   var geoCrochet = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(crochet), 48, .0035, 8, false);
-  function cintre() {
-    var g = new THREE.Group();
+  // corps : la barre du cintre (par défaut, celle des cintres vides) ; le crochet descend jusqu'à son milieu
+  function cintre(corps) {
+    var g = new THREE.Group(), geo = corps ? corps.geo : geoCintre, bouts = corps ? corps.bouts : [new THREE.Vector3(-.148, -.106, 0), new THREE.Vector3(.148, -.106, 0)];
+    var milieu = corps ? corps.milieu : -.058;
     var c = new THREE.Mesh(geoCrochet, matLaiton); c.position.y = -.002; c.rotation.y = Math.PI / 2; c.castShadow = true; g.add(c);
-    var b = new THREE.Mesh(geoCintre, matCintre); b.castShadow = true; g.add(b);
-    [-.148, .148].forEach(function (x) { var s = new THREE.Mesh(geoBout, matCintre); s.position.set(x, -.106, 0); g.add(s); });
-    var n = new THREE.Mesh(new THREE.CylinderGeometry(.007, .007, .02, 10), matLaiton); n.position.y = -.05; g.add(n);
+    var b = new THREE.Mesh(geo, matCintre); b.castShadow = true; g.add(b);
+    bouts.forEach(function (p) { var s = new THREE.Mesh(corps ? corps.geoBout : geoBout, matCintre); s.position.copy(p); g.add(s); });
+    var h = Math.max(.01, -.045 - milieu), n = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, h, 10), matLaiton);
+    n.position.y = -.045 - h / 2; g.add(n);
     return g;
+  }
+  // Barre de cintre qui épouse l'intérieur des épaules du vêtement : sous le dessus de la maille,
+  // entre le devant et le dos, et qui s'arrête avant le bout des épaules (rien ne dépasse)
+  function corpsSur(g, s, y0) {
+    var raw = atob(g.d), rx = atob(g.ox), ry = atob(g.oy), haut = [];
+    for (var i = 0; i < g.nx; i++) for (var j = 0; j < g.ny; j++) {
+      var k = j * g.nx + i;
+      if (raw.charCodeAt(k) === 255) continue;
+      haut.push({ x: g.gx0 + i * g.step + (rx.charCodeAt(k) << 24 >> 24) - g.cx, y: g.ymid - (g.gy0 + j * g.step + (ry.charCodeAt(k) << 24 >> 24)), z: g.c[j] });
+      break;
+    }
+    function pres(x) { return haut.reduce(function (m, p) { return Math.abs(p.x - x) < Math.abs(m.x - x) ? p : m; }); }
+    // dessus moyen des deux côtés, pour un cintre symétrique
+    function dessus(x) { var a = pres(x), b = pres(-x); return { y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 }; }
+    var epaule = g.arms && g.arms[0] ? Math.abs(g.arms[0].xc[0]) : 280, fin = epaule * .8, marge = .022 / s;
+    var p40 = dessus(fin * .4), p70 = dessus(fin * .7), p100 = dessus(fin);
+    // au milieu, le col monte : la barre prolonge la pente des épaules au lieu de le suivre
+    var milieu = { y: p40.y + (p40.y - p70.y) * .45, z: (p40.z + p70.z) / 2 };
+    var pts = [[-1, p100], [-.7, p70], [-.4, p40], [0, milieu], [.4, p40], [.7, p70], [1, p100]].map(function (q) {
+      return new THREE.Vector3(q[0] * fin * s, y0 + (q[1].y - marge) * s, q[1].z * s);
+    });
+    return { geo: new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 64, .0065, 12, false), geoBout: new THREE.SphereGeometry(.0065, 12, 8),
+      bouts: [pts[0], pts[6]], milieu: pts[3].y };
   }
 
   // ---------- Vêtement : le volume reconstruit de la visionneuse 360° (img/360/) ----------
@@ -312,7 +338,7 @@ export async function ouvrir(o) {
       var yEpaule = g.arms && g.arms[0] ? g.ymid - g.arms[0].y[0] : g.ymid - g.fy0 - 180;
       m.position.y = -.112 - yEpaule * s;
       m.castShadow = true; m.receiveShadow = true;
-      return m;
+      return { vetement: m, cintre: cintre(corpsSur(g, s, m.position.y)) };
     });
   }
 
@@ -361,14 +387,18 @@ export async function ouvrir(o) {
         var px = x + (nb === 1 ? 0 : (j - (nb - 1) / 2) * ecart);
         var pivot = new THREE.Group(); pivot.position.set(px, Y_TRINGLE + .028 * ECHELLE, -D / 2); pivot.rotation.order = 'YXZ'; g.add(pivot);
         pivot.scale.setScalar(ECHELLE);
-        pivot.add(cintre());
         // comme dans une vraie armoire : la pièce pend perpendiculaire à la tringle, l'épaule vers le visiteur
         var etat = { pivot: pivot, x: px, rayon: r, t: 0, v: 0, cible: 0, repos: -Math.PI / 2 + .1, ph: Math.random() * 6.28, info: liste[j] || null };
+        // cintre vide ; celui d'une pièce est taillé à ses épaules une fois le vêtement chargé
+        etat.cintre = cintre(); pivot.add(etat.cintre);
         pivot.rotation.y = etat.repos;
         if (etat.info) {
           var proxy = new THREE.Mesh(new THREE.BoxGeometry(.5, .72, .5), matInvisible); proxy.position.y = -.4; proxy.userData.piece = etat; pivot.add(proxy);
           etat.proxy = proxy; pieces.push(etat);
-          attentes.push(vetement(etat.info.modele).then(function (m) { this.pivot.add(m); }.bind(etat)).catch(function () {}));
+          attentes.push(vetement(etat.info.modele).then(function (v) {
+            this.pivot.remove(this.cintre); this.cintre = v.cintre;
+            this.pivot.add(v.vetement); this.pivot.add(v.cintre);
+          }.bind(etat)).catch(function () {}));
         }
         r.pieces.push(etat);
       }
