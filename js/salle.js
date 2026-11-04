@@ -11,7 +11,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 // Ordre des rayons : fond au centre, fond gauche, fond droite, côté gauche (fond puis avant), côté droit (fond puis avant)
 var COLLECTIONS = [
-  { nom: 'Prima Edizione', sous: 'Autunno 2026', pieces: [
+  { nom: 'Radici', sous: 'Autunno 2026', pieces: [
     { nom: 'Le Cardigan Noce', num: 'N° 01 / 50', prix: 'CHF 139', url: 'cardigan-noce.html', modele: 'img/360/' }
   ] },
   { nom: 'Seconda Edizione', sous: 'In arrivo' },
