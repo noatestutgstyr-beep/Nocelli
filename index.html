@@ -6,6 +6,8 @@
 <title>Nocelli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Nocelli, pièces en séries numérotées. La collection d'automne sort le mardi 1er décembre à 19h00, heure suisse. Inscription par e-mail pour commander.">
+<script>/* Retour vers l'Armadio : le voile ivoire couvre la page dès le premier instant, puis s'efface sur la salle */if(location.hash==="#armadio")document.documentElement.classList.add("vers-armadio");</script>
+<style>html.vers-armadio,html.vers-armadio body{background:#F7F3EC}html.vers-armadio header,html.vers-armadio main,html.vers-armadio footer,html.vers-armadio .barre{visibility:hidden}html.vers-armadio .voile-page{opacity:1;visibility:visible;transition:none}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -451,6 +453,14 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 /* La salle des collections, en 3D, par-dessus toute la page */
 .salle{position:fixed;inset:0;z-index:90;background:#0b0705;color:var(--avorio);opacity:0;visibility:hidden;transition:opacity .8s ease,visibility 0s linear .8s;overscroll-behavior:contain}
 .salle.visible{opacity:1;visibility:visible;transition:opacity .75s cubic-bezier(.4,0,.2,1),visibility 0s}
+.salle.direct{transition:none}
+/* Voile ivoire entre la salle et la page d'une pièce : le passage se fait sans rien laisser voir derrière */
+.voile-page{position:fixed;inset:0;z-index:200;background:var(--avorio);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .42s ease,visibility 0s linear .42s}
+.voile-page.actif{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .42s ease,visibility 0s}
+/* pendant que l'Armadio se prépare au retour : le nom de la maison respire au centre du voile */
+.voile-page span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--display);font-size:18px;letter-spacing:.5em;margin-right:-.5em;color:var(--noce);opacity:0}
+html.vers-armadio .voile-page span{animation:voile-souffle 2s ease-in-out .3s infinite}
+@keyframes voile-souffle{0%,100%{opacity:0}50%{opacity:.5}}
 .salle canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
 .salle-marque{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-family:var(--display);font-size:15px;letter-spacing:.5em;margin-right:-.5em;color:rgba(228,209,176,.7);pointer-events:none;text-align:center}
 .salle-marque small{display:block;margin-top:6px;font-family:var(--body);font-size:9px;letter-spacing:.42em;color:rgba(228,209,176,.55)}
@@ -579,6 +589,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     <div class="sf-details" data-details></div>
   </div>
 </div>
+<div class="voile-page" id="voile-page" aria-hidden="true"><span>NOCELLI</span></div>
 
 <dialog class="guide" id="guide" aria-labelledby="guide-titre">
   <div class="guide-in">
@@ -744,7 +755,10 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       return module;
     }
     // quitter la salle vers une page : fondu, puis la page
-    function allerVers(u){salle.classList.remove('visible');setTimeout(function(){location.href=u;},reduit?0:600);}
+    // quitter la salle vers une page : un voile ivoire (le fond des pages) recouvre tout, puis la page s'ouvre ;
+    // la salle reste affichée dessous, pour qu'on ne revoie jamais la vidéo du coffre entre les deux
+    var voilePage=document.getElementById('voile-page');
+    function allerVers(u){voilePage.classList.add('actif');setTimeout(function(){location.href=u;},reduit?0:420);}
     // la salle se construit en coulisses dès que la porte est ouverte : au clic, tout est déjà prêt (pas d'à-coup)
     var prete=null;
     function preparer(){
@@ -793,7 +807,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       var v=vue3d;vue3d=null;
       if(!depuisHistorique&&history.state&&history.state.coffre){try{history.back();}catch(e){}}
       v.quitter(function(){
-        salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';
+        salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';document.documentElement.classList.remove('vers-armadio');
         setTimeout(function(){v.arreter();dedans=false;seuil.focus({preventScroll:true});},reduit?0:1000);
       });
     }
@@ -841,7 +855,8 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     }
     addEventListener('popstate',function(){if(vue3d)sortir(true);});
     // retour depuis la fiche de la pièce : on retrouve la page d'accueil normale
-    addEventListener('pageshow',function(e){if(e.persisted&&location.hash==='#coffre'){salle.classList.remove('visible');heroEl.classList.remove('plonge');body.style.overflow='';dedans=false;if(vue3d){vue3d.arreter();vue3d=null;}}});
+    // retour du navigateur depuis une pièce : la salle est restée affichée sous le voile, on la retrouve telle quelle
+    addEventListener('pageshow',function(e){if(e.persisted)voilePage.classList.remove('actif');});
     if(location.hash==='#coffre')try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
     // « Revenir à l'Armadio » depuis une pièce : la porte est déjà ouverte, on rentre directement dans la salle
     if(location.hash==='#armadio'){
@@ -849,7 +864,20 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       coffre.removeAttribute('autoplay');coffre.pause();coffre.poster='img/coffre-fin.jpg';
       var finVideo=function(){try{coffre.currentTime=coffre.duration||999;}catch(e){}};
       if(coffre.readyState>=1)finVideo();else coffre.addEventListener('loadedmetadata',finVideo,{once:true});
-      ouvrirSeuil();preparer().then(entrer).catch(function(){});
+      // la salle couvre la page tout de suite (sans fondu) et la 3D démarre déjà sur place, sans le trajet
+      dedans=true;salle.hidden=false;salle.classList.add('direct','visible');body.style.overflow='hidden';
+      ouvrirSeuil();
+      preparer().then(function(v){
+        vue3d=v;v.demarrer(true);
+        try{history.pushState({coffre:1},'','#coffre');}catch(e){}
+        // deux images de rendu, puis le voile ivoire se dissout lentement sur l'armoire
+        requestAnimationFrame(function(){requestAnimationFrame(function(){
+          salle.classList.remove('direct');
+          voilePage.style.transition='opacity .8s cubic-bezier(.4,0,.2,1),visibility 0s linear .8s';
+          document.documentElement.classList.remove('vers-armadio');
+          setTimeout(function(){voilePage.style.transition='';},900);
+        });});
+      }).catch(function(){location.href='cardigan-noce.html';});
     }
   }
 

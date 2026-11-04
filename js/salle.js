@@ -618,8 +618,9 @@ export async function ouvrir(o) {
   if (composer) composer.render(); else renderer.render(scene, camera);
 
   return {
-    demarrer: function () {
-      entree = reduit ? 1 : 0; sortie = -1; finSortie = null; balayage = tactile && !reduit ? 0 : -1; dernier = null;
+    // direct : on atterrit dans la salle sans le trajet à travers la porte (retour depuis une pièce)
+    demarrer: function (direct) {
+      entree = reduit || direct ? 1 : 0; sortie = -1; finSortie = null; balayage = tactile && !reduit && !direct ? 0 : -1; dernier = null;
       tiroirs.forEach(function (t) { t.ouvert = false; t.t = 0; t.groupe.position.z = 0; }); tiroirOuvert = tiroirVu = tiroirSurvol = null;
       regard.yaw = regard.pitch = regard.cy = regard.cp = 0; souris.set(0, 0);
       horloge.start(); if (!raf) boucle();

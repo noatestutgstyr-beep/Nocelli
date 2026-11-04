@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Le Cardigan Noce · Nocelli</title>
+<script>/* Depuis l'Armadio : la page apparaît en fondu depuis l'ivoire, et s'y efface au retour */if(/[?&]depuis=armadio\b/.test(location.search))document.documentElement.classList.add('depuis-armadio');addEventListener('pageshow',function(e){if(e.persisted)document.documentElement.classList.remove('vers-armadio');});</script>
+<style>html.depuis-armadio body{animation:apparition .55s ease backwards}@keyframes apparition{from{opacity:0}}html.vers-armadio body{opacity:0;transition:opacity .38s ease}html.depuis-armadio,html.vers-armadio{background:#F7F3EC}</style>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Le Cardigan Noce de Nocelli : mérinos extrafin, 50 pièces numérotées au col, CHF 139. Ouverture le mardi 1er décembre à 19h00, heure suisse.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -478,8 +480,9 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
 
 <div class="wrap retour"><a href="index.html" data-retour>Accueil</a></div>
 <script>
-// Arrivé depuis l'Armadio (la salle du coffre) : le retour y ramène directement
-(function(){var a=document.querySelector('[data-retour]');if(a&&/[?&]depuis=armadio\b/.test(location.search)){a.href='index.html#armadio';a.textContent='Revenir à l\'Armadio';}})();
+// Arrivé depuis l'Armadio (la salle du coffre) : le retour y ramène directement, en fondu ivoire
+(function(){var a=document.querySelector('[data-retour]');if(a&&/[?&]depuis=armadio\b/.test(location.search)){a.href='index.html#armadio';a.textContent='Revenir à l\'Armadio';
+  a.addEventListener('click',function(e){e.preventDefault();document.documentElement.classList.add('vers-armadio');setTimeout(function(){location.href=a.href;},380);});}})();
 </script>
 <main id="haut" class="page-produit">
   <section class="piece" id="piece">
