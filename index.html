@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nocelli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Nocelli, pièces en séries numérotées. La collection d'automne sort le mardi 1er décembre à 19h00, heure suisse. Inscription par e-mail pour commander.">
+<meta name="description" content="Nocelli, pièces en séries numérotées. Inscription par e-mail pour commander.">
 <script>/* Retour vers l'Armadio : le voile ivoire couvre la page dès le premier instant, puis s'efface sur la salle */if(location.hash==="#armadio")document.documentElement.classList.add("vers-armadio");</script>
 <style>html.vers-armadio,html.vers-armadio body{background:#F7F3EC}html.vers-armadio header,html.vers-armadio main,html.vers-armadio footer,html.vers-armadio .barre{visibility:hidden}html.vers-armadio .voile-page{opacity:1;visibility:visible;transition:none}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
@@ -524,7 +524,7 @@ html.vers-armadio .voile-page span{animation:voile-souffle 2s ease-in-out .3s in
     <li><a href="club.html">Private Club</a></li>
     <li><a href="panier.html" data-panier>Panier</a></li>
   </ul>
-  <p>Radici · Ouverture le 1er décembre</p>
+  <p>Radici · Prochainement</p>
 </div>
 
 <main id="haut">
@@ -543,16 +543,6 @@ html.vers-armadio .voile-page span{animation:voile-souffle 2s ease-in-out .3s in
       <div class="actions">
         <a class="btn clair" href="inscription.html">M'inscrire</a>
         <a class="lien" href="#collection">Découvrir la collection</a>
-      </div>
-      <div class="compte" data-compte>
-        <div class="compte-tete"><span class="eyebrow">Ouverture</span><span class="compte-date">Mardi 1er décembre · 19h00, heure suisse</span></div>
-        <div class="compte-grille" role="timer" aria-live="off">
-          <div><b data-u="j">--</b><span>Jours</span></div>
-          <div><b data-u="h">--</b><span>Heures</span></div>
-          <div><b data-u="m">--</b><span>Minutes</span></div>
-          <div><b data-u="s">--</b><span>Secondes</span></div>
-        </div>
-        <p class="compte-fin" hidden>La collection d'automne est ouverte.</p>
       </div>
     </div>
   </section>
@@ -921,7 +911,7 @@ html.vers-armadio .voile-page span{animation:voile-souffle 2s ease-in-out .3s in
       c.querySelector('[data-u=s]').textContent=deux(sec);
     });
     var pre=barreTxt&&barreTxt.getAttribute('data-prefixe')||'CHF 139';
-    if(barreTxt)barreTxt.textContent=r===0?pre+' · Ouvert':pre+' · J-'+(j+(h||m||sec?1:0));
+    if(barreTxt)barreTxt.textContent=pre;
     if(r===0)clearInterval(timer);
   }
   var timer=setInterval(tick,1000);tick();

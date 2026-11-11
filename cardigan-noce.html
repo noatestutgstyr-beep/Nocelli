@@ -7,7 +7,7 @@
 <script>/* Depuis l'Armadio : la page apparaît en fondu depuis l'ivoire, et s'y efface au retour */if(/[?&]depuis=armadio\b/.test(location.search))document.documentElement.classList.add('depuis-armadio');addEventListener('pageshow',function(e){if(e.persisted)document.documentElement.classList.remove('vers-armadio');});</script>
 <style>html.depuis-armadio body{animation:apparition .55s ease backwards}@keyframes apparition{from{opacity:0}}html.vers-armadio body{opacity:0;transition:opacity .38s ease}html.depuis-armadio,html.vers-armadio{background:#F7F3EC}</style>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Le Cardigan Noce de Nocelli : mérinos extrafin, 50 pièces numérotées au col, CHF 139. Ouverture le mardi 1er décembre à 19h00, heure suisse.">
+<meta name="description" content="Le Cardigan Noce de Nocelli : mérinos extrafin, 50 pièces numérotées au col, CHF 139.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="club/cartes.css">
@@ -475,7 +475,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
     <li><a href="club.html">Private Club</a></li>
     <li><a href="panier.html" data-panier>Panier</a></li>
   </ul>
-  <p>Radici · Ouverture le 1er décembre</p>
+  <p>Radici · Prochainement</p>
 </div>
 
 <div class="wrap retour"><a href="index.html" data-retour>Accueil</a></div>
@@ -545,7 +545,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
           </details>
           <details>
             <summary>Livraison</summary>
-            <p class="texte">Le 1er décembre à 19h00, les inscrits reçoivent le lien de commande par e-mail. Paiement par carte ou TWINT, livraison en Suisse 4 à 6 semaines après l'ouverture. Prix en CHF, TVA incluse.</p>
+            <p class="texte">À l'ouverture, les inscrits reçoivent le lien de commande par e-mail en premier. Paiement par carte ou TWINT, livraison en Suisse 4 à 6 semaines après l'ouverture. Prix en CHF, TVA incluse.</p>
           </details>
         </div>
       </div>
@@ -590,7 +590,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       <p>Trois tailles, S, M et L. Les membres inscrits reçoivent le lien de commande en premier.</p>
       <ol class="etapes">
         <li><b>I.</b><strong>Votre panier</strong><span>Créez votre compte et ajoutez votre taille au panier. C'est gratuit et sans engagement.</span></li>
-        <li><b>II.</b><strong>L'ouverture</strong><span>Mardi 1er décembre à 19h00, heure suisse. Vous recevez le lien en premier.</span></li>
+        <li><b>II.</b><strong>L'ouverture</strong><span>La date est annoncée d'abord aux inscrits. Vous recevez le lien en premier.</span></li>
         <li><b>III.</b><strong>Votre numéro</strong><span>Cinquante pièces au total, livrées en Suisse 4 à 6 semaines après l'ouverture.</span></li>
       </ol>
     </div>
@@ -829,7 +829,7 @@ footer{background:var(--avorio);padding-block:76px 40px;border-top:1px solid var
       c.querySelector('[data-u=s]').textContent=deux(sec);
     });
     var pre=barreTxt&&barreTxt.getAttribute('data-prefixe')||'CHF 139';
-    if(barreTxt)barreTxt.textContent=r===0?pre+' · Ouvert':pre+' · J-'+(j+(h||m||sec?1:0));
+    if(barreTxt)barreTxt.textContent=pre;
     if(r===0)clearInterval(timer);
   }
   var timer=setInterval(tick,1000);tick();
